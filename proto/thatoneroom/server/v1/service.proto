@@ -5,4 +5,57 @@ option go_package = "github.com/petomalina/thatoneroom/server/pkg/api/thatoneroo
 
 
 service ServerService {
+  rpc Connect (ConnectRequest) returns (ConnectResponse) {}
+  rpc Stream (stream Request) returns (stream Response) {}
+}
+
+message ConnectRequest {
+}
+
+message ConnectResponse {
+}
+
+message Request {
+  oneof action {
+    Move move = 1;
+  }
+}
+
+message Response {
+  oneof action {
+    UpdateEntity updateEntity = 2;
+  }
+}
+
+enum Direction {
+  UP = 0;
+  DOWN = 1;
+  LEFT = 2;
+  RIGHT = 3;
+  STOP = 4;
+}
+
+message Move {
+  Direction direction = 1;
+}
+
+message Entity {
+  oneof entity {
+    Player player = 1;
+  }
+}
+
+message Player {
+  string id = 1;
+  string name = 2;
+  Coordinate position = 3;
+}
+
+message Coordinate {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message UpdateEntity {
+  Entity entity = 1;
 }
