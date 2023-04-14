@@ -32,20 +32,16 @@ export class GameLogic {
 
   handleMessage(data: any) {
     switch (data.type) {
-      case "authentication":
+      case "server_authenticate":
         this.handleAuthentication(data);
         break;
 
-      case "addPlayer":
-        this.addPlayer(data.playerId);
+      case "server_add_player":
+        this.handleAddPlayer(data.playerId);
         break;
 
-      case "movePlayer":
-        this.movePlayer(data.playerId, data.x, data.y);
-        break;
-        
-      case "moveSelf":
-        this.moveSelf(data.x, data.y);
+      case "server_move_player":
+        this.handleMovePlayer(data.playerId, data.x, data.y);
         break;
     }
   }
@@ -60,9 +56,7 @@ export class GameLogic {
     this.authenticated = true;
   }
 
-  addPlayer(playerId: string) {}
+  handleAddPlayer(playerId: string) {}
 
-  movePlayer(playerId: string, x: number, y: number) {}
-
-  moveSelf(x: number, y: number) {}
+  handleMovePlayer(playerId: string, x: number, y: number) {}
 }

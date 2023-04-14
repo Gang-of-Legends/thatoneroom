@@ -35,6 +35,19 @@ func NewServerAuthenticate(success bool, token string, id string) Message[Server
 	}
 }
 
+type ServerAddPlayer struct {
+	ID string `json:"id"`
+}
+
+func NewServerAddPlayer(id string) Message[ServerAddPlayer] {
+	return Message[ServerAddPlayer]{
+		Type: "server_add_player",
+		Data: ServerAddPlayer{
+			ID: id,
+		},
+	}
+}
+
 type PlayerMove struct {
 	X int `json:"x"`
 	Y int `json:"y"`
