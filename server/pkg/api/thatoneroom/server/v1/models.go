@@ -1,5 +1,7 @@
 package serverv1
 
+import "encoding/json"
+
 type Message[T any] struct {
 	Type string `json:"type"`
 	Data T      `json:"data"`
@@ -55,7 +57,7 @@ type PlayerMove struct {
 
 func NewPlayerMove(x int, y int) Message[PlayerMove] {
 	return Message[PlayerMove]{
-		Type: "player_move_request",
+		Type: "player_move",
 		Data: PlayerMove{
 			X: x,
 			Y: y,
@@ -72,11 +74,44 @@ type ServerMove struct {
 
 func NewServerMove(id string, x int, y int) Message[ServerMove] {
 	return Message[ServerMove]{
-		Type: "server_move_player",
+		Type: "server_move",
 		Data: ServerMove{
 			ID: id,
 			X:  x,
 			Y:  y,
 		},
 	}
+}
+
+type MessageHandler interface {
+	HandleAuthenticate(data Message[PlayerAuthenticate])
+	HandleMove(data Message[PlayerMove])
+	HandleAddPlayer(data Message[ServerAddPlayer])
+}
+
+func handleMessage(bb []byte, handler MessageHandler) error {
+	var msg Message[any]
+	err := json.Unmarshal(bb, &msg)
+	if err != nil {
+		return err
+	}
+
+	switch msg.Type {
+	case "player_authenticate":
+		var data Message[PlayerAuthenticate]
+		_ = json.Unmarshal(bb, &data)
+		handler.HandleAuthenticate(data)
+
+	case "player_move":
+		var data Message[PlayerMove]
+		_ = json.Unmarshal(bb, &data)
+		handler.HandleMove(data)
+
+	case "server_add_player":
+		var data Message[ServerAddPlayer]
+		_ = json.Unmarshal(bb, &data)
+		handler.HandleAddPlayer(data)
+	}
+
+	return nil
 }
