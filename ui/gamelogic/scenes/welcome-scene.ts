@@ -9,6 +9,6 @@ export class WelcomeScene extends Phaser.Scene {
     }
 
     create(): void {
-        this.sound.play(Sounds.Theme);
+        this.sound.play(Sounds.Theme, { loop: true });
     }
 }
