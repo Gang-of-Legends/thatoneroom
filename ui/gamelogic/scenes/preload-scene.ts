@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Images, Scenes, Sounds } from "../enums";
+import { Images, Maps, Scenes, Sounds, Spritesheets } from "../enums";
 
 export class PreloadScene extends Phaser.Scene {
     //title: Phaser.GameObjects.Text;
@@ -73,7 +73,16 @@ export class PreloadScene extends Phaser.Scene {
             assetText.destroy();
         });
 
-        this.load.image(Images.Tiles, 'assets/gamejam-brno-tiles.png');
+        /* Images */
+        this.load.image(Images.Tiles, 'assets/tiles.png');
+        
+        /* Spritesheets */
+        this.load.spritesheet(Spritesheets.Main, 'assets/spritesheet.png', { frameWidth: 16, frameHeight: 16 })
+
+        /* Maps */
+        this.load.tilemapTiledJSON(Maps.TestMap1, 'assets/TestMap1.json');
+
+        /* Sounds */
         this.load.audio(Sounds.Theme, 'assets/soundtrack.mp3');
     }
 
