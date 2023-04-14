@@ -86,7 +86,6 @@ func NewServerMove(id string, x int, y int) Message[ServerMove] {
 type MessageHandler interface {
 	HandleAuthenticate(data Message[PlayerAuthenticate])
 	HandleMove(data Message[PlayerMove])
-	HandleAddPlayer(data Message[ServerAddPlayer])
 }
 
 func handleMessage(bb []byte, handler MessageHandler) error {
@@ -106,11 +105,6 @@ func handleMessage(bb []byte, handler MessageHandler) error {
 		var data Message[PlayerMove]
 		_ = json.Unmarshal(bb, &data)
 		handler.HandleMove(data)
-
-	case "server_add_player":
-		var data Message[ServerAddPlayer]
-		_ = json.Unmarshal(bb, &data)
-		handler.HandleAddPlayer(data)
 	}
 
 	return nil
