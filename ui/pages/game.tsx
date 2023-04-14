@@ -1,57 +1,45 @@
 import React, { useEffect, useState } from "react";
-import {Game as GameType } from "phaser";
-import { init } from "next/dist/compiled/@vercel/og/satori";
-
-import { useClientV1 } from "@/api/client";
+import { Game as GameType } from "phaser";
+import { GameLogic } from "@/gamelogic/instance";
 
 export default function Game() {
-    const [game, setGame] = useState<GameType>();
-    const client = useClientV1();
+  const [logic, setLogic] = useState<GameLogic>();
 
-    useEffect(() => {
-        async function clientTest() {
-            if (!client) {
-                return;
-            }
-            try {
-                const msg = await client.connect({});
-                console.log(msg.id)
-            } catch(e) {
-                console.log(e)
-            }
-        }
-        clientTest();
-    }, [client]);
+  useEffect(() => {
+    async function initGame() {
+      const Phaser = await import("phaser");
 
-    useEffect(() => {
-        async function initGame() {
-            const Phaser = await import("phaser");
+      const phaserGame = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: "game",
+        width: 800,
+        height: 600,
+        pixelArt: true,
+        physics: {
+          default: "arcade",
+          arcade: {
+            gravity: { y: 200 },
+          },
+        },
+        scene: [],
+        backgroundColor: "#000033",
+      });
 
-            const phaserGame = new Phaser.Game({
-                type: Phaser.AUTO,
-                parent: "game",
-                width: 800,
-                height: 600,
-                pixelArt: true,
-                physics: {
-                    default: "arcade",
-                    arcade: {
-                        gravity: { y: 200 },
-                    },
-                },
-                scene: [],
-                backgroundColor: "#000033",
-            });
+      console.log('initialising game logic');
+      const logic = new GameLogic(phaserGame);
+      setLogic(logic);
+    }
 
-            setGame(phaserGame);
-        }
+    initGame();
+  }, []);
 
-        initGame();
-    }, []);
+  if (!logic) {
+    return <div>loading...</div>;
+  }
 
-    return (
-        <>
-            <div id="game" key="game"></div>
-        </>
-    )
+  return (
+    <>
+      <div id="game" key="game"></div>
+    </>
+  );
 }
