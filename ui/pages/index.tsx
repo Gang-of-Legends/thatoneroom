@@ -7,7 +7,7 @@ const Game = dynamic(
 
 export default function Home() {
     return (
-    <main className="flex items-center justify-center h-screen space-x-1">
+    <main>
       <Game></Game>
     </main>
   );
