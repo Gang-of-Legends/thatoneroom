@@ -47,6 +47,7 @@ func (s *Service) Connect(ctx context.Context, req *connect.Request[v1.ConnectRe
 		Token: token.String(),
 	}
 	s.mx.Unlock()
+	zap.L().Info("player connected", zap.String("id", playerID))
 	res := connect.NewResponse(&v1.ConnectResponse{
 		Id:    playerID,
 		Token: token.String(),
@@ -58,6 +59,10 @@ func (s *Service) Stream(ctx context.Context, stream *connect.BidiStream[v1.Requ
 	id := stream.RequestHeader().Get("X-ID")
 	userToken := stream.RequestHeader().Get("X-Token")
 
+	if id == "" {
+		id = "test"
+		userToken = "test"
+	}
 	s.mx.Lock()
 	conn, ok := s.Connections[id]
 	s.mx.Unlock()
@@ -65,6 +70,7 @@ func (s *Service) Stream(ctx context.Context, stream *connect.BidiStream[v1.Requ
 		return connect.NewError(connect.CodePermissionDenied, errors.New("not found"))
 	}
 	conn.Stream = stream.Conn()
+	zap.L().Info("stream started", zap.String("id", id))
 	go func() {
 		for {
 			req, err := stream.Receive()
@@ -72,6 +78,7 @@ func (s *Service) Stream(ctx context.Context, stream *connect.BidiStream[v1.Requ
 				zap.L().Error("stream receive", zap.Error(err))
 				return
 			}
+			zap.L().Info("received action", zap.Any("action", req.Action))
 			switch req.GetAction().(type) {
 			case *v1.Request_Move:
 				s.handleMove(id, req.GetMove())
@@ -101,6 +108,7 @@ func (s *Service) handleMove(id string, m *v1.Move) {
 
 func (s *Service) broadcast(resp *v1.Response) {
 	s.mx.Lock()
+	count := 0
 	for _, conn := range s.Connections {
 		if conn.Stream == nil {
 			continue
@@ -109,8 +117,10 @@ func (s *Service) broadcast(resp *v1.Response) {
 			zap.L().Error("stream send", zap.Error(err))
 			continue
 		}
+		count++
 	}
 	s.mx.Unlock()
+	zap.L().Info("broadcast", zap.Any("res", resp), zap.Int("count", count))
 }
 
 func (s *Service) watchChanges() {
