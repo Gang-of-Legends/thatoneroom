@@ -12,8 +12,8 @@ export default function Game() {
       const phaserGame = new Phaser.Game({
         type: Phaser.AUTO,
         parent: "game",
-        width: 800,
-        height: 600,
+        width: 1280,
+        height: 720,
         pixelArt: true,
         physics: {
           default: "arcade",

@@ -84,6 +84,7 @@ export class PreloadScene extends Phaser.Scene {
 
         /* Sounds */
         this.load.audio(Sounds.Theme, 'assets/soundtrack.mp3');
+        this.load.audio(Sounds.Jump, 'assets/jump.mp3');
     }
 
     create() {

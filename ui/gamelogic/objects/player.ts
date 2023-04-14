@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Spritesheets } from "../enums";
+import { Sounds, Spritesheets } from "../enums";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     private isWalking: boolean;
@@ -32,6 +32,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             up: UP,
             space: Phaser.Input.Keyboard.KeyCodes.SPACE
         });
+
+        this.anims.create({
+            key: 'walk',
+            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 12, 13, 14, 15 ] }),
+            frameRate: 8,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 8, 9 ] }),
+            frameRate: 8,
+            repeat: -1
+        });
     }
 
     walkRight() {
@@ -41,6 +55,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.setFlipX(false);
             this.isIdling = false;
             if (!this.isWalking && !this.isJumping) {
+                this.play('walk');
                 this.isWalking = true;
             };
         }
@@ -53,6 +68,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.setFlipX(true);
             this.isIdling = false;
             if (!this.isWalking && !this.isJumping) {
+                this.play('walk');
                 this.isWalking = true;
             }
         }
@@ -65,6 +81,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.isJumping = true;
             this.isIdling = false;
             this.isWalking = false;
+            this.scene.sound.play(Sounds.Jump);
         }
     }
 
@@ -73,6 +90,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (!this.isJumping && !this.isIdling && !this.isDead) {
             this.isIdling = true;
             this.isWalking = false;
+            this.play('idle');
         }
     }
 
