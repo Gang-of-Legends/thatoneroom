@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/petomalina/thatoneroom/server/pkg/api/thatoneroom/server/v1/serverv1connect"
 	"github.com/petomalina/thatoneroom/server/pkg/server"
+	"github.com/rs/cors"
 	"go.uber.org/zap"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -24,9 +25,10 @@ func main() {
 	zap.ReplaceGlobals(logger)
 	addr := defaultEnvOr("ADDR", "localhost:8080")
 	mux := http.NewServeMux()
-	svc := &server.Service{}
-	path, handler := serverv1connect.NewServerServiceHandler(svc)
-	mux.Handle(path, handler)
+	svc := server.NewService()
+	path, handler := serverv1connect.NewServerServiceHandler(svc
+	c := cors.AllowAll()
+	mux.Handle(path, c.Handler(handler))
 	zap.L().Info("listening", zap.String("addr", addr))
 	if err := http.ListenAndServe(
 		addr,

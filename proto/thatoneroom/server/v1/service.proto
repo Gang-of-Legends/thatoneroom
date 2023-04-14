@@ -13,6 +13,8 @@ message ConnectRequest {
 }
 
 message ConnectResponse {
+  string id = 1;
+  string token = 2;
 }
 
 message Request {
