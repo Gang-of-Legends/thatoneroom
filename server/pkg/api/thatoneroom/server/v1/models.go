@@ -5,29 +5,29 @@ type Message[T any] struct {
 	Data T      `json:"data"`
 }
 
-type AuthenticationRequest struct {
+type PlayerAuthenticate struct {
 	Token string `json:"token"`
 }
 
-func NewAuthenticationRequest(token string) Message[AuthenticationRequest] {
-	return Message[AuthenticationRequest]{
-		Type: "authentication_request",
-		Data: AuthenticationRequest{
+func NewPlayerAuthenticate(token string) Message[PlayerAuthenticate] {
+	return Message[PlayerAuthenticate]{
+		Type: "player_authenticate",
+		Data: PlayerAuthenticate{
 			Token: token,
 		},
 	}
 }
 
-type AuthenticationResponse struct {
+type ServerAuthenticate struct {
 	Success bool   `json:"success"`
 	Token   string `json:"token"`
 	ID      string `json:"id"`
 }
 
-func NewAuthenticationResponse(success bool, token string, id string) Message[AuthenticationResponse] {
-	return Message[AuthenticationResponse]{
-		Type: "authentication_response",
-		Data: AuthenticationResponse{
+func NewServerAuthenticate(success bool, token string, id string) Message[ServerAuthenticate] {
+	return Message[ServerAuthenticate]{
+		Type: "server_authenticate",
+		Data: ServerAuthenticate{
 			Success: success,
 			Token:   token,
 			ID:      id,
