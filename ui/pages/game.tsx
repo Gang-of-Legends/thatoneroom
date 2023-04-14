@@ -36,6 +36,8 @@ export default function Game() {
     return <div className="flex items-center justify-center h-screen space-x-1">loading...</div>;
   }
 
+  logic.connect();
+
   return (
     <>
       <div id="game" key="game"></div>

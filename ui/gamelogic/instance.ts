@@ -28,11 +28,10 @@ export class GameLogic {
     try {
       const res = await this.client.connect({});
       console.log(res.id);
+      this.connected = true;
 
       const iterable = createWritableIterable<PartialMessage<Request>>();
-      const stream = this.client.stream(iterable)
-
-      this.connected = true;
+      this.messageStream = iterable;
     } catch (e) {
       console.log(e);
     }
