@@ -10,8 +10,15 @@ export default function Game() {
 
     useEffect(() => {
         async function clientTest() {
-            const id = await client?.connect({});
-            console.log(id)
+            if (!client) {
+                return;
+            }
+            try {
+                const msg = await client.connect({});
+                console.log(msg.id)
+            } catch(e) {
+                console.log(e)
+            }
         }
         clientTest();
     }, [client]);

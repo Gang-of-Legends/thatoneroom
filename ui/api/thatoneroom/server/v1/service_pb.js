@@ -32,7 +32,10 @@ export const ConnectRequest = proto3.makeMessageType(
  */
 export const ConnectResponse = proto3.makeMessageType(
   "thatoneroom.server.v1.ConnectResponse",
-  [],
+  () => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ],
 );
 
 /**

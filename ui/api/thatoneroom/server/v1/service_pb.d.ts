@@ -59,6 +59,16 @@ export declare class ConnectRequest extends Message<ConnectRequest> {
  * @generated from message thatoneroom.server.v1.ConnectResponse
  */
 export declare class ConnectResponse extends Message<ConnectResponse> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string token = 2;
+   */
+  token: string;
+
   constructor(data?: PartialMessage<ConnectResponse>);
 
   static readonly runtime: typeof proto3;
