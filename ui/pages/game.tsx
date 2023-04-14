@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GameLogic } from "@/gamelogic/instance";
+import { PreloadScene, WelcomeScene } from "@/gamelogic/scenes";
 
 export default function Game() {
   const [logic, setLogic] = useState<GameLogic>();
@@ -20,7 +21,7 @@ export default function Game() {
             gravity: { y: 200 },
           },
         },
-        scene: [],
+        scene: [PreloadScene, WelcomeScene],
         backgroundColor: "#000033",
       });
 
