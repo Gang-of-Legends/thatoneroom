@@ -85,10 +85,10 @@ func NewServerMove(id string, x int, y int) Message[ServerMove] {
 
 type MessageHandler interface {
 	HandleAuthenticate(data Message[PlayerAuthenticate])
-	HandleMove(data Message[PlayerMove])
+	//HandleMove(data Message[PlayerMove])
 }
 
-func handleMessage(bb []byte, handler MessageHandler) error {
+func HandleMessage(bb []byte, handler MessageHandler) error {
 	var msg Message[any]
 	err := json.Unmarshal(bb, &msg)
 	if err != nil {
@@ -104,7 +104,7 @@ func handleMessage(bb []byte, handler MessageHandler) error {
 	case "player_move":
 		var data Message[PlayerMove]
 		_ = json.Unmarshal(bb, &data)
-		handler.HandleMove(data)
+		//handler.HandleMove(data)
 	}
 
 	return nil
