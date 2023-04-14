@@ -27,7 +27,7 @@ export default function Game() {
 
             setGame(phaserGame);
         }
-        
+
         initGame();
     }, []);
 

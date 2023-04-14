@@ -3,12 +3,33 @@
 /* eslint-disable */
 // @ts-nocheck
 
+import { ConnectRequest, ConnectResponse, Request, Response } from "./service_pb.js";
+import { MethodKind } from "@bufbuild/protobuf";
+
 /**
  * @generated from service thatoneroom.server.v1.ServerService
  */
 export const ServerService = {
   typeName: "thatoneroom.server.v1.ServerService",
   methods: {
+    /**
+     * @generated from rpc thatoneroom.server.v1.ServerService.Connect
+     */
+    connect: {
+      name: "Connect",
+      I: ConnectRequest,
+      O: ConnectResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc thatoneroom.server.v1.ServerService.Stream
+     */
+    stream: {
+      name: "Stream",
+      I: Request,
+      O: Response,
+      kind: MethodKind.BiDiStreaming,
+    },
   }
 } as const;
 
