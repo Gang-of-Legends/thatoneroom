@@ -34,7 +34,7 @@ export default function Game() {
   }, []);
 
   if (!logic) {
-    return <div>loading...</div>;
+    return <div className="flex items-center justify-center h-screen space-x-1">loading...</div>;
   }
 
   return (
