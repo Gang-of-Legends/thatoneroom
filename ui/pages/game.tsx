@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Game as GameType } from "phaser";
 import { GameLogic } from "@/gamelogic/instance";
 
 export default function Game() {

@@ -1,12 +1,18 @@
 import { ServerService } from "@/api/thatoneroom/server/v1/service_connect";
+import { Request } from "@/api/thatoneroom/server/v1/service_pb";
 import { PromiseClient, createPromiseClient } from "@bufbuild/connect";
 import { useState } from "react";
 import Phaser from "phaser";
 import { createConnectTransport } from "@bufbuild/connect-web";
+import { WritableIterable, createWritableIterable } from "@bufbuild/connect/protocol";
+import { PartialMessage } from "@bufbuild/protobuf";
 
 export class GameLogic {
   client: PromiseClient<typeof ServerService>;
   game: Phaser.Game;
+  messageStream: WritableIterable<PartialMessage<Request>> | undefined;
+
+  connected: boolean = false;
 
   constructor(game: Phaser.Game) {
     this.game = game;
@@ -18,11 +24,29 @@ export class GameLogic {
     this.client = createPromiseClient(ServerService, transport);
   }
 
-  Connect() {}
+  async connect() {
+    try {
+      const res = await this.client.connect({});
+      console.log(res.id);
 
-  AddPlayer(playerId: string) {}
+      const iterable = createWritableIterable<PartialMessage<Request>>();
+      const stream = this.client.stream(iterable)
 
-  MovePlayer(playerId: string, x: number, y: number) {}
+      this.connected = true;
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
-  MoveSelf(x: number, y: number) {}
+  async sendRequest(request: Request) {
+    if (this.messageStream) {
+      this.messageStream.write(request);
+    }
+  }
+
+  addPlayer(playerId: string) {}
+
+  movePlayer(playerId: string, x: number, y: number) {}
+
+  moveSelf(x: number, y: number) {}
 }
