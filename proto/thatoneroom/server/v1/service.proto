@@ -1,0 +1,8 @@
+syntax = "proto3";
+package thatoneroom.server.v1;
+
+option go_package = "github.com/petomalina/thatoneroom/server/pkg/api/thatoneroom/server/v1;server";
+
+
+service ServerService {
+}
