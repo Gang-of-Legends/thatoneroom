@@ -26,7 +26,7 @@ func main() {
 	addr := defaultEnvOr("ADDR", "localhost:8080")
 	mux := http.NewServeMux()
 	svc := server.NewService()
-	path, handler := serverv1connect.NewServerServiceHandler(svc
+	path, handler := serverv1connect.NewServerServiceHandler(svc)
 	c := cors.AllowAll()
 	mux.Handle(path, c.Handler(handler))
 	zap.L().Info("listening", zap.String("addr", addr))
