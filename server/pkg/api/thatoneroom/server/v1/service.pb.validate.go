@@ -549,7 +549,34 @@ func (m *Move) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Direction
+	if all {
+		switch v := interface{}(m.GetTo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MoveValidationError{
+					field:  "To",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MoveValidationError{
+					field:  "To",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MoveValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return MoveMultiError(errors)
@@ -794,8 +821,6 @@ func (m *Player) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Id
-
-	// no validation rules for Name
 
 	if all {
 		switch v := interface{}(m.GetPosition()).(type) {

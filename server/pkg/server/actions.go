@@ -17,23 +17,17 @@ type Action interface {
 }
 
 type MoveAction struct {
-	ID        string
-	Direction Direction
+	ID string
+	To Coords
 }
 
 func (a *MoveAction) Perform(game *Game) {
 	// @TODO lock
 	entity := game.Entities[a.ID]
 
-	// Move the entity.
-	switch a.Direction {
-	case DirectionUp:
-		entity.Coords.Y--
-	case DirectionDown:
-		entity.Coords.Y++
-	case DirectionLeft:
-		entity.Coords.X--
-	case DirectionRight:
-		entity.Coords.X++
-	}
+	entity.Coords = a.To
+
+	game.sendChange(MoveChange{
+		Entity: entity,
+	})
 }

@@ -7,36 +7,6 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
- * @generated from enum thatoneroom.server.v1.Direction
- */
-export declare enum Direction {
-  /**
-   * @generated from enum value: UP = 0;
-   */
-  UP = 0,
-
-  /**
-   * @generated from enum value: DOWN = 1;
-   */
-  DOWN = 1,
-
-  /**
-   * @generated from enum value: LEFT = 2;
-   */
-  LEFT = 2,
-
-  /**
-   * @generated from enum value: RIGHT = 3;
-   */
-  RIGHT = 3,
-
-  /**
-   * @generated from enum value: STOP = 4;
-   */
-  STOP = 4,
-}
-
-/**
  * @generated from message thatoneroom.server.v1.ConnectRequest
  */
 export declare class ConnectRequest extends Message<ConnectRequest> {
@@ -149,9 +119,9 @@ export declare class Response extends Message<Response> {
  */
 export declare class Move extends Message<Move> {
   /**
-   * @generated from field: thatoneroom.server.v1.Direction direction = 1;
+   * @generated from field: thatoneroom.server.v1.Coordinate to = 1;
    */
-  direction: Direction;
+  to?: Coordinate;
 
   constructor(data?: PartialMessage<Move>);
 
@@ -206,11 +176,6 @@ export declare class Player extends Message<Player> {
    * @generated from field: string id = 1;
    */
   id: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
 
   /**
    * @generated from field: thatoneroom.server.v1.Coordinate position = 3;

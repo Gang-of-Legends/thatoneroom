@@ -6,20 +6,6 @@
 import { proto3 } from "@bufbuild/protobuf";
 
 /**
- * @generated from enum thatoneroom.server.v1.Direction
- */
-export const Direction = proto3.makeEnum(
-  "thatoneroom.server.v1.Direction",
-  [
-    {no: 0, name: "UP"},
-    {no: 1, name: "DOWN"},
-    {no: 2, name: "LEFT"},
-    {no: 3, name: "RIGHT"},
-    {no: 4, name: "STOP"},
-  ],
-);
-
-/**
  * @generated from message thatoneroom.server.v1.ConnectRequest
  */
 export const ConnectRequest = proto3.makeMessageType(
@@ -64,7 +50,7 @@ export const Response = proto3.makeMessageType(
 export const Move = proto3.makeMessageType(
   "thatoneroom.server.v1.Move",
   () => [
-    { no: 1, name: "direction", kind: "enum", T: proto3.getEnumType(Direction) },
+    { no: 1, name: "to", kind: "message", T: Coordinate },
   ],
 );
 
@@ -85,7 +71,6 @@ export const Player = proto3.makeMessageType(
   "thatoneroom.server.v1.Player",
   () => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "position", kind: "message", T: Coordinate },
   ],
 );

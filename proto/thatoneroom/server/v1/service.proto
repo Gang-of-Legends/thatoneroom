@@ -29,16 +29,8 @@ message Response {
   }
 }
 
-enum Direction {
-  UP = 0;
-  DOWN = 1;
-  LEFT = 2;
-  RIGHT = 3;
-  STOP = 4;
-}
-
 message Move {
-  Direction direction = 1;
+  Coordinate to = 1;
 }
 
 message Entity {
@@ -49,7 +41,6 @@ message Entity {
 
 message Player {
   string id = 1;
-  string name = 2;
   Coordinate position = 3;
 }
 

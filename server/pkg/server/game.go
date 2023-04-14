@@ -1,7 +1,12 @@
 package server
 
+import (
+	"go.uber.org/zap"
+	"sync"
+)
+
 type Coords struct {
-	X, Y int
+	X, Y int32
 }
 type Entity struct {
 	ID     string
@@ -11,13 +16,21 @@ type Entity struct {
 type Game struct {
 	Entities      map[string]*Entity
 	ActionChannel chan Action
+	ChangeChannel chan Change
+	mx            sync.Mutex
 }
 
 func NewGame() *Game {
-	return &Game{
+	g := &Game{
 		Entities:      make(map[string]*Entity),
-		ActionChannel: make(chan Action, 64),
+		ActionChannel: make(chan Action),
+		ChangeChannel: make(chan Change),
 	}
+	g.Entities["test"] = &Entity{
+		ID:     "test",
+		Coords: Coords{0, 0},
+	}
+	return g
 }
 
 func (g *Game) Start() {
@@ -27,6 +40,19 @@ func (g *Game) Start() {
 func (g *Game) watchActions() {
 	for {
 		action := <-g.ActionChannel
+		if action == nil {
+			zap.L().Warn("nil action")
+			continue
+		}
+		g.mx.Lock()
 		action.Perform(g)
+		g.mx.Unlock()
+	}
+}
+
+func (g *Game) sendChange(change Change) {
+	select {
+	case g.ChangeChannel <- change:
+	default:
 	}
 }
