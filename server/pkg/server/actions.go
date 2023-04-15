@@ -1,32 +1,24 @@
 package server
 
-import (
-	"go.uber.org/zap"
-)
-
 type Action interface {
 	Perform(game *Game)
 }
 
 type AddPlayerAction struct {
-	ID string
+	ID   string
+	X, Y float64
 }
 
 func (a *AddPlayerAction) Perform(game *Game) {
-	var at *Coords
-	at = &Coords{
-		X: 1,
-		Y: 1,
-	}
-	if at == nil {
-		zap.L().Warn("no spawn point")
-		return
+	at := Coords{
+		X: a.X,
+		Y: a.Y,
 	}
 
 	object := &Object{
 		ID:     a.ID,
 		Type:   ObjectPlayer,
-		Coords: *at,
+		Coords: at,
 	}
 
 	game.AddObject(object)

@@ -85,7 +85,11 @@ func (s *WebSocketService) watchChanges() {
 			var msg serverv1.Message
 			switch val := change.(type) {
 			case NewPlayerChange:
-				msg = serverv1.NewServerAddPlayer(val.Object.ID)
+				msg = serverv1.NewServerAddPlayer(serverv1.ServerAddPlayer{
+					ID: val.Object.ID,
+					X:  val.Object.Coords.X,
+					Y:  val.Object.Coords.Y,
+				})
 			case MoveChange:
 				msg = serverv1.NewServerMove(val.Object.ID, val.Object.Coords.X, val.Object.Coords.Y, val.Object.State)
 			case RemovePlayerChange:
@@ -125,6 +129,8 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 	ps.S.Set("session", session)
 	s.game.ActionChannel <- &AddPlayerAction{
 		ID: id,
+		X:  data.X,
+		Y:  data.Y,
 	}
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(true, session.Token, session.ID))
 	sendMsg(ps.S, serverv1.NewServerState(s.getState()))

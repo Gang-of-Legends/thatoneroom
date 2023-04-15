@@ -13,8 +13,10 @@ const (
 )
 
 type PlayerAuthenticate struct {
-	ID    string `json:"id"`
-	Token string `json:"token"`
+	ID    string  `json:"id"`
+	Token string  `json:"token"`
+	X     float64 `json:"x"`
+	Y     float64 `json:"y"`
 }
 
 type ServerAuthenticate struct {
@@ -36,13 +38,13 @@ func NewServerAuthenticate(success bool, token string, id string) Message {
 }
 
 type ServerAddPlayer struct {
-	ID string `json:"id"`
+	ID string  `json:"id"`
+	X  float64 `json:"x"`
+	Y  float64 `json:"y"`
 }
 
-func NewServerAddPlayer(id string) Message {
-	data, _ := json.Marshal(ServerAddPlayer{
-		ID: id,
-	})
+func NewServerAddPlayer(msg ServerAddPlayer) Message {
+	data, _ := json.Marshal(msg)
 	return Message{
 		Type: "server_add_player",
 		Data: data,
