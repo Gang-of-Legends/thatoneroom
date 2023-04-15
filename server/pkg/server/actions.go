@@ -106,6 +106,10 @@ func (a *PickupItemAction) Perform(game *Game) {
 	if obj == nil {
 		return
 	}
+	objItem := game.GetObject(a.ItemID)
+	if objItem == nil {
+		return
+	}
 	found := false
 	for _, item := range obj.Inventory {
 		if item.Type == a.Type {
@@ -120,9 +124,8 @@ func (a *PickupItemAction) Perform(game *Game) {
 			Count: 1,
 		})
 	}
-
 	game.SetObject(obj)
-
+	game.RemoveObject(a.ItemID)
 	game.sendChange(PickupItemChange{
 		PlayerID: a.PlayerID,
 		ItemID:   a.ItemID,
