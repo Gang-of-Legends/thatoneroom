@@ -100,6 +100,8 @@ export class PreloadScene extends Phaser.Scene {
         this.load.audio(Sounds.HitEnemy, 'assets/hit-enemy.wav');
         this.load.audio(Sounds.PowerUp, 'assets/powerup.wav');
         this.load.audio(Sounds.GlassBottleSmash, 'assets/glass-bottle-smash.wav');
+        this.load.audio(Sounds.GlassBottleDrop, 'assets/glass-bottle-drop.ogg');
+        this.load.audio(Sounds.MolotovSmash, 'assets/molotov-smash.ogg');
     }
 
     create() {

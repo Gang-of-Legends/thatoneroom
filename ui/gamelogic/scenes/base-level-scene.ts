@@ -153,6 +153,7 @@ export class BaseLevelScene extends Phaser.Scene {
                         }
                         bottle.despawn();
                         bottle.explode();
+                        this.sound.play(Sounds.GlassBottleDrop);
 
                         setTimeout(() => {
                             bottle.setActive(false);
