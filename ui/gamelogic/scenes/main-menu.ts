@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Images, Maps, Scenes, Sounds, Spritesheets } from "../enums";
 import 'phaser-ui-tools';
 import { Button } from '../objects/ui/button';
+import { StateSprite } from '../objects/ui/state_sprite';
 
 export class MainMenuScene extends Phaser.Scene {
     constructor() {
@@ -13,7 +14,13 @@ export class MainMenuScene extends Phaser.Scene {
     create(): void {
         this.sound.play(Sounds.Theme, { loop: true });
 
-        const enterButton = new Button(this, 200, 200, Spritesheets.EnterButton, () => this.onEnterButtonClicked());
+        const connectingText = new StateSprite(this, 250, 130, Spritesheets.ConnectingText, {
+            "connecting": 0,
+            "connected": 1,
+        });
+        const enterButton = new Button(this, 250, 200, Spritesheets.EnterButton, () => this.onEnterButtonClicked());
+
+        this.add.existing(connectingText).setScale(2);
         this.add.existing(enterButton).setScale(2);
     }
 

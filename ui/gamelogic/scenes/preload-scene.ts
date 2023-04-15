@@ -79,6 +79,7 @@ export class PreloadScene extends Phaser.Scene {
         /* Spritesheets */
         this.load.spritesheet(Spritesheets.Main, 'assets/spritesheet.png', { frameWidth: 16, frameHeight: 16 })
         this.load.spritesheet(Spritesheets.EnterButton, 'assets/enter-button.png', { frameWidth: 112, frameHeight: 32 })
+        this.load.spritesheet(Spritesheets.ConnectingText, 'assets/connecting-text.png', { frameWidth: 112, frameHeight: 32 })
 
         /* Maps */
         this.load.tilemapTiledJSON(Maps.TestMap1, 'assets/TestMap1.json');
