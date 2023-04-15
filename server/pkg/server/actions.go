@@ -29,7 +29,7 @@ func (a *AddPlayerAction) Perform(game *Game) {
 		Coords: *at,
 	}
 
-	game.Objects[a.ID] = object
+	game.AddObject(object)
 
 	game.sendChange(NewPlayerChange{
 		Object: object,
@@ -42,7 +42,7 @@ type MoveAction struct {
 }
 
 func (a *MoveAction) Perform(game *Game) {
-	object := game.Objects[a.ID]
+	object := game.GetObject(a.ID)
 	if object.Coords == a.To {
 		return
 	}

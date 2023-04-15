@@ -21,7 +21,7 @@ func (c Coords) Sub(o Coords) Coords {
 }
 
 type Game struct {
-	Objects       map[string]*Object
+	objects       map[string]*Object
 	SpawnPoints   []Coords
 	ActionChannel chan Action
 	ChangeChannel chan Change
@@ -30,7 +30,7 @@ type Game struct {
 
 func NewGame(layout MapLayout) *Game {
 	g := &Game{
-		Objects:       make(map[string]*Object),
+		objects:       make(map[string]*Object),
 		ActionChannel: make(chan Action, 64),
 		ChangeChannel: make(chan Change, 64),
 	}
@@ -43,6 +43,27 @@ func NewGame(layout MapLayout) *Game {
 
 func (g *Game) Start() {
 	go g.watchActions()
+}
+
+func (g *Game) GetObject(id string) *Object {
+	g.mx.Lock()
+	defer g.mx.Lock()
+	return g.objects[id]
+}
+func (g *Game) Objects() []*Object {
+	g.mx.Lock()
+	defer g.mx.Lock()
+	objs := make([]*Object, 0, len(g.objects))
+	for _, v := range g.objects {
+		objs = append(objs, v)
+	}
+	return objs
+}
+
+func (g *Game) AddObject(obj *Object) {
+	g.mx.Lock()
+	defer g.mx.Lock()
+	g.objects[obj.ID] = obj
 }
 
 func (g *Game) watchActions() {

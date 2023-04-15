@@ -41,9 +41,6 @@ func (s *WebSocketService) Connect(m *melody.Session) {
 }
 
 func (s *WebSocketService) Disconnect(m *melody.Session) {
-	s.mx.Lock()
-	//s.sessions[id] = session
-	s.mx.Unlock()
 }
 
 func (s *WebSocketService) Message(m *melody.Session, msg []byte) {
@@ -143,12 +140,13 @@ func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMov
 func (s *WebSocketService) getState() *serverv1.ServerState {
 	s.mx.RLock()
 	defer s.mx.RUnlock()
+	objs := s.game.Objects()
 	state := &serverv1.ServerState{
-		Objects: make([]serverv1.Object, 0, len(s.game.Objects)),
+		Objects: make([]serverv1.Object, 0, len(objs)),
 	}
-	for k, v := range s.game.Objects {
+	for _, v := range objs {
 		state.Objects = append(state.Objects, serverv1.Object{
-			ID:   k,
+			ID:   v.ID,
 			Type: v.Type,
 			X:    v.Coords.X,
 			Y:    v.Coords.Y,
