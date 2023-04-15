@@ -76,10 +76,13 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
           }
       }
 
-      auth() {
+      auth(x: number, y: number) {
           this.send({
               type: PlayerMessages.Authenticate,
-              data: null
+              data: {
+                  x: x,
+                  y: y
+              }
           });
       }
 

@@ -24,7 +24,6 @@ export class BaseLevelScene extends Phaser.Scene {
         const map = this.make.tilemap({ key: this.sceneConfig.map });
         const tileset = map.addTilesetImage(Tilesets.Main, Images.Tiles);
         this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
-        this.gameLogic?.auth();
         this.addEventListeners();
 
         if (tileset !== null) {
@@ -41,6 +40,7 @@ export class BaseLevelScene extends Phaser.Scene {
             const spawn = spawns[spawnIndex];
 
             this.player = new Player(this, spawn.x ?? 0, spawn.y ?? 0);
+            this.gameLogic?.auth(this.player.x, this.player.y);
 
             this.worldLayers.forEach(layer => {
                 if (layer !== null) {
