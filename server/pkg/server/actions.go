@@ -42,6 +42,9 @@ type MoveAction struct {
 
 func (a *MoveAction) Perform(game *Game) {
 	object := game.GetObject(a.ID)
+	if object == nil {
+		return
+	}
 	if object.Coords == a.To && object.State == a.State {
 		return
 	}
@@ -89,6 +92,9 @@ type PickupItemAction struct {
 
 func (a *PickupItemAction) Perform(game *Game) {
 	obj := game.GetObject(a.PlayerID)
+	if obj == nil {
+		return
+	}
 	found := false
 	for _, item := range obj.Inventory {
 		if item.Type == a.Type {
@@ -119,6 +125,9 @@ type PlayerDeadAction struct {
 
 func (a *PlayerDeadAction) Perform(game *Game) {
 	obj := game.GetObject(a.PlayerID)
+	if obj == nil {
+		return
+	}
 	invs := obj.Inventory
 	obj.Inventory = nil
 	game.SetObject(obj)
