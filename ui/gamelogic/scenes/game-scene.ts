@@ -11,7 +11,5 @@ export class GameScene extends Phaser.Scene {
     create(): void {
         const map = this.make.tilemap({ key: "TestMap1" });
         const tileset = map.addTilesetImage('experiment1', Images.Tiles);
-
-        //
     }
 }

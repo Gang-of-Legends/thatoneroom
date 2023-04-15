@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GameLogic } from "@/gamelogic/instance";
-import { PreloadScene, WelcomeScene } from "@/gamelogic/scenes";
+import { MainMenuScene, PreloadScene, WelcomeScene } from "@/gamelogic/scenes";
 
 export default function Game() {
   const [logic, setLogic] = useState<GameLogic>();
@@ -21,7 +21,7 @@ export default function Game() {
             gravity: { y: 200 },
           },
         },
-        scene: [PreloadScene, WelcomeScene],
+        scene: [PreloadScene, MainMenuScene, WelcomeScene],
         backgroundColor: "#000033",
       });
 
@@ -36,8 +36,6 @@ export default function Game() {
   if (!logic) {
     return <div className="flex items-center justify-center h-screen space-x-1">loading...</div>;
   }
-
-  logic.connect();
 
   return (
     <>

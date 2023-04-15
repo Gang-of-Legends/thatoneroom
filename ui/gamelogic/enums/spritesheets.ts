@@ -1,3 +1,4 @@
 export enum Spritesheets {
-    Main = "spritesheets/Main"
+  Main = "spritesheets/Main",
+  EnterButton = "spritesheets/EnterButton",
 }
