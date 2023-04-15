@@ -156,7 +156,7 @@ export class BaseLevelScene extends Phaser.Scene {
                 speed: 50,
                 advance: 200,
                 blendMode: 'ADD',
-                //emitting: true
+                emitting: false
             });
 
             this.worldLayers.forEach(layer => {
