@@ -48,6 +48,28 @@ export class BaseLevelScene extends Phaser.Scene {
         return true;
     }
 
+    health = 5;
+    healthRefillTimeout: any = null;
+
+    removeHealth(): boolean {
+        this.health -= 1;
+
+        const refillAndTimeout = () => {
+            this.health += 1;
+            if (this.health < 5) {
+                this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
+            } else {
+                this.healthRefillTimeout = null;
+            }
+        }
+
+        if (!this.healthRefillTimeout) {
+            this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
+        }
+
+        return true;
+    }
+
     private sceneConfig: SceneConfig;
     gameLogic: GameLogicPlugin | null = null;
     worldLayers: (Phaser.Tilemaps.TilemapLayer| null)[] = [];
@@ -223,23 +245,41 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     bottlesStatus: Phaser.GameObjects.Text = null!;
+    healthBar: StateSprite[] = [];
 
     createUI(): void {
-        const bottles = new StateSprite(this, 0, 1, Spritesheets.Bottles, 1);
-        this.bottlesStatus = new Phaser.GameObjects.Text(this, 4, -1, '3/3', { fontSize: '16px', color: '#edebeb' });
-
         const inventoryGroup = this.add.group([]);
+
+        const bottles = new StateSprite(this, 0, 1, Spritesheets.Bottles, 1);
         inventoryGroup.add(bottles.setScale(0.5), true)
+
+        this.bottlesStatus = new Phaser.GameObjects.Text(this, 4, -1, '3/3', { fontSize: '16px', color: '#edebeb' });
         inventoryGroup.add(this.bottlesStatus.setScale(0.35), true)
+
         inventoryGroup.incX(21);
         inventoryGroup.incY(6);
 
         const healthGroup = this.add.group([]);
+        for (let i = 0; i < 5; i++) {
+            const heart = new StateSprite(this, -12 * i, 0, Spritesheets.Icons, 0).setScale(0.5);
+            this.healthBar.push(heart);
+            healthGroup.add(heart, true);
+        }
+
+        healthGroup.incX(235);
+        healthGroup.incY(7);
 
         this.updateUI();
     }
 
     updateUI(): void {
         this.bottlesStatus?.setText(`${this.bottleInventory}/3`);
+        this.healthBar.forEach((heart, index) => {
+            if (index < this.health) {
+                heart.visible = true
+            } else {
+                heart.visible = false;
+            }
+        });
     }
 }
