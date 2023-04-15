@@ -1,3 +1,4 @@
+import { Enemy } from "./enemy";
 import { Player } from "./player";
 
-export { Player };
+export { Player, Enemy };

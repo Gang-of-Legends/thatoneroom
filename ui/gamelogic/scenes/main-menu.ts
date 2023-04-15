@@ -75,9 +75,6 @@ export class MainMenuScene extends Phaser.Scene {
     if (this.gameLogic?.connected) {
       this.connectingText?.setFrame(1);
     }
-    if (!this.gameLogic?.authenticated) {
-        console.log(this.gameLogic?.id + "menu");
-    }
   }
 
   onEnterButtonClicked(): void {

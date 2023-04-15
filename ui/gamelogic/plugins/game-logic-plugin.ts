@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { ServerMessages } from "../enums";
 import { ServerAddPlayerMessage, ServerAuthenticateMessage, ServerPlayerMoveMessage } from "../models";
 import { ServerMessage } from "../models/server-message";
 
@@ -9,9 +10,11 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     authenticated: boolean = false;
     id: string | null = null;
     players: string[] = [];
+    event: Phaser.Events.EventEmitter;;
 
     constructor(pluginManager: Phaser.Plugins.PluginManager) {
         super(pluginManager);
+        this.event = new Phaser.Events.EventEmitter();
     }
 
     init() {
@@ -38,14 +41,14 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
       }
     
       handleMessage(data: ServerMessage) {
+        this.event.emit(data.type, data.data);
         switch (data.type) {
-          case "server_authenticate":
+          case ServerMessages.Authenticate:
             this.handleAuthentication(data.data as ServerAuthenticateMessage);
             break;
     
-          case "server_add_player":
+          case ServerMessages.AddPlayer:
             this.handleAddPlayer((data.data as ServerAddPlayerMessage).id);
-            this
             break;
     
           case "server_move_player":
@@ -76,16 +79,9 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
       handleAuthentication(data: ServerAuthenticateMessage) {
         this.authenticated = true;
         this.id = data.id;
-        console.log(data.id);
       }
     
-      handleAddPlayer(playerId: string) {
-          this.players.push(playerId);
-      }
+      handleAddPlayer(playerId: string) { }
     
       handleMovePlayer(playerId: string, x: number, y: number) {}
-
-      update() {
-        console.log(this.players);
-      }
 }

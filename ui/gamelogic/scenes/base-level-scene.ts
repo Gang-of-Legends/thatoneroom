@@ -1,12 +1,17 @@
 import Phaser from "phaser";
-import { Images, Tilesets } from "../enums";
+import { Images, Plugins, ServerMessages, Tilesets } from "../enums";
+import { ServerAddPlayerMessage, ServerPlayerMoveMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
-import { Player } from "../objects";
+import { Enemy, Player } from "../objects";
+import { GameLogicPlugin } from "../plugins";
 
 
 export class BaseLevelScene extends Phaser.Scene {
     player: Player;
+    enemies: Enemy[] = [];
     private sceneConfig: SceneConfig;
+    gameLogic: GameLogicPlugin | null = null;
+    worldLayers: (Phaser.Tilemaps.TilemapLayer| null)[] = [];
 
     constructor(sceneKey: string, layers: SceneConfig) {
         super({
@@ -18,14 +23,17 @@ export class BaseLevelScene extends Phaser.Scene {
     create(): void {
         const map = this.make.tilemap({ key: this.sceneConfig.map });
         const tileset = map.addTilesetImage(Tilesets.Main, Images.Tiles);
+        this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
+
+        this.addEventListeners();
 
         if (tileset !== null) {
             const backgroundLayers = this.sceneConfig.backgroundLayers
                 ? this.sceneConfig.backgroundLayers.map(layer => map.createLayer(layer, tileset, 0, 0))
                 : [];
 
-            const worldLayers = this.sceneConfig.worldLayers
-                ? this.sceneConfig.worldLayers.map(layer => map.createLayer(layer, tileset, 0, 0))
+            this.worldLayers = this.sceneConfig.worldLayers
+                ? this.sceneConfig.worldLayers.map(layer => map.createLayer(layer, tileset, 0, 0)) ?? []
                 : [];
 
             const spawns = map.getObjectLayer("Spawns")?.objects ?? [];
@@ -34,7 +42,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
             this.player = new Player(this, spawn.x ?? 0, spawn.y ?? 0);
 
-            worldLayers.forEach(layer => {
+            this.worldLayers.forEach(layer => {
                 if (layer !== null) {
                     layer.setCollisionByProperty({ collides: true });
                     this.physics.add.collider(layer, this.player);
@@ -55,6 +63,26 @@ export class BaseLevelScene extends Phaser.Scene {
                 : [];
         }
         this.player?.idle();
+    }
+
+    addEventListeners() {
+        this.gameLogic?.event.addListener(ServerMessages.AddPlayer, (data: ServerAddPlayerMessage) => {
+            const enemy = new Enemy(this, 0, 0, data.id, 0x00ff00);
+            this.enemies.push(enemy);
+        });
+        this.gameLogic?.event.addListener(ServerMessages.Move, (data: ServerPlayerMoveMessage) => {
+            const enemy = this.enemies.find((enemy) => enemy.id == data.id);
+            this.worldLayers.forEach((layer) => {
+                if (layer != null && enemy)
+                    this.physics.add.collider(layer, enemy);
+            })
+            enemy?.setPosition(data.x, data.y);
+        });
+        this.gameLogic?.event.addListener(ServerMessages.RemovePlayer, (data: ServerAddPlayerMessage) => {
+            const enemy = this.enemies.find((enemy) => enemy.id == data.id);
+            this.enemies = this.enemies.filter((enemy) => enemy.id != data.id);
+            enemy?.destroy();
+        })
     }
     
     update(time: number, delta: number): void {
