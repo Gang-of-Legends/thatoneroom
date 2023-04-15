@@ -188,13 +188,15 @@ type ServerPickupItem struct {
 	PlayerID string `json:"playerID"`
 	ID       string `json:"id"`
 	Type     string `json:"type"`
+	Item     int    `json:"item"`
 }
 
-func NewServerPickupItem(playerID string, itemID string, item string) Message {
+func NewServerPickupItem(playerID string, itemID string, itemType string, item int) Message {
 	data, _ := json.Marshal(ServerPickupItem{
 		PlayerID: playerID,
 		ID:       itemID,
-		Type:     item,
+		Type:     itemType,
+		Item:     item,
 	})
 	return Message{
 		Type: "server_pickup_item",

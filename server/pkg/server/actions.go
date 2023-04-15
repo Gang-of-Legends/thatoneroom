@@ -75,13 +75,15 @@ type SpawnObjectAction struct {
 }
 
 func (a *SpawnObjectAction) Perform(game *Game) {
-	object := &Object{
-		ID:     a.ID,
-		Type:   a.Type,
-		Coords: Coords{a.X, a.Y},
-		Item:   a.Item,
+	if a.Type != "bottle" {
+		object := &Object{
+			ID:     a.ID,
+			Type:   a.Type,
+			Coords: Coords{a.X, a.Y},
+			Item:   a.Item,
+		}
+		game.SetObject(object)
 	}
-	game.SetObject(object)
 	game.sendChange(SpawnObjectChange{
 		ID:       a.ID,
 		PlayerID: a.PlayerID,
