@@ -16,6 +16,7 @@ export class Player extends Character {
     state: PlayerStates = PlayerStates.Idle;
     gameLogic: GameLogicPlugin | null = null;
     timer: number = 0;
+    idleSent: boolean = false;
 
     constructor(scene: Phaser.Scene, x: number, y: number, speed=50, jumpVelocity=150, tint: number | null = null) {
         super(scene, x, y, tint);
@@ -114,7 +115,10 @@ export class Player extends Character {
         this.timer += delta;
         if (this.timer > 100) {
             this.timer = 0;
-            this.gameLogic?.sendPosition(this.x, this.y, this.state);
+            if (!this.idleSent || this.state != PlayerStates.Idle) {
+                this.gameLogic?.sendPosition(this.x, this.y, this.state);
+                this.idleSent = this.state == PlayerStates.Idle;
+            }
         }
     }
 
