@@ -6,4 +6,5 @@ export enum Sounds {
     Hit2 = "sound/Hit2",
     HitEnemy = "sound/HitEnemy",
     PowerUp = "sound/powerup",
+    GlassBottleSmash = "sound/GlassBottleSmash",
 }

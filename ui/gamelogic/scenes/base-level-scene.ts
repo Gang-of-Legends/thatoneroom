@@ -180,6 +180,8 @@ export class BaseLevelScene extends Phaser.Scene {
                 bottle2.setActive(false);
                 bottle2.setVisible(false);
 
+                this.sound.play(Sounds.GlassBottleSmash);
+
                 console.log('colliding bottles');
             });
 
