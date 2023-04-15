@@ -1,0 +1,4 @@
+export enum PlayerMessages {
+    Authenticate = "player_authenticate",
+    Move = "player_move"
+}
