@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Plugins, Sounds, Spritesheets } from "../enums";
+import { Movements, Plugins, Sounds, Spritesheets } from "../enums";
 import { GameLogicPlugin } from "../plugins";
 import { Character } from "./character";
 import { Bottle } from "./bottle";
@@ -13,6 +13,7 @@ export class Player extends Character {
     private jumpVelocity: number;
     private onCooldown = false;
     keys: any;
+    state: Movements = Movements.Idle;
     gameLogic: GameLogicPlugin | null = null;
     timer: number = 0;
 
@@ -48,7 +49,8 @@ export class Player extends Character {
             this.setFlipX(false);
             this.isIdling = false;
             if (!this.isWalking && !this.isJumping) {
-                this.play('walk');
+                this.state = Movements.Walk;
+                this.play(Movements.Walk);
                 this.isWalking = true;
             };
         }
@@ -61,7 +63,8 @@ export class Player extends Character {
             this.setFlipX(true);
             this.isIdling = false;
             if (!this.isWalking && !this.isJumping) {
-                this.play('walk');
+                this.state = Movements.Walk;
+                this.play(Movements.Walk);
                 this.isWalking = true;
             }
         }
@@ -70,7 +73,8 @@ export class Player extends Character {
     jump() {
         if (this.canJump && !this.isDead) {
             this.setVelocityY(-1*this.jumpVelocity);
-            this.play('jump');
+            this.state = Movements.Jump;
+            this.play(Movements.Jump);
             this.isJumping = true;
             this.isIdling = false;
             this.isWalking = false;
@@ -81,9 +85,10 @@ export class Player extends Character {
     idle() {
         this.checkJump();
         if (!this.isJumping && !this.isIdling && !this.isDead) {
+            this.state = Movements.Idle;
             this.isIdling = true;
             this.isWalking = false;
-            this.play('idle');
+            this.play(Movements.Idle);
         }
     }
 
@@ -115,7 +120,7 @@ export class Player extends Character {
         this.timer += delta;
         if (this.timer > 100) {
             this.timer = 0;
-            this.gameLogic?.sendPosition(this.x, this.y);
+            this.gameLogic?.sendPosition(this.x, this.y, this.state);
         }
     }
 

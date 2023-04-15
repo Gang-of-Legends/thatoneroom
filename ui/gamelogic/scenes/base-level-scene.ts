@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Images, Plugins, ServerMessages, Tilesets } from "../enums";
-import {ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage} from "../models";
+import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
 import { GameLogicPlugin } from "../plugins";
@@ -78,10 +78,6 @@ export class BaseLevelScene extends Phaser.Scene {
                 return
             }
             const enemy = new Enemy(this, 150, 150, data.id, 0x00ff00);
-            /*this.worldLayers.forEach((layer) => {
-                if (layer != null)
-                    this.physics.add.collider(layer, enemy);
-            })*/
             this.enemies.push(enemy);
         });
         this.gameLogic?.event.addListener(ServerMessages.Move, (data: ServerPlayerMoveMessage) => {
@@ -100,7 +96,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.player?.update(time, delta);
 
         super.update(time, delta);
-        
+
         this.enemies.forEach((enemy) => {
             enemy.body?.stop();
             if (enemy.target) {
