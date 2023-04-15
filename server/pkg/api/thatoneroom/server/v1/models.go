@@ -10,7 +10,21 @@ type Message struct {
 const (
 	TypePlayerAuthenticate = "player_authenticate"
 	TypePlayerMove         = "player_move"
+	TypePlayerSpawnObject  = "player_spawn_object"
 )
+
+type ServerSpawnObject struct {
+	ID string `json:"id"`
+	PlayerSpawnObject
+}
+
+type PlayerSpawnObject struct {
+	Type      string  `json:"type"`
+	X         float64 `json:"x"`
+	Y         float64 `json:"y"`
+	VelocityX float64 `json:"velocityX"`
+	VelocityY float64 `json:"velocityY"`
+}
 
 type PlayerAuthenticate struct {
 	ID    string  `json:"id"`
@@ -25,6 +39,13 @@ type ServerAuthenticate struct {
 	ID      string `json:"id"`
 }
 
+func NewServerSpawnObject(object ServerSpawnObject) Message {
+	data, _ := json.Marshal(object)
+	return Message{
+		Type: "server_spawn_object",
+		Data: data,
+	}
+}
 func NewServerAuthenticate(success bool, token string, id string) Message {
 	data, _ := json.Marshal(ServerAuthenticate{
 		Success: success,

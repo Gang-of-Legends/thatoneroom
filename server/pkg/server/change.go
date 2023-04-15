@@ -13,3 +13,9 @@ type RemovePlayerChange struct {
 type MoveChange struct {
 	Object *Object
 }
+
+type SpawnObjectChange struct {
+	ID               string
+	Type             string
+	X, Y, VelX, VelY float64
+}

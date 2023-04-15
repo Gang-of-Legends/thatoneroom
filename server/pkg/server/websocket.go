@@ -73,6 +73,11 @@ func (s *WebSocketService) Message(m *melody.Session, msg []byte) {
 		var data serverv1.PlayerMove
 		json.Unmarshal(sMsg.Data, &data)
 		s.HandlePlayerMove(session, data)
+	case serverv1.TypePlayerSpawnObject:
+		var data serverv1.PlayerSpawnObject
+		json.Unmarshal(sMsg.Data, &data)
+		s.HandleSpawnObject(session, data)
+
 	default:
 		sendMsg(m, "unknown")
 	}
@@ -94,6 +99,17 @@ func (s *WebSocketService) watchChanges() {
 				msg = serverv1.NewServerMove(val.Object.ID, val.Object.Coords.X, val.Object.Coords.Y, val.Object.State)
 			case RemovePlayerChange:
 				msg = serverv1.NewServerRemovePlayer(val.ID)
+			case SpawnObjectChange:
+				msg = serverv1.NewServerSpawnObject(serverv1.ServerSpawnObject{
+					ID: val.ID,
+					PlayerSpawnObject: serverv1.PlayerSpawnObject{
+						Type:      val.Type,
+						X:         val.X,
+						Y:         val.Y,
+						VelocityX: val.VelX,
+						VelocityY: val.VelY,
+					},
+				})
 			}
 
 			b, _ := json.Marshal(msg)
@@ -151,6 +167,25 @@ func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMov
 		},
 		State: data.State,
 	}
+}
+
+func (s *WebSocketService) HandleSpawnObject(ps *Session, data serverv1.PlayerSpawnObject) {
+	zap.L().Info("handle", zap.Any("data", data))
+
+	if ps.ID == "" {
+		sendMsg(ps.S, "authorize first")
+		return
+	}
+
+	s.game.ActionChannel <- &SpawnObjectAction{
+		ID:   shortID(),
+		Type: data.Type,
+		X:    data.X,
+		Y:    data.Y,
+		VelX: data.VelocityY,
+		VelY: data.VelocityY,
+	}
+
 }
 
 func (s *WebSocketService) getState() serverv1.ServerState {

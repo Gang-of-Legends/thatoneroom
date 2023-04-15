@@ -56,3 +56,20 @@ func (a *RemovePlayerAction) Perform(game *Game) {
 		ID: a.ID,
 	})
 }
+
+type SpawnObjectAction struct {
+	ID               string
+	Type             string
+	X, Y, VelX, VelY float64
+}
+
+func (a *SpawnObjectAction) Perform(game *Game) {
+	game.sendChange(SpawnObjectChange{
+		ID:   a.ID,
+		Type: a.Type,
+		X:    a.X,
+		Y:    a.Y,
+		VelX: a.VelX,
+		VelY: a.VelY,
+	})
+}
