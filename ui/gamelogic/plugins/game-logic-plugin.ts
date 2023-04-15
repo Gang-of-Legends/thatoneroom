@@ -27,7 +27,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     }
 
     async connect() {
-        const socket = new WebSocket("ws://localhost:8080/ws");
+        const socket = new WebSocket("ws://petermalina.com/ws");
     
         socket.onopen = () => {
           this.socket = socket;
