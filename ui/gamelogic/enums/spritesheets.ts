@@ -7,4 +7,6 @@ export enum Spritesheets {
   Bottles = "spritesheets/Bottles",
   Instructions = "spritesheets/Instructions",
   Particles = "spritesheets/Particles",
+  Items = "spritesheets/Items",
+  Circles = "spritesheets/Circles",
 }

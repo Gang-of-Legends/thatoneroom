@@ -5,6 +5,7 @@ import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
 import { GameLogicPlugin } from "../plugins";
 import { Bottle, BottleGroup } from "../objects/bottle";
+import { Item } from "../objects/item";
 import { ServerSpawnObjectMessage } from "../models/server-spawn-object";
 import { StateSprite } from "../objects/ui/state_sprite";
 
@@ -168,6 +169,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
                 this.bottleCollision(bottle as Bottle);                
             });
+
             this.physics.add.collider(this.bottles, this.bottles, (bottle1: Bottle, bottle2: Bottle) => {
                 bottle1.explode();
                 bottle2.explode();
@@ -279,6 +281,7 @@ export class BaseLevelScene extends Phaser.Scene {
         });
 
         this.updateUI();
+        this.updateItems(time, delta);
     }
 
     bottlesStatus: Phaser.GameObjects.Text = null!;
@@ -328,5 +331,33 @@ export class BaseLevelScene extends Phaser.Scene {
     playHitSound() {
         const sound = Math.random() < 0.5 ? Sounds.Hit1 : Sounds.Hit2;
         this.sound.play(sound);
+    }
+
+    items: Item[] = [];
+    itemRefresh = 0;
+    updateItems(time: number, delta: number): void {
+        this.items.forEach((item) => {
+            item.update(time, delta);
+
+            const itemBounds = item.getBounds();
+            const playerBounds = this.player?.getBounds();
+            if (Phaser.Geom.Intersects.RectangleToRectangle(itemBounds, playerBounds)) {
+                console.log("item collected");
+                item.destroy();
+                this.items = this.items.filter((i) => i != item);
+            }
+            
+        });
+
+        this.itemRefresh -= delta;
+        if (this.itemRefresh <= 0) {
+            console.log("spawn item");
+            this.itemRefresh = Math.random() * 5000 + 5000;
+
+            const item = new Item(this, 150, 100, 0)
+            this.items.push(item);
+            this.add.existing(item);
+            // this.physics.add.existing(item);
+        }
     }
 }
