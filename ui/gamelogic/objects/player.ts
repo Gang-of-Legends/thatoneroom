@@ -1,5 +1,6 @@
 import Phaser from "phaser";
-import { Sounds, Spritesheets } from "../enums";
+import { Plugins, Sounds, Spritesheets } from "../enums";
+import { GameLogicPlugin } from "../plugins";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     private isWalking: boolean;
@@ -9,6 +10,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private speed: number;
     private jumpVelocity: number;
     keys: any;
+    gameLogic: GameLogicPlugin | null = null;
+    timer: number = 0;
 
     constructor(scene: Phaser.Scene, x: number, y: number, speed=50, jumpVelocity=150, tint: number | null = null) {
         super(scene, x, y, Spritesheets.Main, 4);
@@ -24,10 +27,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         scene.physics.add.existing(this)
 
+        this.gameLogic = this.scene.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
+
         this.body?.setSize(7, 13, true);
         this.setCollideWorldBounds(true);
         this.isDead = false;
-
 
         const { LEFT, RIGHT, UP, W, A, D } = Phaser.Input.Keyboard.KeyCodes;
         this.keys = scene.input?.keyboard?.addKeys({
@@ -105,7 +109,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    update() {
+    update(time, delta) {
         this.setVelocityX(0);
         if (this.keys.right.isDown) {
             this.walkRight();
@@ -117,6 +121,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if ((this.keys.up.isDown || this.keys.space.isDown))
         {
             this.jump();
+        }
+
+        this.timer += delta;
+        if (this.timer > 100) {
+            this.timer = 0;
+            this.gameLogic?.sendPosition(this.x, this.y);
         }
     }
 

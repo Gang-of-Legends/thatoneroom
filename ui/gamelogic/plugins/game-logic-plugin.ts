@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { ServerMessage } from "../models/server-message";
 
 export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
 
@@ -23,6 +24,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     
           this.send({
             type: "player_authenticate",
+            data: null
           });
         }
     
@@ -48,10 +50,22 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
         }
       }
     
-      send(data: any) {
+      send(data: ServerMessage) {
         if (this.socket) {
           this.socket.send(JSON.stringify(data));
         }
+      }
+
+      sendPosition(x: number, y: number) {
+          if (this.socket) {
+                this.socket.send(JSON.stringify({
+                    type: "player_move",
+                    data: {
+                        x: x,
+                        y: y
+                    }
+                }));
+          }
       }
     
       handleAuthentication(data: any) {

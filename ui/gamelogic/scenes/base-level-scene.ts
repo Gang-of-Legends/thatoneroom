@@ -57,7 +57,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.player?.idle();
     }
     
-    update(time: number): void {
-        this.player?.update();
+    update(time: number, delta: number): void {
+        this.player?.update(time, delta);
     }
 }
