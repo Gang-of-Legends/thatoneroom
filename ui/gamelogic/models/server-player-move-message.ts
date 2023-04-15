@@ -1,8 +1,8 @@
-import { Movements } from "../enums";
+import { PlayerStates } from "../enums";
 
 export interface ServerPlayerMoveMessage {
     id: string,
     x: number,
     y: number,
-    movement: Movements
+    state: PlayerStates
 }

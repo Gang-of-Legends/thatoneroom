@@ -185,7 +185,7 @@ export class BaseLevelScene extends Phaser.Scene {
             const enemy = this.enemies.find((enemy) => enemy.id == data.id);
             if (enemy) {
                 enemy.target = new Phaser.Math.Vector2(data.x, data.y);
-                enemy.changeState(data.movement);
+                enemy.changeState(data.state);
             }
         });
         this.gameLogic?.event.addListener(ServerMessages.RemovePlayer, (data: ServerAddPlayerMessage) => {
@@ -230,15 +230,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.bottles.preUpdate(time, delta);
 
         this.enemies.forEach((enemy) => {
-            enemy.body?.stop();
-            if (enemy.target) {
-                if (Math.abs(enemy.x - enemy.target.x) > 2 || Math.abs(enemy.y - enemy.target.y) > 2) {
-                    this.physics.moveToObject(enemy, enemy.target);
-                } else {
-                    enemy.setPosition(enemy.target.x, enemy.target.y);
-                    enemy.target = null;
-                }
-            }
+            enemy.update();
         });
 
         this.updateUI();

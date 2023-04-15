@@ -1,7 +1,7 @@
 import { Images } from "./images";
 import { Maps } from "./maps";
-import { PlayerStates } from "./player-states";
 import { PlayerMessages } from "./player-messages";
+import { PlayerStates } from "./player-states";
 import { Plugins } from "./plugins";
 import { Scenes } from "./scenes";
 import { ServerMessages } from "./server-messages";
