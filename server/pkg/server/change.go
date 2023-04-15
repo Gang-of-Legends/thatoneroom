@@ -30,6 +30,7 @@ type PickupItemChange struct {
 
 type PlayerDeadChange struct {
 	PlayerID string
+	KilledBy string
 }
 
 type ResetChange struct {

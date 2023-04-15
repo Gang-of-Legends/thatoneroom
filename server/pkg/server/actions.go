@@ -1,6 +1,8 @@
 package server
 
-import "time"
+import (
+	"time"
+)
 
 type Action interface {
 	Perform(game *Game)
@@ -122,11 +124,14 @@ func (a *PlayerDeadAction) Perform(game *Game) {
 	game.SetObject(obj)
 
 	killer := game.GetObject(a.KilledBy)
-	killer.Score++
-	game.SetObject(killer)
+	if killer != nil {
+		killer.Score++
+		game.SetObject(killer)
+	}
 
 	game.sendChange(PlayerDeadChange{
 		PlayerID: a.PlayerID,
+		KilledBy: a.KilledBy,
 	})
 
 	for _, item := range invs {

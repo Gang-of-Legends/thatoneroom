@@ -142,7 +142,7 @@ type ServerState struct {
 type PlayerScore struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
-	Score int    `json:"int"`
+	Score int    `json:"score"`
 }
 
 func NewServerState(state ServerState) Message {
@@ -163,6 +163,20 @@ func NewServerRemovePlayer(id string) Message {
 	})
 	return Message{
 		Type: "server_remove_player",
+		Data: data,
+	}
+}
+
+type ServerPlayerDead struct {
+	ID string `json:"id"`
+}
+
+func NewServerPlayerDead(id string) Message {
+	data, _ := json.Marshal(ServerPlayerDead{
+		ID: id,
+	})
+	return Message{
+		Type: "server_player_dead",
 		Data: data,
 	}
 }

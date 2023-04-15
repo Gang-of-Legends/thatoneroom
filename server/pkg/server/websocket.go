@@ -127,6 +127,11 @@ func (s *WebSocketService) watchChanges() {
 				})
 			case ResetChange:
 				msg = serverv1.NewServerState(s.getState())
+			case PlayerDeadChange:
+				msg = serverv1.NewServerPlayerDead(val.PlayerID)
+			default:
+				zap.L().Warn("unhandled msg", zap.Any("val", val))
+				continue
 			}
 
 			b, _ := json.Marshal(msg)
