@@ -1,3 +1,3 @@
 export enum Images {
-    Tiles = 'img/tiles',
+    Tiles = 'img/tiles'
 }

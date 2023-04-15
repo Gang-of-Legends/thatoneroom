@@ -13,6 +13,7 @@ export class BaseLevelScene extends Phaser.Scene {
     player: Player;
     enemies: Enemy[] = [];
     bottles: BottleGroup;
+    bloodEmmiter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
     bottleInventory = 3;
     bottleInventoryRefillTimeout: any = null;
@@ -89,7 +90,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.bottles = new BottleGroup(this);
         this.addEventListeners();
 
-        this.input.keyboard.on('keydown-E', event => {
+        this.input.keyboard?.on('keydown-E', (event: any) => {
             console.log('throwing bottle');
             this.throwBottle();
         });
@@ -112,6 +113,18 @@ export class BaseLevelScene extends Phaser.Scene {
             const spawn = spawns[spawnIndex];
 
             this.player = new Player(this, spawn.x ?? 0, spawn.y ?? 0);
+            this.bloodEmmiter = this.add.particles(400, 250, Spritesheets.Particles, {
+                frame: [ 4 ],
+                lifespan: 2000,
+                speed: { min: 50, max: 150 },
+                scale: { start: 0.5, end: 0 },
+                gravityY: 150,
+                blendMode: 'NORMAL',
+                emitting: false,
+                particleBringToTop: true,
+                
+            });
+            this.bloodEmmiter.setPosition(this.player.x, this.player.y);
             this.gameLogic?.auth(this.player.x, this.player.y);
 
             this.worldLayers.forEach(layer => {
@@ -132,7 +145,8 @@ export class BaseLevelScene extends Phaser.Scene {
                 }
             });
 
-            this.physics.add.collider(this.player, this.bottles, (player, bottle: Bottle) => {
+            this.physics.add.collider(this.player, this.bottles, (player: Player, bottle: Bottle) => {
+                this.emitBlood(player.x, player.y);
                 if (!bottle.despawning) {
                     this.removeHealth();
                 }
@@ -174,7 +188,8 @@ export class BaseLevelScene extends Phaser.Scene {
           data.objects.filter(obj => obj.type === 'player' && this.gameLogic?.id != obj.id).forEach(obj => {
               const enemy = new Enemy(this, obj.x, obj.y, obj.id, 0x00ff00);
               this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => {
-                this.bottleCollision(bottle as Bottle);                
+                this.emitBlood((enemy as Enemy).x, (enemy as Enemy).y);
+                this.bottleCollision(bottle as Bottle);
               });
               this.enemies.push(enemy);
           })
@@ -185,7 +200,8 @@ export class BaseLevelScene extends Phaser.Scene {
             }
             const enemy = new Enemy(this, data.x, data.y, data.id, 0x00ff00);
             this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => {
-                this.bottleCollision(bottle as Bottle);                
+                this.emitBlood((enemy as Enemy).x, (enemy as Enemy).y);
+                this.bottleCollision(bottle as Bottle);
             });
             this.enemies.push(enemy);
         });
@@ -281,5 +297,10 @@ export class BaseLevelScene extends Phaser.Scene {
                 heart.visible = false;
             }
         });
+    }
+
+    emitBlood(x: number, y: number, count: number = 16) {
+        this.bloodEmmiter?.setPosition(x, y);
+        this.bloodEmmiter?.explode(count);
     }
 }
