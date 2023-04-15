@@ -10,9 +10,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private jumpVelocity: number;
     keys: any;
 
-    constructor(scene: Phaser.Scene, x: number, y: number, speed=50, jumpVelocity=150) {
+    constructor(scene: Phaser.Scene, x: number, y: number, speed=50, jumpVelocity=150, tint: number | null = null) {
         super(scene, x, y, Spritesheets.Main, 4);
 
+        if (tint !== null)
+            this.setTint(tint)
         this.speed = speed;
         this.jumpVelocity = jumpVelocity;
         this.isWalking = false;

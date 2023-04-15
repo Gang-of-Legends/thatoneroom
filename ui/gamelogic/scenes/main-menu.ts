@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { Images, Maps, Scenes, Sounds, Spritesheets } from "../enums";
-import 'phaser-ui-tools';
 import { Button } from '../objects/ui/button';
 import { StateSprite } from '../objects/ui/state_sprite';
 
