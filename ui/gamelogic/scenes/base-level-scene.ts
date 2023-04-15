@@ -9,6 +9,7 @@ import { Item } from "../objects/item";
 import { ServerSpawnObjectMessage } from "../models/server-spawn-object";
 import { StateSprite } from "../objects/ui/state_sprite";
 import { runInThisContext } from "vm";
+import { ServerPickupItemMessage } from "../models/pickup-item";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -248,6 +249,19 @@ export class BaseLevelScene extends Phaser.Scene {
                 case "bottle":
                     this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY, data.playerID);
                     break
+                case "item":
+                    const item = new Item(data.id, this, data.x, data.y, data.option);
+                    this.items.push(item);
+                    this.add.existing(item);
+                    break
+            }
+        });
+
+        this.gameLogic?.event.addListener(ServerMessages.PickupItem, (data: ServerPickupItemMessage) => {
+            const item = this.items.find((item) => item.id == data.id);
+            if (item) {
+                item.destroy();
+                this.items = this.items.filter((item) => item.id != data.id);
             }
         });
     }
@@ -291,6 +305,7 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     bottlesStatus: Phaser.GameObjects.Text = null!;
+    inventoryItems: string[] = [];
     healthBar: StateSprite[] = [];
 
     createUI(): void {
@@ -340,7 +355,6 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     items: Item[] = [];
-    itemRefresh = 0;
     updateItems(time: number, delta: number): void {
         this.items.forEach((item) => {
             item.update(time, delta);
@@ -348,23 +362,15 @@ export class BaseLevelScene extends Phaser.Scene {
             const itemBounds = item.getBounds();
             const playerBounds = this.player?.getBounds();
             if (Phaser.Geom.Intersects.RectangleToRectangle(itemBounds, playerBounds)) {
-                console.log("item collected");
                 this.sound.play(Sounds.PowerUp);
-                item.destroy();
-                this.items = this.items.filter((i) => i != item);
+
+                this.gameLogic?.send({
+                    type: PlayerMessages.PickupItem,
+                    data: {
+                        id: item.id,
+                    },
+                })
             }
-            
         });
-
-        this.itemRefresh -= delta;
-        if (this.itemRefresh <= 0) {
-            console.log("spawn item");
-            this.itemRefresh = Math.random() * 5000 + 5000;
-
-            const item = new Item(this, 150, 100, 0)
-            this.items.push(item);
-            this.add.existing(item);
-            // this.physics.add.existing(item);
-        }
     }
 }
