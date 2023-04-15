@@ -22,10 +22,6 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
         this.event = new Phaser.Events.EventEmitter();
     }
 
-    init() {
-        console.log('Plugin is alive');
-    }
-
     async connect() {
         const socket = new WebSocket("ws://petermalina.com/ws");
     

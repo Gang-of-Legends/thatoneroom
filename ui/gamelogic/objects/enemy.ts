@@ -22,7 +22,6 @@ export class Enemy extends Character {
     }
 
     update() {
-        console.log(`${this.id}:${this.state}`)
         this.body?.stop();
         if (this.target) {
             if (Math.abs(this.x - this.target.x) > 2 || Math.abs(this.y - this.target.y) > 2) {
