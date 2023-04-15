@@ -219,6 +219,8 @@ export class BaseLevelScene extends Phaser.Scene {
         bottle.setActive(false);
         bottle.setVisible(false);
 
+        this.removeHealth();
+
         this.sound.play(Sounds.NotImplemented);
     }
     
