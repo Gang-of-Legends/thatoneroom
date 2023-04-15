@@ -1,11 +1,14 @@
 package server
 
+import "time"
+
 type Action interface {
 	Perform(game *Game)
 }
 
 type AddPlayerAction struct {
 	ID   string
+	Name string
 	X, Y float64
 }
 
@@ -17,6 +20,7 @@ func (a *AddPlayerAction) Perform(game *Game) {
 
 	object := &Object{
 		ID:     a.ID,
+		Name:   a.Name,
 		Type:   ObjectPlayer,
 		Coords: at,
 	}
@@ -59,18 +63,20 @@ func (a *RemovePlayerAction) Perform(game *Game) {
 
 type SpawnObjectAction struct {
 	ID               string
+	PlayerID         string
 	Type             string
 	X, Y, VelX, VelY float64
 }
 
 func (a *SpawnObjectAction) Perform(game *Game) {
 	game.sendChange(SpawnObjectChange{
-		ID:   a.ID,
-		Type: a.Type,
-		X:    a.X,
-		Y:    a.Y,
-		VelX: a.VelX,
-		VelY: a.VelY,
+		ID:       a.ID,
+		PlayerID: a.PlayerID,
+		Type:     a.Type,
+		X:        a.X,
+		Y:        a.Y,
+		VelX:     a.VelX,
+		VelY:     a.VelY,
 	})
 }
 
@@ -102,4 +108,48 @@ func (a *PickupItemAction) Perform(game *Game) {
 		PlayerID: a.PlayerID,
 		Type:     a.Type,
 	})
+}
+
+type PlayerDeadAction struct {
+	PlayerID string
+	KilledBy string
+}
+
+func (a *PlayerDeadAction) Perform(game *Game) {
+	obj := game.GetObject(a.PlayerID)
+	invs := obj.Inventory
+	obj.Inventory = nil
+	game.SetObject(obj)
+
+	killer := game.GetObject(a.KilledBy)
+	killer.Score++
+	game.SetObject(killer)
+
+	game.sendChange(PlayerDeadChange{
+		PlayerID: a.PlayerID,
+	})
+
+	for _, item := range invs {
+		game.ActionChannel <- &SpawnObjectAction{
+			ID:   id(),
+			Type: item.Type,
+			X:    obj.Coords.X,
+			Y:    obj.Coords.Y,
+		}
+	}
+
+}
+
+type ResetAction struct {
+}
+
+func (a *ResetAction) Perform(game *Game) {
+	game.mx.Lock()
+	game.startAt = time.Now()
+	game.objects = nil
+	game.mx.Unlock()
+
+	game.ChangeChannel <- ResetChange{
+		Deadline: roundDuration,
+	}
 }

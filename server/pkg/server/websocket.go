@@ -6,6 +6,7 @@ import (
 	"github.com/olahol/melody"
 	serverv1 "github.com/petomalina/thatoneroom/server/pkg/api/thatoneroom/server/v1"
 	"go.uber.org/zap"
+	"sort"
 	"sync"
 )
 
@@ -25,7 +26,7 @@ type Session struct {
 func NewWSService() *WebSocketService {
 	svc := &WebSocketService{
 		M:        melody.New(),
-		game:     NewGame(map1),
+		game:     NewGame(),
 		sessions: make(map[string]*Session),
 	}
 	svc.game.Start()
@@ -69,6 +70,10 @@ func (s *WebSocketService) Message(m *melody.Session, msg []byte) {
 		var data serverv1.PlayerAuthenticate
 		json.Unmarshal(sMsg.Data, &data)
 		s.HandleAuthenticate(session, data)
+	case serverv1.TypePlayerConnect:
+		var data serverv1.PlayerConnect
+		json.Unmarshal(sMsg.Data, &data)
+		s.HandleConnect(session, data)
 	case serverv1.TypePlayerMove:
 		var data serverv1.PlayerMove
 		json.Unmarshal(sMsg.Data, &data)
@@ -81,7 +86,10 @@ func (s *WebSocketService) Message(m *melody.Session, msg []byte) {
 		var data serverv1.PlayerPickupItem
 		json.Unmarshal(sMsg.Data, &data)
 		s.HandlePickupItem(session, data)
-
+	case serverv1.TypePlayerDead:
+		var data serverv1.PlayerDead
+		json.Unmarshal(sMsg.Data, &data)
+		s.HandlePlayerDead(session, data)
 	default:
 		sendMsg(m, "unknown")
 	}
@@ -109,6 +117,7 @@ func (s *WebSocketService) watchChanges() {
 				msg = serverv1.NewServerSpawnObject(serverv1.ServerSpawnObject{
 					ID: val.ID,
 					PlayerSpawnObject: serverv1.PlayerSpawnObject{
+						PlayerID:  val.PlayerID,
 						Type:      val.Type,
 						X:         val.X,
 						Y:         val.Y,
@@ -116,6 +125,8 @@ func (s *WebSocketService) watchChanges() {
 						VelocityY: val.VelY,
 					},
 				})
+			case ResetChange:
+				msg = serverv1.NewServerState(s.getState())
 			}
 
 			b, _ := json.Marshal(msg)
@@ -149,17 +160,31 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 		S:     ps.S,
 	}
 	ps.S.Set("session", session)
+
+	// @TODO remove action
 	s.game.ActionChannel <- &AddPlayerAction{
 		ID: id,
 		X:  data.X,
 		Y:  data.Y,
 	}
+
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(true, session.Token, session.ID))
 	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 }
 
-func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMove) {
+func (s *WebSocketService) HandleConnect(ps *Session, data serverv1.PlayerConnect) {
 	zap.L().Info("handle", zap.Any("data", data))
+
+	s.game.ActionChannel <- &AddPlayerAction{
+		ID:   ps.ID,
+		Name: data.Name,
+		X:    data.X,
+		Y:    data.Y,
+	}
+}
+
+func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMove) {
+	//zap.L().Info("handle", zap.Any("data", data))
 
 	if ps.ID == "" {
 		sendMsg(ps.S, "authorize first")
@@ -205,6 +230,20 @@ func (s *WebSocketService) HandlePickupItem(ps *Session, data serverv1.PlayerPic
 		PlayerID: ps.ID,
 		Type:     data.Type,
 	}
+}
+
+func (s *WebSocketService) HandlePlayerDead(ps *Session, data serverv1.PlayerDead) {
+	zap.L().Info("handle", zap.Any("data", data))
+
+	if ps.ID == "" {
+		sendMsg(ps.S, "authorize first")
+		return
+	}
+
+	s.game.ActionChannel <- &PlayerDeadAction{
+		PlayerID: ps.ID,
+		KilledBy: data.KilledBy,
+	}
 
 }
 
@@ -212,6 +251,7 @@ func (s *WebSocketService) getState() serverv1.ServerState {
 	objs := s.game.Objects()
 
 	state := serverv1.ServerState{
+		EndAt:   s.game.startAt.Add(roundDuration),
 		Objects: make([]serverv1.Object, 0, len(objs)),
 	}
 	for _, v := range objs {
@@ -229,7 +269,17 @@ func (s *WebSocketService) getState() serverv1.ServerState {
 			Y:         v.Coords.Y,
 			Inventory: items,
 		})
+		if v.Type == ObjectPlayer {
+			state.Leaderboard = append(state.Leaderboard, serverv1.PlayerScore{
+				ID:    v.ID,
+				Name:  v.Name,
+				Score: v.Score,
+			})
+		}
 	}
+	sort.Slice(state.Leaderboard, func(i, j int) bool {
+		return state.Leaderboard[i].Score > state.Leaderboard[j].Score
+	})
 	return state
 }
 func sendMsg(m *melody.Session, msg any) {

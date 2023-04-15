@@ -2,6 +2,7 @@ package server
 
 type Object struct {
 	ID        string
+	Name      string
 	Type      string
 	Coords    Coords
 	State     string
@@ -15,7 +16,5 @@ type Item struct {
 }
 
 const (
-	ObjectPlayer     = "player"
-	ObjectWall       = "wall"
-	ObjectSpawnPoint = "spawn_point"
+	ObjectPlayer = "player"
 )

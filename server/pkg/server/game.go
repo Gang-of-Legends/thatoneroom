@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"sync"
+	"time"
 )
 
 type Coords struct {
@@ -26,23 +27,38 @@ type Game struct {
 	ActionChannel chan Action
 	ChangeChannel chan Change
 	mx            sync.Mutex
+	startAt       time.Time
 }
 
-func NewGame(layout MapLayout) *Game {
+func NewGame() *Game {
 	g := &Game{
 		objects:       make(map[string]*Object),
 		ActionChannel: make(chan Action, 64),
 		ChangeChannel: make(chan Change, 64),
+		startAt:       time.Now(),
 	}
 
-	for _, sp := range layout.SpawnPoints {
-		g.SpawnPoints = append(g.SpawnPoints, sp.Coords)
-	}
 	return g
 }
 
 func (g *Game) Start() {
+	go g.loop()
 	go g.watchActions()
+}
+
+const (
+	roundDuration = 2 * time.Minute
+)
+
+func (g *Game) loop() {
+	ticker := time.NewTicker(roundDuration)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			g.ActionChannel <- &ResetAction{}
+		}
+	}
 }
 
 func (g *Game) GetObject(id string) *Object {
@@ -89,26 +105,6 @@ func (g *Game) sendChange(change Change) {
 	default:
 	}
 }
-
-type MapLayout struct {
-	Width, Height int
-	Walls         []Object
-	SpawnPoints   []Object
-}
-
-var (
-	map1 = MapLayout{
-		Width:  3,
-		Height: 3,
-		SpawnPoints: []Object{
-			{
-				ID:     id(),
-				Coords: Coords{1, 1},
-				Type:   ObjectSpawnPoint,
-			},
-		},
-	}
-)
 
 func id() string {
 	return uuid.Must(uuid.NewV4()).String()

@@ -1,5 +1,7 @@
 package server
 
+import "time"
+
 type Change any
 
 type NewPlayerChange struct {
@@ -16,6 +18,7 @@ type MoveChange struct {
 
 type SpawnObjectChange struct {
 	ID               string
+	PlayerID         string
 	Type             string
 	X, Y, VelX, VelY float64
 }
@@ -23,4 +26,12 @@ type SpawnObjectChange struct {
 type PickupItemChange struct {
 	PlayerID string
 	Type     string
+}
+
+type PlayerDeadChange struct {
+	PlayerID string
+}
+
+type ResetChange struct {
+	Deadline time.Duration
 }

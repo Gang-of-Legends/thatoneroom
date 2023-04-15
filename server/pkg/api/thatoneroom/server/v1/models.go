@@ -1,6 +1,9 @@
 package serverv1
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Message struct {
 	Type string          `json:"type"`
@@ -9,9 +12,11 @@ type Message struct {
 
 const (
 	TypePlayerAuthenticate = "player_authenticate"
+	TypePlayerConnect      = "player_connect"
 	TypePlayerMove         = "player_move"
 	TypePlayerSpawnObject  = "player_spawn_object"
 	TypePlayerPickupItem   = "player_pickup_item"
+	TypePlayerDead         = "player_dead"
 )
 
 type ServerSpawnObject struct {
@@ -20,6 +25,7 @@ type ServerSpawnObject struct {
 }
 
 type PlayerSpawnObject struct {
+	PlayerID  string  `json:"playerID"`
 	Type      string  `json:"type"`
 	X         float64 `json:"x"`
 	Y         float64 `json:"y"`
@@ -27,11 +33,22 @@ type PlayerSpawnObject struct {
 	VelocityY float64 `json:"velocityY"`
 }
 
+type PlayerDead struct {
+	KilledBy string `json:"killedBy"`
+}
+
 type PlayerAuthenticate struct {
-	ID    string  `json:"id"`
-	Token string  `json:"token"`
-	X     float64 `json:"x"`
-	Y     float64 `json:"y"`
+	ID    string `json:"id"`
+	Token string `json:"token"`
+	// TODO remove
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+}
+
+type PlayerConnect struct {
+	Name string  `json:"name"`
+	X    float64 `json:"x"`
+	Y    float64 `json:"y"`
 }
 
 type ServerAuthenticate struct {
@@ -109,7 +126,7 @@ type Object struct {
 	Type      string  `json:"type"`
 	X         float64 `json:"x"`
 	Y         float64 `json:"y"`
-	Inventory []Item  `json:"item"`
+	Inventory []Item  `json:"inventory"`
 }
 
 type Item struct {
@@ -117,7 +134,15 @@ type Item struct {
 	Count int    `json:"count"`
 }
 type ServerState struct {
-	Objects []Object `json:"objects"`
+	EndAt       time.Time     `json:"endAt"`
+	Leaderboard []PlayerScore `json:"leaderboard"`
+	Objects     []Object      `json:"objects"`
+}
+
+type PlayerScore struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Score int    `json:"int"`
 }
 
 func NewServerState(state ServerState) Message {
