@@ -46,6 +46,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             frameRate: 8,
             repeat: -1
         });
+
+        this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 16, 17 ] }),
+            frameRate: 4,
+            repeat: -1
+        });
     }
 
     walkRight() {
