@@ -32,15 +32,6 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
         socket.onopen = () => {
           this.socket = socket;
           this.connected = true;
-<<<<<<< HEAD
-
-=======
-    
-          this.send({
-            type: ServerMessages.Authenticate,
-            data: null
-          });
->>>>>>> feat(multiplayer): adds player state to message
         }
     
         socket.onmessage = (event) => {
@@ -87,7 +78,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
 
       auth() {
           this.send({
-              type: "player_authenticate",
+              type: ServerMessages.Authenticate,
               data: null
           });
       }
