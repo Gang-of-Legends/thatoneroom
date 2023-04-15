@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-export class StateSprite extends Phaser.GameObjects.Sprite {
+export class StateSprite extends Phaser.Physics.Arcade.Sprite {
     constructor(scene: Phaser.Scene, x : number, y : number, texture: string, frameFrom: number, frameTo?: number) {
         super(scene, x, y, texture, frameFrom || 0);
 

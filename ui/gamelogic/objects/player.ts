@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Plugins, Sounds, Spritesheets } from "../enums";
 import { GameLogicPlugin } from "../plugins";
 import { Character } from "./character";
+import { Bottle } from "./bottle";
 
 export class Player extends Character {
     private isWalking: boolean;
@@ -10,6 +11,7 @@ export class Player extends Character {
     private isDead: boolean;
     private speed: number;
     private jumpVelocity: number;
+    private onCooldown = false;
     keys: any;
     gameLogic: GameLogicPlugin | null = null;
     timer: number = 0;
@@ -29,11 +31,12 @@ export class Player extends Character {
 
         this.isDead = false;
 
-        const { LEFT, RIGHT, UP, W, A, D } = Phaser.Input.Keyboard.KeyCodes;
+        const { LEFT, RIGHT, UP, W, A, D, E } = Phaser.Input.Keyboard.KeyCodes;
         this.keys = scene.input?.keyboard?.addKeys({
             left: LEFT,
             right: RIGHT,
             up: UP,
+            e: E,
             space: Phaser.Input.Keyboard.KeyCodes.SPACE
         });
     }
@@ -84,6 +87,13 @@ export class Player extends Character {
         }
     }
 
+    startCooldown() {
+        this.onCooldown = true;
+        setTimeout(() => {
+            this.onCooldown = false;
+        }, 1000);
+    }
+
     update(time: number, delta: number) {
         this.setVelocityX(0);
         if (this.keys.right.isDown) {
@@ -97,11 +107,22 @@ export class Player extends Character {
             this.jump();
         }
 
+        if (this.keys.e.isDown && !this.onCooldown) {
+            this.startCooldown();
+            this.throw();
+        }
+
         this.timer += delta;
         if (this.timer > 100) {
             this.timer = 0;
             this.gameLogic?.sendPosition(this.x, this.y);
         }
+    }
+
+    throw() {
+        const bottle = new Bottle(this.scene, this.x, this.y, 'rum').setScale(0.4);
+        this.scene.add.existing(bottle);
+        bottle.throw(150 * (this.flipX ? -1 : 1));
     }
 
     private checkJump() {

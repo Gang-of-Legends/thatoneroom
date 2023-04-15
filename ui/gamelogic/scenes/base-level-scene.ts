@@ -87,5 +87,7 @@ export class BaseLevelScene extends Phaser.Scene {
     
     update(time: number, delta: number): void {
         this.player?.update(time, delta);
+
+        super.update(time, delta);
     }
 }
