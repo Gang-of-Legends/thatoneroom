@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Images, PlayerMessages, Plugins, ServerMessages, Tilesets } from "../enums";
+import { Images, PlayerMessages, Plugins, ServerMessages, Sounds, Tilesets } from "../enums";
 import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
@@ -105,6 +105,9 @@ export class BaseLevelScene extends Phaser.Scene {
                 }
             });
 
+            this.physics.add.collider(this.player, this.bottles, (player, bottle) => {
+                this.bottleCollision(bottle as Bottle);                
+            });
             this.physics.add.collider(this.bottles, this.bottles, (bottle1: Bottle, bottle2: Bottle) => {
                 bottle1.setActive(false);
                 bottle1.setVisible(false);
@@ -136,14 +139,21 @@ export class BaseLevelScene extends Phaser.Scene {
           this.enemies.forEach(enemy => enemy.destroy());
           this.enemies = [];
           data.objects.filter(obj => obj.type === 'player' && this.gameLogic?.id != obj.id).forEach(obj => {
-              this.enemies.push(new Enemy(this, obj.x, obj.y, obj.id, 0x00ff00))
+              const enemy = new Enemy(this, obj.x, obj.y, obj.id, 0x00ff00);
+              this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => {
+                this.bottleCollision(bottle as Bottle);                
+              });
+              this.enemies.push(enemy);
           })
         });
         this.gameLogic?.event.addListener(ServerMessages.AddPlayer, (data: ServerAddPlayerMessage) => {
             if (this.gameLogic?.id == data.id) {
                 return
             }
-            const enemy = new Enemy(this, 150, 150, data.id, 0x00ff00);
+            const enemy = new Enemy(this, data.x, data.y, data.id, 0x00ff00);
+            this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => {
+                this.bottleCollision(bottle as Bottle);                
+            });
             this.enemies.push(enemy);
         });
         this.gameLogic?.event.addListener(ServerMessages.Move, (data: ServerPlayerMoveMessage) => {
@@ -178,6 +188,13 @@ export class BaseLevelScene extends Phaser.Scene {
                 velocityY: -45,
             }
         })
+    }
+
+    bottleCollision(bottle: Bottle): void {
+        bottle.setActive(false);
+        bottle.setVisible(false);
+
+        this.sound.play(Sounds.NotImplemented);
     }
     
     update(time: number, delta: number): void {
