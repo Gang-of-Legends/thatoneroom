@@ -1,19 +1,23 @@
 package server
 
-// Direction is used to represent Direction constants.
-type Direction int
-
-// Contains direction constants - DirectionStop will take no effect.
-const (
-	DirectionUp Direction = iota
-	DirectionDown
-	DirectionLeft
-	DirectionRight
-	DirectionStop
-)
-
 type Action interface {
 	Perform(game *Game)
+}
+
+type AddPlayerAction struct {
+	ID string
+}
+
+func (a *AddPlayerAction) Perform(game *Game) {
+	// @TODO lock
+	entity := &Entity{
+		ID: a.ID,
+	}
+	game.Entities[a.ID] = entity
+
+	game.sendChange(NewPlayerChange{
+		Entity: entity,
+	})
 }
 
 type MoveAction struct {
@@ -26,7 +30,6 @@ func (a *MoveAction) Perform(game *Game) {
 	entity := game.Entities[a.ID]
 
 	entity.Coords = a.To
-
 	game.sendChange(MoveChange{
 		Entity: entity,
 	})

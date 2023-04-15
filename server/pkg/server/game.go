@@ -6,7 +6,7 @@ import (
 )
 
 type Coords struct {
-	X, Y int32
+	X, Y int
 }
 type Entity struct {
 	ID     string

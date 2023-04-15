@@ -2,22 +2,19 @@ package serverv1
 
 import "encoding/json"
 
-type Message[T any] struct {
-	Type string `json:"type"`
-	Data T      `json:"data"`
+type Message struct {
+	Type string          `json:"type"`
+	Data json.RawMessage `json:"data"`
 }
+
+const (
+	TypePlayerAuthenticate = "player_authenticate"
+	TypePlayerMove         = "player_move"
+)
 
 type PlayerAuthenticate struct {
+	ID    string `json:"id"`
 	Token string `json:"token"`
-}
-
-func NewPlayerAuthenticate(token string) Message[PlayerAuthenticate] {
-	return Message[PlayerAuthenticate]{
-		Type: "player_authenticate",
-		Data: PlayerAuthenticate{
-			Token: token,
-		},
-	}
 }
 
 type ServerAuthenticate struct {
@@ -26,14 +23,15 @@ type ServerAuthenticate struct {
 	ID      string `json:"id"`
 }
 
-func NewServerAuthenticate(success bool, token string, id string) Message[ServerAuthenticate] {
-	return Message[ServerAuthenticate]{
+func NewServerAuthenticate(success bool, token string, id string) Message {
+	data, _ := json.Marshal(ServerAuthenticate{
+		Success: success,
+		Token:   token,
+		ID:      id,
+	})
+	return Message{
 		Type: "server_authenticate",
-		Data: ServerAuthenticate{
-			Success: success,
-			Token:   token,
-			ID:      id,
-		},
+		Data: data,
 	}
 }
 
@@ -41,28 +39,19 @@ type ServerAddPlayer struct {
 	ID string `json:"id"`
 }
 
-func NewServerAddPlayer(id string) Message[ServerAddPlayer] {
-	return Message[ServerAddPlayer]{
+func NewServerAddPlayer(id string) Message {
+	data, _ := json.Marshal(ServerAddPlayer{
+		ID: id,
+	})
+	return Message{
 		Type: "server_add_player",
-		Data: ServerAddPlayer{
-			ID: id,
-		},
+		Data: data,
 	}
 }
 
 type PlayerMove struct {
 	X int `json:"x"`
 	Y int `json:"y"`
-}
-
-func NewPlayerMove(x int, y int) Message[PlayerMove] {
-	return Message[PlayerMove]{
-		Type: "player_move",
-		Data: PlayerMove{
-			X: x,
-			Y: y,
-		},
-	}
 }
 
 // ServerMove is only sent for other players, or when server wants to move any player
@@ -72,40 +61,14 @@ type ServerMove struct {
 	Y  int    `json:"y"`
 }
 
-func NewServerMove(id string, x int, y int) Message[ServerMove] {
-	return Message[ServerMove]{
+func NewServerMove(id string, x int, y int) Message {
+	data, _ := json.Marshal(ServerMove{
+		ID: id,
+		X:  x,
+		Y:  y,
+	})
+	return Message{
 		Type: "server_move",
-		Data: ServerMove{
-			ID: id,
-			X:  x,
-			Y:  y,
-		},
+		Data: data,
 	}
-}
-
-type MessageHandler interface {
-	HandleAuthenticate(data Message[PlayerAuthenticate])
-	//HandleMove(data Message[PlayerMove])
-}
-
-func HandleMessage(bb []byte, handler MessageHandler) error {
-	var msg Message[any]
-	err := json.Unmarshal(bb, &msg)
-	if err != nil {
-		return err
-	}
-
-	switch msg.Type {
-	case "player_authenticate":
-		var data Message[PlayerAuthenticate]
-		_ = json.Unmarshal(bb, &data)
-		handler.HandleAuthenticate(data)
-
-	case "player_move":
-		var data Message[PlayerMove]
-		_ = json.Unmarshal(bb, &data)
-		//handler.HandleMove(data)
-	}
-
-	return nil
 }
