@@ -13,6 +13,40 @@ export class BaseLevelScene extends Phaser.Scene {
     enemies: Enemy[] = [];
     bottles: BottleGroup;
 
+    bottleInventory = 3;
+    bottleInventoryRefillTimeout: any = null;
+    bottleOnGCD = false;
+
+    grabBottle(): boolean {
+        if (this.bottleInventory <= 0) {
+            return false
+        }
+        if (this.bottleOnGCD) {
+            return false;
+        }
+
+        this.bottleOnGCD = true;
+        setTimeout(() => {
+            this.bottleOnGCD = false;
+        }, 150);
+
+        const refillAndTimeout = () => {
+            this.bottleInventory += 1;
+            if (this.bottleInventory < 3) {
+                this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, 5000);
+            } else {
+                this.bottleInventoryRefillTimeout = null;
+            }
+        }
+
+        this.bottleInventory -= 1;
+        if (!this.bottleInventoryRefillTimeout) {
+            this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, 5000);
+        }
+        
+        return true;
+    }
+
     private sceneConfig: SceneConfig;
     gameLogic: GameLogicPlugin | null = null;
     worldLayers: (Phaser.Tilemaps.TilemapLayer| null)[] = [];
@@ -130,6 +164,10 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     throwBottle() {
+        if (!this.grabBottle()) {
+            return;
+        }
+
         this.gameLogic?.send({
             type: PlayerMessages.PlayerSpawnObject,
             data: {
