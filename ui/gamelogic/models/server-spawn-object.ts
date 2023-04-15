@@ -1,4 +1,5 @@
 export interface ServerSpawnObjectMessage {
+    playerID: string;
     x: number;
     y: number;
     type: string;
@@ -7,6 +8,7 @@ export interface ServerSpawnObjectMessage {
 }
 
 export interface PlayerSpawnObjectMessage {
+    playerID: string;
     x: number;
     y: number;
     type: string;

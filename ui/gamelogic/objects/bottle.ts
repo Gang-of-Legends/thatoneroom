@@ -75,7 +75,7 @@ export class BottleGroup extends Phaser.Physics.Arcade.Group {
     });
   }
 
-  throw(x: number, y: number, velocityX: number, velocityY: number) {
+  throw(x: number, y: number, velocityX: number, velocityY: number, playerID: string) {
     const bottle : Bottle = this.getFirstDead(true);
     bottle.setFrame(1);
     bottle.depth = 10;

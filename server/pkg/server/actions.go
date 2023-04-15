@@ -151,7 +151,7 @@ type ResetAction struct {
 func (a *ResetAction) Perform(game *Game) {
 	game.mx.Lock()
 	game.startAt = time.Now()
-	game.objects = nil
+	game.objects = make(map[string]*Object)
 	game.mx.Unlock()
 
 	game.ChangeChannel <- ResetChange{

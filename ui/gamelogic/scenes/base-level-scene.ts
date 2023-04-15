@@ -223,7 +223,11 @@ export class BaseLevelScene extends Phaser.Scene {
             enemy?.destroy();
         });
         this.gameLogic?.event.addListener(ServerMessages.SpawnObject, (data: ServerSpawnObjectMessage) => {
-            this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY);
+            switch (data.type) {
+                case "bottle":
+                    this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY, data.playerID);
+                    break
+            }
         });
     }
 
@@ -235,6 +239,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.gameLogic?.send({
             type: PlayerMessages.PlayerSpawnObject,
             data: {
+                playerID: this.gameLogic.id!,
                 type: "bottle",
                 x: this.player.x,
                 y: this.player.y,
