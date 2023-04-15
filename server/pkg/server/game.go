@@ -47,12 +47,12 @@ func (g *Game) Start() {
 
 func (g *Game) GetObject(id string) *Object {
 	g.mx.Lock()
-	defer g.mx.Lock()
+	defer g.mx.Unlock()
 	return g.objects[id]
 }
 func (g *Game) Objects() []*Object {
 	g.mx.Lock()
-	defer g.mx.Lock()
+	defer g.mx.Unlock()
 	objs := make([]*Object, 0, len(g.objects))
 	for _, v := range g.objects {
 		objs = append(objs, v)
@@ -62,7 +62,7 @@ func (g *Game) Objects() []*Object {
 
 func (g *Game) AddObject(obj *Object) {
 	g.mx.Lock()
-	defer g.mx.Lock()
+	defer g.mx.Unlock()
 	g.objects[obj.ID] = obj
 }
 
@@ -73,9 +73,7 @@ func (g *Game) watchActions() {
 			zap.L().Warn("nil action")
 			continue
 		}
-		g.mx.Lock()
 		action.Perform(g)
-		g.mx.Unlock()
 	}
 }
 

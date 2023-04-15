@@ -138,9 +138,8 @@ func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMov
 }
 
 func (s *WebSocketService) getState() *serverv1.ServerState {
-	s.mx.RLock()
-	defer s.mx.RUnlock()
 	objs := s.game.Objects()
+
 	state := &serverv1.ServerState{
 		Objects: make([]serverv1.Object, 0, len(objs)),
 	}
