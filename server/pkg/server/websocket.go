@@ -166,13 +166,6 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 	}
 	ps.S.Set("session", session)
 
-	// @TODO remove action
-	s.game.ActionChannel <- &AddPlayerAction{
-		ID: id,
-		X:  data.X,
-		Y:  data.Y,
-	}
-
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(true, session.Token, session.ID))
 	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 }

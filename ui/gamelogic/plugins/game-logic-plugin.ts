@@ -27,11 +27,15 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     }
 
     async connect() {
-        const socket = new WebSocket("ws://petermalina.com/ws");
+        const socket = new WebSocket("ws://localhost:8080/ws");
     
         socket.onopen = () => {
           this.socket = socket;
           this.connected = true;
+            this.send({
+                type: "player_authenticate",
+                data: null
+            });
         }
     
         socket.onmessage = (event) => {
@@ -76,17 +80,26 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
           }
       }
 
-      auth(x: number, y: number) {
+      auth() {
           this.send({
               type: PlayerMessages.Authenticate,
-              data: {
-                  x: x,
-                  y: y
-              }
+              data: null,
           });
       }
 
-      handleAuthentication(data: ServerAuthenticateMessage) {
+    wsConnect(name: string, x: number, y: number) {
+        this.send({
+            type: PlayerMessages.Connect,
+            data: {
+                name: name,
+                x: x,
+                y: y
+            }
+        });
+    }
+
+
+    handleAuthentication(data: ServerAuthenticateMessage) {
         this.authenticated = true;
         this.id = data.id;
       }

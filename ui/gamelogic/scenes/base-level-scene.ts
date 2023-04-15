@@ -141,7 +141,7 @@ export class BaseLevelScene extends Phaser.Scene {
                 
             });
             this.bloodEmmiter.setPosition(this.player.x, this.player.y);
-            this.gameLogic?.auth(this.player.x, this.player.y);
+            this.gameLogic?.wsConnect('Random Name', this.player.x, this.player.y);
 
             this.worldLayers.forEach(layer => {
                 if (layer !== null) {
