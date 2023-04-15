@@ -152,7 +152,6 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 			sendMsg(ps.S, serverv1.NewServerAuthenticate(false, "", ""))
 			return
 		}
-		sendMsg(ps.S, serverv1.NewServerAuthenticate(true, ps.Token, ps.ID))
 		sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 
 		return
@@ -167,11 +166,11 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 	ps.S.Set("session", session)
 
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(true, session.Token, session.ID))
-	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 }
 
 func (s *WebSocketService) HandleConnect(ps *Session, data serverv1.PlayerConnect) {
 	zap.L().Info("handle", zap.Any("data", data))
+	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 
 	s.game.ActionChannel <- &AddPlayerAction{
 		ID:   ps.ID,
