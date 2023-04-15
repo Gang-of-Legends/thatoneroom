@@ -77,6 +77,10 @@ func (s *WebSocketService) Message(m *melody.Session, msg []byte) {
 		var data serverv1.PlayerSpawnObject
 		json.Unmarshal(sMsg.Data, &data)
 		s.HandleSpawnObject(session, data)
+	case serverv1.TypePlayerPickupItem:
+		var data serverv1.PlayerPickupItem
+		json.Unmarshal(sMsg.Data, &data)
+		s.HandlePickupItem(session, data)
 
 	default:
 		sendMsg(m, "unknown")
@@ -95,6 +99,8 @@ func (s *WebSocketService) watchChanges() {
 					X:  val.Object.Coords.X,
 					Y:  val.Object.Coords.Y,
 				})
+			case PickupItemChange:
+				msg = serverv1.NewServerPickupItem(val.PlayerID, val.Type)
 			case MoveChange:
 				msg = serverv1.NewServerMove(val.Object.ID, val.Object.Coords.X, val.Object.Coords.Y, val.Object.State)
 			case RemovePlayerChange:
@@ -187,6 +193,20 @@ func (s *WebSocketService) HandleSpawnObject(ps *Session, data serverv1.PlayerSp
 	}
 
 }
+func (s *WebSocketService) HandlePickupItem(ps *Session, data serverv1.PlayerPickupItem) {
+	zap.L().Info("handle", zap.Any("data", data))
+
+	if ps.ID == "" {
+		sendMsg(ps.S, "authorize first")
+		return
+	}
+
+	s.game.ActionChannel <- &PickupItemAction{
+		PlayerID: ps.ID,
+		Type:     data.Type,
+	}
+
+}
 
 func (s *WebSocketService) getState() serverv1.ServerState {
 	objs := s.game.Objects()
@@ -195,11 +215,19 @@ func (s *WebSocketService) getState() serverv1.ServerState {
 		Objects: make([]serverv1.Object, 0, len(objs)),
 	}
 	for _, v := range objs {
+		items := make([]serverv1.Item, 0, len(v.Inventory))
+		for _, item := range v.Inventory {
+			items = append(items, serverv1.Item{
+				Type:  item.Type,
+				Count: item.Count,
+			})
+		}
 		state.Objects = append(state.Objects, serverv1.Object{
-			ID:   v.ID,
-			Type: v.Type,
-			X:    v.Coords.X,
-			Y:    v.Coords.Y,
+			ID:        v.ID,
+			Type:      v.Type,
+			X:         v.Coords.X,
+			Y:         v.Coords.Y,
+			Inventory: items,
 		})
 	}
 	return state

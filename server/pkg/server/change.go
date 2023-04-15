@@ -19,3 +19,8 @@ type SpawnObjectChange struct {
 	Type             string
 	X, Y, VelX, VelY float64
 }
+
+type PickupItemChange struct {
+	PlayerID string
+	Type     string
+}

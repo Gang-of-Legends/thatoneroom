@@ -21,7 +21,7 @@ func (a *AddPlayerAction) Perform(game *Game) {
 		Coords: at,
 	}
 
-	game.AddObject(object)
+	game.SetObject(object)
 
 	game.sendChange(NewPlayerChange{
 		Object: object,
@@ -71,5 +71,35 @@ func (a *SpawnObjectAction) Perform(game *Game) {
 		Y:    a.Y,
 		VelX: a.VelX,
 		VelY: a.VelY,
+	})
+}
+
+type PickupItemAction struct {
+	PlayerID string
+	Type     string
+}
+
+func (a *PickupItemAction) Perform(game *Game) {
+	obj := game.GetObject(a.PlayerID)
+	found := false
+	for _, item := range obj.Inventory {
+		if item.Type == a.Type {
+			item.Count++
+			found = true
+			break
+		}
+	}
+	if !found {
+		obj.Inventory = append(obj.Inventory, &Item{
+			Type:  a.Type,
+			Count: 1,
+		})
+	}
+
+	game.SetObject(obj)
+
+	game.sendChange(PickupItemChange{
+		PlayerID: a.PlayerID,
+		Type:     a.Type,
 	})
 }

@@ -66,7 +66,7 @@ func (g *Game) RemoveObject(id string) {
 	delete(g.objects, id)
 }
 
-func (g *Game) AddObject(obj *Object) {
+func (g *Game) SetObject(obj *Object) {
 	g.mx.Lock()
 	defer g.mx.Unlock()
 	g.objects[obj.ID] = obj

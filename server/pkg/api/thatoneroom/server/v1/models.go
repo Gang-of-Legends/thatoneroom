@@ -11,6 +11,7 @@ const (
 	TypePlayerAuthenticate = "player_authenticate"
 	TypePlayerMove         = "player_move"
 	TypePlayerSpawnObject  = "player_spawn_object"
+	TypePlayerPickupItem   = "player_pickup_item"
 )
 
 type ServerSpawnObject struct {
@@ -37,6 +38,10 @@ type ServerAuthenticate struct {
 	Success bool   `json:"success"`
 	Token   string `json:"token"`
 	ID      string `json:"id"`
+}
+
+type PlayerPickupItem struct {
+	Type string `json:"type"`
 }
 
 func NewServerSpawnObject(object ServerSpawnObject) Message {
@@ -100,10 +105,16 @@ func NewServerMove(id string, x float64, y float64, state string) Message {
 }
 
 type Object struct {
-	ID   string  `json:"id"`
-	Type string  `json:"type"`
-	X    float64 `json:"x"`
-	Y    float64 `json:"y"`
+	ID        string  `json:"id"`
+	Type      string  `json:"type"`
+	X         float64 `json:"x"`
+	Y         float64 `json:"y"`
+	Inventory []Item  `json:"item"`
+}
+
+type Item struct {
+	Type  string `json:"type"`
+	Count int    `json:"count"`
 }
 type ServerState struct {
 	Objects []Object `json:"objects"`
@@ -127,6 +138,22 @@ func NewServerRemovePlayer(id string) Message {
 	})
 	return Message{
 		Type: "server_remove_player",
+		Data: data,
+	}
+}
+
+type ServerPickupItem struct {
+	PlayerID string `json:"playerID"`
+	Type     string `json:"type"`
+}
+
+func NewServerPickupItem(playerID string, item string) Message {
+	data, _ := json.Marshal(ServerPickupItem{
+		PlayerID: playerID,
+		Type:     item,
+	})
+	return Message{
+		Type: "server_pickup_item",
 		Data: data,
 	}
 }
