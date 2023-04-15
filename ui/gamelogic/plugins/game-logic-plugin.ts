@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { ServerMessages } from "../enums";
+import { Movements, ServerMessages } from "../enums";
 import { ServerAddPlayerMessage, ServerAuthenticateMessage, ServerPlayerMoveMessage } from "../models";
 import { ServerMessage } from "../models/server-message";
 
@@ -64,13 +64,14 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
         }
       }
 
-      sendPosition(x: number, y: number) {
+      sendPosition(x: number, y: number, movement: Movements) {
           if (this.socket) {
                 this.socket.send(JSON.stringify({
                     type: "player_move",
                     data: {
                         x: x,
-                        y: y
+                        y: y,
+                        movement: movement
                     }
                 }));
           }

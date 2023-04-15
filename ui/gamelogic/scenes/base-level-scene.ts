@@ -67,27 +67,37 @@ export class BaseLevelScene extends Phaser.Scene {
 
     addEventListeners() {
         this.gameLogic?.event.addListener(ServerMessages.AddPlayer, (data: ServerAddPlayerMessage) => {
-            const enemy = new Enemy(this, 0, 0, data.id, 0x00ff00);
+            const enemy = new Enemy(this, 150, 150, data.id, 0x00ff00);
+            /*this.worldLayers.forEach((layer) => {
+                if (layer != null)
+                    this.physics.add.collider(layer, enemy);
+            })*/
             this.enemies.push(enemy);
         });
         this.gameLogic?.event.addListener(ServerMessages.Move, (data: ServerPlayerMoveMessage) => {
             const enemy = this.enemies.find((enemy) => enemy.id == data.id);
-            this.worldLayers.forEach((layer) => {
-                if (layer != null && enemy)
-                    this.physics.add.collider(layer, enemy);
-            })
-            enemy?.setPosition(data.x, data.y);
+            if (enemy)
+                enemy.target = new Phaser.Math.Vector2(data.x, data.y);
         });
         this.gameLogic?.event.addListener(ServerMessages.RemovePlayer, (data: ServerAddPlayerMessage) => {
             const enemy = this.enemies.find((enemy) => enemy.id == data.id);
             this.enemies = this.enemies.filter((enemy) => enemy.id != data.id);
             enemy?.destroy();
-        })
+        });
     }
     
     update(time: number, delta: number): void {
         this.player?.update(time, delta);
 
         super.update(time, delta);
+        
+        this.enemies.forEach((enemy) => {
+            enemy.body?.stop();
+            if (enemy.target) {
+                if (Math.abs(enemy.x - enemy.target.x) > 2 || Math.abs(enemy.y - enemy.target.y) > 2) {
+                    this.physics.moveToObject(enemy, enemy.target);
+                }
+            }
+        });
     }
 }
