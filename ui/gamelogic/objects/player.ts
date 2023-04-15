@@ -7,12 +7,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private isIdling: boolean;
     private isDead: boolean;
     private speed: number;
+    private jumpVelocity: number;
     keys: any;
 
-    constructor(scene: Phaser.Scene, x: number, y: number, speed=50) {
+    constructor(scene: Phaser.Scene, x: number, y: number, speed=50, jumpVelocity=150) {
         super(scene, x, y, Spritesheets.Main, 4);
 
         this.speed = speed;
+        this.jumpVelocity = jumpVelocity;
         this.isWalking = false;
         this.isJumping = false;
         this.isIdling = true;
@@ -83,7 +85,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     jump() {
         if (this.canJump && !this.isDead) {
-            this.setVelocityY(-1.5*this.speed);
+            this.setVelocityY(-1*this.jumpVelocity);
             this.play('jump');
             this.isJumping = true;
             this.isIdling = false;
