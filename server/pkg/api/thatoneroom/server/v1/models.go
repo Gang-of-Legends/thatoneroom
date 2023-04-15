@@ -50,22 +50,25 @@ func NewServerAddPlayer(id string) Message {
 }
 
 type PlayerMove struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
+	X     float64 `json:"x"`
+	Y     float64 `json:"y"`
+	State string  `json:"state"`
 }
 
 // ServerMove is only sent for other players, or when server wants to move any player
 type ServerMove struct {
-	ID string  `json:"id"`
-	X  float64 `json:"x"`
-	Y  float64 `json:"y"`
+	ID    string  `json:"id"`
+	X     float64 `json:"x"`
+	Y     float64 `json:"y"`
+	State string  `json:"state"`
 }
 
-func NewServerMove(id string, x float64, y float64) Message {
+func NewServerMove(id string, x float64, y float64, state string) Message {
 	data, _ := json.Marshal(ServerMove{
-		ID: id,
-		X:  x,
-		Y:  y,
+		ID:    id,
+		X:     x,
+		Y:     y,
+		State: state,
 	})
 	return Message{
 		Type: "server_move",

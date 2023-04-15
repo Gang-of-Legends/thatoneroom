@@ -37,16 +37,18 @@ func (a *AddPlayerAction) Perform(game *Game) {
 }
 
 type MoveAction struct {
-	ID string
-	To Coords
+	ID    string
+	To    Coords
+	State string
 }
 
 func (a *MoveAction) Perform(game *Game) {
 	object := game.GetObject(a.ID)
-	if object.Coords == a.To {
+	if object.Coords == a.To && object.State == a.State {
 		return
 	}
 	object.Coords = a.To
+	object.State = a.State
 	game.sendChange(MoveChange{
 		Object: object,
 	})

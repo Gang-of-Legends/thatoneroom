@@ -87,7 +87,7 @@ func (s *WebSocketService) watchChanges() {
 			case NewPlayerChange:
 				msg = serverv1.NewServerAddPlayer(val.Object.ID)
 			case MoveChange:
-				msg = serverv1.NewServerMove(val.Object.ID, val.Object.Coords.X, val.Object.Coords.Y)
+				msg = serverv1.NewServerMove(val.Object.ID, val.Object.Coords.X, val.Object.Coords.Y, val.Object.State)
 			case RemovePlayerChange:
 				msg = serverv1.NewServerRemovePlayer(val.ID)
 			}
@@ -143,6 +143,7 @@ func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMov
 			X: data.X,
 			Y: data.Y,
 		},
+		State: data.State,
 	}
 }
 
