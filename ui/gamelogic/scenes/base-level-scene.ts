@@ -175,7 +175,7 @@ export class BaseLevelScene extends Phaser.Scene {
                 x: this.player.x,
                 y: this.player.y,
                 velocityX: 150 * (this.player.flipX ? -1 : 1),
-                velocityY: -50,
+                velocityY: -45,
             }
         })
     }
