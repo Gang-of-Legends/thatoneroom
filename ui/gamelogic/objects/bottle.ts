@@ -31,6 +31,8 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
 
     this.setVelocityX(velocityX);
     this.setVelocityY(velocityY);
+
+    return this;
   }
 
   despawn() {
@@ -75,13 +77,15 @@ export class BottleGroup extends Phaser.Physics.Arcade.Group {
     });
   }
 
-  throw(x: number, y: number, velocityX: number, velocityY: number, playerID: string) {
+  throw(x: number, y: number, velocityX: number, velocityY: number, playerID: string): Bottle | null {
     const bottle : Bottle = this.getFirstDead(true);
     bottle.setFrame(1);
     bottle.depth = 10;
 
     if (bottle) {
-      bottle.throw(x, y, velocityX, velocityY);
+      return bottle.throw(x, y, velocityX, velocityY);
+    } else {
+      return null;
     }
   }
 

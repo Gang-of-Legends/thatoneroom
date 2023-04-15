@@ -17,6 +17,7 @@ export class BaseLevelScene extends Phaser.Scene {
     enemies: Enemy[] = [];
     bottles: BottleGroup;
     bloodEmmiter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    flameEmmiter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
     bottleInventory = 3;
     bottleInventoryRefillTimeout: any = null;
@@ -144,6 +145,20 @@ export class BaseLevelScene extends Phaser.Scene {
             this.bloodEmmiter.setPosition(this.player.x, this.player.y);
             this.gameLogic?.wsConnect('Random Name', this.player.x, this.player.y);
 
+            this.flameEmmiter = this.add.particles(0, 0, Spritesheets.Particles,
+            {
+                frame: 4,
+                color: [ 0xfacc22, 0xf89800, 0xf83600, 0x9f0404 ],
+                colorEase: 'quad.out',
+                lifespan: 700,
+                angle: { min: -100, max: -80 },
+                scale: { start: 0.40, end: 0, ease: 'sine.out' },
+                speed: 50,
+                advance: 200,
+                blendMode: 'ADD',
+                //emitting: true
+            });
+
             this.worldLayers.forEach(layer => {
                 if (layer !== null) {
                     layer.setCollisionByProperty({ collides: true });
@@ -247,7 +262,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.gameLogic?.event.addListener(ServerMessages.SpawnObject, (data: ServerSpawnObjectMessage) => {
             switch (data.type) {
                 case "bottle":
-                    this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY, data.playerID);
+                    const bottle = this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY, data.playerID);
                     break
                 case "item":
                     const item = new Item(data.id, this, data.x, data.y, data.option);
