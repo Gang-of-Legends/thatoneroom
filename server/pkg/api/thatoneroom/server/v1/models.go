@@ -26,11 +26,13 @@ type ServerSpawnObject struct {
 
 type PlayerSpawnObject struct {
 	PlayerID  string  `json:"playerID"`
+	ID        string  `json:"id"`
 	Type      string  `json:"type"`
 	X         float64 `json:"x"`
 	Y         float64 `json:"y"`
 	VelocityX float64 `json:"velocityX"`
 	VelocityY float64 `json:"velocityY"`
+	Item      int     `json:"item"`
 }
 
 type PlayerDead struct {
@@ -59,6 +61,7 @@ type ServerAuthenticate struct {
 
 type PlayerPickupItem struct {
 	Type string `json:"type"`
+	ID   string `json:"id"`
 }
 
 func NewServerSpawnObject(object ServerSpawnObject) Message {
@@ -183,12 +186,14 @@ func NewServerPlayerDead(id string) Message {
 
 type ServerPickupItem struct {
 	PlayerID string `json:"playerID"`
+	ID       string `json:"id"`
 	Type     string `json:"type"`
 }
 
-func NewServerPickupItem(playerID string, item string) Message {
+func NewServerPickupItem(playerID string, itemID string, item string) Message {
 	data, _ := json.Marshal(ServerPickupItem{
 		PlayerID: playerID,
+		ID:       itemID,
 		Type:     item,
 	})
 	return Message{

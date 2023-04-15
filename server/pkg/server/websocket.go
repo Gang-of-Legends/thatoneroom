@@ -108,7 +108,7 @@ func (s *WebSocketService) watchChanges() {
 					Y:  val.Object.Coords.Y,
 				})
 			case PickupItemChange:
-				msg = serverv1.NewServerPickupItem(val.PlayerID, val.Type)
+				msg = serverv1.NewServerPickupItem(val.PlayerID, val.ItemID, val.Type)
 			case MoveChange:
 				msg = serverv1.NewServerMove(val.Object.ID, val.Object.Coords.X, val.Object.Coords.Y, val.Object.State)
 			case RemovePlayerChange:
@@ -117,6 +117,7 @@ func (s *WebSocketService) watchChanges() {
 				msg = serverv1.NewServerSpawnObject(serverv1.ServerSpawnObject{
 					ID: val.ID,
 					PlayerSpawnObject: serverv1.PlayerSpawnObject{
+						Item:      val.Item,
 						PlayerID:  val.PlayerID,
 						Type:      val.Type,
 						X:         val.X,
@@ -225,6 +226,7 @@ func (s *WebSocketService) HandlePickupItem(ps *Session, data serverv1.PlayerPic
 
 	s.game.ActionChannel <- &PickupItemAction{
 		PlayerID: ps.ID,
+		ItemID:   data.ID,
 		Type:     data.Type,
 	}
 }

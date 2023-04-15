@@ -71,6 +71,7 @@ type SpawnObjectAction struct {
 	PlayerID         string
 	Type             string
 	X, Y, VelX, VelY float64
+	Item             int
 }
 
 func (a *SpawnObjectAction) Perform(game *Game) {
@@ -82,11 +83,13 @@ func (a *SpawnObjectAction) Perform(game *Game) {
 		Y:        a.Y,
 		VelX:     a.VelX,
 		VelY:     a.VelY,
+		Item:     a.Item,
 	})
 }
 
 type PickupItemAction struct {
 	PlayerID string
+	ItemID   string
 	Type     string
 }
 
@@ -114,6 +117,7 @@ func (a *PickupItemAction) Perform(game *Game) {
 
 	game.sendChange(PickupItemChange{
 		PlayerID: a.PlayerID,
+		ItemID:   a.ItemID,
 		Type:     a.Type,
 	})
 }
@@ -128,7 +132,7 @@ func (a *PlayerDeadAction) Perform(game *Game) {
 	if obj == nil {
 		return
 	}
-	invs := obj.Inventory
+	//invs := obj.Inventory
 	obj.Inventory = nil
 	game.SetObject(obj)
 
@@ -143,14 +147,14 @@ func (a *PlayerDeadAction) Perform(game *Game) {
 		KilledBy: a.KilledBy,
 	})
 
-	for _, item := range invs {
-		game.ActionChannel <- &SpawnObjectAction{
-			ID:   id(),
-			Type: item.Type,
-			X:    obj.Coords.X,
-			Y:    obj.Coords.Y,
-		}
-	}
+	//for _, item := range invs {
+	//	game.ActionChannel <- &SpawnObjectAction{
+	//		ID:   id(),
+	//		Type: item.Type,
+	//		X:    obj.Coords.X,
+	//		Y:    obj.Coords.Y,
+	//	}
+	//}
 
 }
 

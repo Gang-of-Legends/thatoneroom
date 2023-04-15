@@ -1,11 +1,12 @@
 package server
 
 import (
-	"crypto/rand"
+	crand "crypto/rand"
 	"encoding/base64"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"io"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -42,7 +43,7 @@ func NewGame() *Game {
 }
 
 func (g *Game) Start() {
-	//go g.loop()
+	go g.loop()
 	go g.watchActions()
 }
 
@@ -50,13 +51,33 @@ const (
 	roundDuration = 2 * time.Minute
 )
 
+var (
+	powerUpSpawnPoints = []Coords{
+		{
+			X: 150,
+			Y: 100,
+		},
+	}
+)
+
 func (g *Game) loop() {
-	ticker := time.NewTicker(roundDuration)
-	defer ticker.Stop()
+	resetTicker := time.NewTicker(roundDuration)
+	defer resetTicker.Stop()
+	powerupTicker := time.NewTicker(15 * time.Second)
+	defer powerupTicker.Stop()
 	for {
 		select {
-		case <-ticker.C:
-			g.ActionChannel <- &ResetAction{}
+		case <-powerupTicker.C:
+			coords := powerUpSpawnPoints[rand.Intn(len(powerUpSpawnPoints))]
+			g.ActionChannel <- &SpawnObjectAction{
+				ID:   shortID(),
+				Type: "item",
+				X:    coords.X,
+				Y:    coords.Y,
+				Item: rand.Intn(2),
+			}
+		case <-resetTicker.C:
+			//g.ActionChannel <- &ResetAction{}
 		}
 	}
 }
@@ -112,6 +133,6 @@ func id() string {
 
 func shortID() string {
 	b := make([]byte, 3)
-	_, _ = io.ReadFull(rand.Reader, b)
+	_, _ = io.ReadFull(crand.Reader, b)
 	return base64.RawStdEncoding.EncodeToString(b)
 }
