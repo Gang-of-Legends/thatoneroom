@@ -125,6 +125,7 @@ export class BaseLevelScene extends Phaser.Scene {
             enemy?.destroy();
         });
         this.gameLogic?.event.addListener(ServerMessages.SpawnObject, (data: ServerSpawnObjectMessage) => {
+            this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY);
         });
     }
 
@@ -135,12 +136,10 @@ export class BaseLevelScene extends Phaser.Scene {
                 type: "bottle",
                 x: this.player.x,
                 y: this.player.y,
-                velocityX: this.player.flipX ? -1 : 1,
+                velocityX: 150 * (this.player.flipX ? -1 : 1),
                 velocityY: -50,
             }
         })
-
-        this.bottles.throw(this.player.x + 3*(this.player.flipX ? -1 : 1), this.player.y, 150 * (this.player.flipX ? -1 : 1), -50);
     }
     
     update(time: number, delta: number): void {
