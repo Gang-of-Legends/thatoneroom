@@ -1,11 +1,12 @@
 import Phaser from "phaser";
-import { Images, PlayerMessages, Plugins, ServerMessages, Sounds, Tilesets } from "../enums";
+import { Images, PlayerMessages, Plugins, ServerMessages, Sounds, Spritesheets, Tilesets } from "../enums";
 import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
 import { GameLogicPlugin } from "../plugins";
 import { Bottle, BottleGroup } from "../objects/bottle";
 import { ServerSpawnObjectMessage } from "../models/server-spawn-object";
+import { StateSprite } from "../objects/ui/state_sprite";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -33,7 +34,7 @@ export class BaseLevelScene extends Phaser.Scene {
         const refillAndTimeout = () => {
             this.bottleInventory += 1;
             if (this.bottleInventory < 3) {
-                this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, 5000);
+                this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, 2000);
             } else {
                 this.bottleInventoryRefillTimeout = null;
             }
@@ -41,7 +42,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
         this.bottleInventory -= 1;
         if (!this.bottleInventoryRefillTimeout) {
-            this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, 5000);
+            this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, 2000);
         }
         
         return true;
@@ -132,6 +133,8 @@ export class BaseLevelScene extends Phaser.Scene {
         }
 
         this.player?.idle();
+
+        this.createUI();
     }
 
     addEventListeners() {
@@ -215,5 +218,28 @@ export class BaseLevelScene extends Phaser.Scene {
                 }
             }
         });
+
+        this.updateUI();
+    }
+
+    bottlesStatus: Phaser.GameObjects.Text = null!;
+
+    createUI(): void {
+        const bottles = new StateSprite(this, 0, 1, Spritesheets.Bottles, 1);
+        this.bottlesStatus = new Phaser.GameObjects.Text(this, 4, -1, '3/3', { fontSize: '16px', color: '#edebeb' });
+
+        const inventoryGroup = this.add.group([]);
+        inventoryGroup.add(bottles.setScale(0.5), true)
+        inventoryGroup.add(this.bottlesStatus.setScale(0.35), true)
+        inventoryGroup.incX(21);
+        inventoryGroup.incY(6);
+
+        const healthGroup = this.add.group([]);
+
+        this.updateUI();
+    }
+
+    updateUI(): void {
+        this.bottlesStatus?.setText(`${this.bottleInventory}/3`);
     }
 }
