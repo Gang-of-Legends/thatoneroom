@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Movements, Plugins, Sounds, Spritesheets } from "../enums";
+import { PlayerStates, Plugins, Sounds, Spritesheets } from "../enums";
 import { GameLogicPlugin } from "../plugins";
 import { Character } from "./character";
 import { Bottle } from "./bottle";
@@ -13,7 +13,7 @@ export class Player extends Character {
     private jumpVelocity: number;
     private onCooldown = false;
     keys: any;
-    state: Movements = Movements.Idle;
+    state: PlayerStates = PlayerStates.Idle;
     gameLogic: GameLogicPlugin | null = null;
     timer: number = 0;
 
@@ -48,8 +48,8 @@ export class Player extends Character {
             this.setFlipX(false);
             this.isIdling = false;
             if (!this.isWalking && !this.isJumping) {
-                this.state = Movements.Walk;
-                this.play(Movements.Walk);
+                this.state = PlayerStates.Walk;
+                this.play(PlayerStates.Walk);
                 this.isWalking = true;
             };
         }
@@ -62,8 +62,8 @@ export class Player extends Character {
             this.setFlipX(true);
             this.isIdling = false;
             if (!this.isWalking && !this.isJumping) {
-                this.state = Movements.Walk;
-                this.play(Movements.Walk);
+                this.state = PlayerStates.Walk;
+                this.play(PlayerStates.Walk);
                 this.isWalking = true;
             }
         }
@@ -72,8 +72,8 @@ export class Player extends Character {
     jump() {
         if (this.canJump && !this.isDead) {
             this.setVelocityY(-1*this.jumpVelocity);
-            this.state = Movements.Jump;
-            this.play(Movements.Jump);
+            this.state = PlayerStates.Jump;
+            this.play(PlayerStates.Jump);
             this.isJumping = true;
             this.isIdling = false;
             this.isWalking = false;
@@ -84,10 +84,10 @@ export class Player extends Character {
     idle() {
         this.checkJump();
         if (!this.isJumping && !this.isIdling && !this.isDead) {
-            this.state = Movements.Idle;
+            this.state = PlayerStates.Idle;
             this.isIdling = true;
             this.isWalking = false;
-            this.play(Movements.Idle);
+            this.play(PlayerStates.Idle);
         }
     }
 

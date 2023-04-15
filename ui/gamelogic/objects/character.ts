@@ -11,7 +11,7 @@ export class Character extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        this.body?.setSize(7, 13, true);
+        this.body?.setSize(7, 14, true);
         this.setCollideWorldBounds(true);
 
         this.anims.create({

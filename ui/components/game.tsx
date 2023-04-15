@@ -21,6 +21,7 @@ export default function Game() {
           default: "arcade",
           arcade: {
             gravity: { y: 200 },
+            debug: true
           },
         },
         scene: [PreloadScene, MainMenuScene, WelcomeScene],

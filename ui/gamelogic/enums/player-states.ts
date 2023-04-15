@@ -1,4 +1,4 @@
-export enum Movements {
+export enum PlayerStates {
     Idle = "idle",
     Jump = "jump",
     Walk = "walk"

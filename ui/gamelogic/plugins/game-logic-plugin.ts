@@ -63,14 +63,14 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
         }
       }
 
-      sendPosition(x: number, y: number, movement: Movements) {
+      sendPosition(x: number, y: number, state: PlayerState) {
           if (this.socket) {
                 this.socket.send(JSON.stringify({
                     type: PlayerMessages.Move,
                     data: {
                         x: x,
                         y: y,
-                        movement: movement
+                        state: state
                     }
                 }));
           }

@@ -113,8 +113,10 @@ export class BaseLevelScene extends Phaser.Scene {
         });
         this.gameLogic?.event.addListener(ServerMessages.Move, (data: ServerPlayerMoveMessage) => {
             const enemy = this.enemies.find((enemy) => enemy.id == data.id);
-            if (enemy)
+            if (enemy) {
                 enemy.target = new Phaser.Math.Vector2(data.x, data.y);
+                enemy.changeState(data.movement);
+            }
         });
         this.gameLogic?.event.addListener(ServerMessages.RemovePlayer, (data: ServerAddPlayerMessage) => {
             const enemy = this.enemies.find((enemy) => enemy.id == data.id);
@@ -139,6 +141,9 @@ export class BaseLevelScene extends Phaser.Scene {
             if (enemy.target) {
                 if (Math.abs(enemy.x - enemy.target.x) > 2 || Math.abs(enemy.y - enemy.target.y) > 2) {
                     this.physics.moveToObject(enemy, enemy.target);
+                } else {
+                    enemy.setPosition(enemy.target.x, enemy.target.y);
+                    enemy.target = null;
                 }
             }
         });

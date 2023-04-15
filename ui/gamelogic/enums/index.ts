@@ -1,6 +1,6 @@
 import { Images } from "./images";
 import { Maps } from "./maps";
-import { Movements } from "./movements";
+import { PlayerStates } from "./player-states";
 import { PlayerMessages } from "./player-messages";
 import { Plugins } from "./plugins";
 import { Scenes } from "./scenes";
@@ -10,4 +10,4 @@ import { Spritesheets } from "./spritesheets";
 import { Tilesets } from "./tilesets";
 
 
-export { Images, Scenes, Sounds, Maps, Tilesets, Spritesheets, Plugins, ServerMessages, Movements, PlayerMessages };
+export { Images, Scenes, Sounds, Maps, Tilesets, Spritesheets, Plugins, ServerMessages, PlayerStates, PlayerMessages };
