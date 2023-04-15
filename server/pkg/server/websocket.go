@@ -182,7 +182,7 @@ func (s *WebSocketService) HandleSpawnObject(ps *Session, data serverv1.PlayerSp
 		Type: data.Type,
 		X:    data.X,
 		Y:    data.Y,
-		VelX: data.VelocityY,
+		VelX: data.VelocityX,
 		VelY: data.VelocityY,
 	}
 
