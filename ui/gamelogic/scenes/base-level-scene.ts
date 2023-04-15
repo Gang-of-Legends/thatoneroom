@@ -129,6 +129,7 @@ export class BaseLevelScene extends Phaser.Scene {
             });
 
             this.physics.add.collider(this.player, this.bottles, (player, bottle) => {
+                this.removeHealth();
                 this.bottleCollision(bottle as Bottle);                
             });
             this.physics.add.collider(this.bottles, this.bottles, (bottle1: Bottle, bottle2: Bottle) => {
@@ -218,8 +219,6 @@ export class BaseLevelScene extends Phaser.Scene {
     bottleCollision(bottle: Bottle): void {
         bottle.setActive(false);
         bottle.setVisible(false);
-
-        this.removeHealth();
 
         this.sound.play(Sounds.NotImplemented);
     }
