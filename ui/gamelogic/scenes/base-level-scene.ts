@@ -16,8 +16,8 @@ export class BaseLevelScene extends Phaser.Scene {
     player: Player;
     enemies: Enemy[] = [];
     bottles: BottleGroup;
-    bloodEmmiter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
-    flameEmmiter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    bloodEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    flameEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
     bottleInventory = 3;
     bottleInventoryRefillTimeout: any = null;
@@ -131,7 +131,7 @@ export class BaseLevelScene extends Phaser.Scene {
             this.player = new Player(this, 0, 0);
             this.respawnPlayer();
 
-            this.bloodEmmiter = this.add.particles(400, 250, Spritesheets.Particles, {
+            this.bloodEmitter = this.add.particles(400, 250, Spritesheets.Particles, {
                 frame: [ 4 ],
                 lifespan: 2000,
                 speed: { min: 50, max: 150 },
@@ -142,10 +142,10 @@ export class BaseLevelScene extends Phaser.Scene {
                 particleBringToTop: true,
                 
             });
-            this.bloodEmmiter.setPosition(this.player.x, this.player.y);
+            this.bloodEmitter.setPosition(this.player.x, this.player.y);
             this.gameLogic?.wsConnect('Random Name', this.player.x, this.player.y);
 
-            this.flameEmmiter = this.add.particles(0, 0, Spritesheets.Particles,
+            this.flameEmitter = this.add.particles(0, 0, Spritesheets.Particles,
             {
                 frame: 4,
                 color: [ 0xfacc22, 0xf89800, 0xf83600, 0x9f0404 ],
@@ -360,8 +360,8 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     emitBlood(x: number, y: number, count: number = 16) {
-        this.bloodEmmiter?.setPosition(x, y);
-        this.bloodEmmiter?.explode(count);
+        this.bloodEmitter?.setPosition(x, y);
+        this.bloodEmitter?.explode(count);
     }
 
     playHitSound() {
