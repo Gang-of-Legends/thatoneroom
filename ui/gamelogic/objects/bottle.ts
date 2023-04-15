@@ -1,15 +1,25 @@
 import Phaser from "phaser";
 import { StateSprite } from "./ui/state_sprite";
-import { Spritesheets } from "../enums";
+import { Images, Spritesheets } from "../enums";
 import { Player } from "./player";
 
 export class Bottle extends Phaser.Physics.Arcade.Sprite {
   assignedPlayer: Player | null = null;
 
   despawning: boolean = true;
+  emitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
   constructor(scene: Phaser.Scene) {
     super(scene, -1000, -1000, Spritesheets.Bottles, 0);
+
+    this.emitter = this.scene.add.particles(0, 0, Images.ParticleGlass, {
+      frame: 'blue',
+      scale: { start: 0.4, end: 0 },
+      speed: { min: 0, max: 20 },
+      blendMode: 'BLEND',
+      emitting: false,
+    });
+    this.emitter.depth = 100;
   }
 
   throw(x: number, y: number, velocityX: number, velocityY: number) {
@@ -21,6 +31,14 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
 
     this.setVelocityX(velocityX);
     this.setVelocityY(velocityY);
+  }
+
+  despawn() {
+    this.despawning = true;
+  }
+
+  explode() {
+    this.emitter?.explode(5, this.x, this.y);
   }
 
   preUpdate(time: number, delta: number): void {

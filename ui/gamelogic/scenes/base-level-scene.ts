@@ -135,7 +135,8 @@ export class BaseLevelScene extends Phaser.Scene {
                         if (bottle.despawning) {
                             return;
                         }
-                        bottle.despawning = true;
+                        bottle.despawn();
+                        bottle.explode();
 
                         setTimeout(() => {
                             bottle.setActive(false);
@@ -146,6 +147,7 @@ export class BaseLevelScene extends Phaser.Scene {
             });
 
             this.physics.add.collider(this.player, this.bottles, (player: Player, bottle: Bottle) => {
+                bottle.explode();
                 this.emitBlood(player.x, player.y);
                 if (!bottle.despawning) {
                     this.removeHealth();
@@ -154,6 +156,9 @@ export class BaseLevelScene extends Phaser.Scene {
                 this.bottleCollision(bottle as Bottle);                
             });
             this.physics.add.collider(this.bottles, this.bottles, (bottle1: Bottle, bottle2: Bottle) => {
+                bottle1.explode();
+                bottle2.explode();
+
                 bottle1.setActive(false);
                 bottle1.setVisible(false);
                 bottle2.setActive(false);

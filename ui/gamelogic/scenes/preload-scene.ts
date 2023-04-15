@@ -75,6 +75,7 @@ export class PreloadScene extends Phaser.Scene {
 
         /* Images */
         this.load.image(Images.Tiles, 'assets/tiles.png');
+        this.load.image(Images.ParticleGlass, 'assets/particle-glass.png');
         
         /* Spritesheets */
         this.load.spritesheet(Spritesheets.Main, 'assets/spritesheet.png', { frameWidth: 16, frameHeight: 16 })
