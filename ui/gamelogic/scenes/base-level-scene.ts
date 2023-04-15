@@ -54,6 +54,9 @@ export class BaseLevelScene extends Phaser.Scene {
 
     removeHealth(): boolean {
         this.health -= 1;
+        if (this.health <= 0) {
+            this.respawnPlayer();
+        }
 
         const refillAndTimeout = () => {
             this.health += 1;
@@ -71,9 +74,19 @@ export class BaseLevelScene extends Phaser.Scene {
         return true;
     }
 
+    respawnPlayer(): void {
+        const spawnIndex = Math.floor(Math.random() * (this.spawns.length));
+        const spawn = this.spawns[spawnIndex];
+
+        this.player.setPosition(spawn.x, spawn.y);
+        this.health = 5;
+    }
+
     private sceneConfig: SceneConfig;
     gameLogic: GameLogicPlugin | null = null;
     worldLayers: (Phaser.Tilemaps.TilemapLayer| null)[] = [];
+    spawns: Phaser.Types.Tilemaps.TiledObject[] = [];
+
 
     constructor(sceneKey: string, layers: SceneConfig) {
         super({
@@ -108,11 +121,10 @@ export class BaseLevelScene extends Phaser.Scene {
                 ? this.sceneConfig.worldLayers.map(layer => map.createLayer(layer, tileset, 0, 0)) ?? []
                 : [];
 
-            const spawns = map.getObjectLayer("Spawns")?.objects ?? [];
-            const spawnIndex = Math.floor(Math.random() * (spawns.length));
-            const spawn = spawns[spawnIndex];
+            this.spawns = map.getObjectLayer("Spawns")?.objects ?? [];
+            this.player = new Player(this, 0, 0);
+            this.respawnPlayer();
 
-            this.player = new Player(this, spawn.x ?? 0, spawn.y ?? 0);
             this.bloodEmmiter = this.add.particles(400, 250, Spritesheets.Particles, {
                 frame: [ 4 ],
                 lifespan: 2000,
@@ -149,6 +161,7 @@ export class BaseLevelScene extends Phaser.Scene {
             this.physics.add.collider(this.player, this.bottles, (player: Player, bottle: Bottle) => {
                 bottle.explode();
                 this.emitBlood(player.x, player.y);
+                this.playHitSound();
                 if (!bottle.despawning) {
                     this.removeHealth();
                 }
@@ -252,8 +265,6 @@ export class BaseLevelScene extends Phaser.Scene {
     bottleCollision(bottle: Bottle): void {
         bottle.setActive(false);
         bottle.setVisible(false);
-
-        this.sound.play(Sounds.NotImplemented);
     }
     
     update(time: number, delta: number): void {
@@ -312,5 +323,10 @@ export class BaseLevelScene extends Phaser.Scene {
     emitBlood(x: number, y: number, count: number = 16) {
         this.bloodEmmiter?.setPosition(x, y);
         this.bloodEmmiter?.explode(count);
+    }
+
+    playHitSound() {
+        const sound = Math.random() < 0.5 ? Sounds.Hit1 : Sounds.Hit2;
+        this.sound.play(sound);
     }
 }

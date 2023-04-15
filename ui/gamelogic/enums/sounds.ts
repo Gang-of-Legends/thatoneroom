@@ -1,5 +1,7 @@
 export enum Sounds {
     Theme = "sound/Theme",
     Jump = "sound/Jump",
-    NotImplemented = "sound/NotImplemented"
+    NotImplemented = "sound/NotImplemented",
+    Hit1 = "sound/Hit1",
+    Hit2 = "sound/Hit2",
 }
