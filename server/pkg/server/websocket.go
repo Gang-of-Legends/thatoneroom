@@ -25,7 +25,7 @@ type Session struct {
 func NewWSService() *WebSocketService {
 	svc := &WebSocketService{
 		M:        melody.New(),
-		game:     NewGame(),
+		game:     NewGame(map1),
 		sessions: make(map[string]*Session),
 	}
 	svc.game.Start()
@@ -80,9 +80,9 @@ func (s *WebSocketService) watchChanges() {
 			var msg serverv1.Message
 			switch val := change.(type) {
 			case NewPlayerChange:
-				msg = serverv1.NewServerAddPlayer(val.Entity.ID)
+				msg = serverv1.NewServerAddPlayer(val.Object.ID)
 			case MoveChange:
-				msg = serverv1.NewServerMove(val.Entity.ID, val.Entity.Coords.X, val.Entity.Coords.Y)
+				msg = serverv1.NewServerMove(val.Object.ID, val.Object.Coords.X, val.Object.Coords.Y)
 			}
 
 			b, _ := json.Marshal(msg)
@@ -102,6 +102,8 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 			return
 		}
 		sendMsg(ps.S, serverv1.NewServerAuthenticate(true, ps.Token, ps.ID))
+		sendMsg(ps.S, s.getState())
+
 		return
 	}
 	id := uuid.Must(uuid.NewV4()).String()
@@ -116,6 +118,7 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 		ID: id,
 	}
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(true, session.Token, session.ID))
+	sendMsg(ps.S, s.getState())
 
 }
 
@@ -131,6 +134,23 @@ func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMov
 			Y: data.Y,
 		},
 	}
+}
+
+func (s *WebSocketService) getState() *serverv1.ServerState {
+	s.mx.RLock()
+	defer s.mx.RUnlock()
+	state := &serverv1.ServerState{
+		Objects: make([]serverv1.Object, 0, len(s.game.Objects)),
+	}
+	for k, v := range s.game.Objects {
+		state.Objects = append(state.Objects, serverv1.Object{
+			ID:   k,
+			Type: v.Type,
+			X:    v.Coords.X,
+			Y:    v.Coords.Y,
+		})
+	}
+	return state
 }
 func sendMsg(m *melody.Session, msg any) {
 	b, err := json.Marshal(msg)

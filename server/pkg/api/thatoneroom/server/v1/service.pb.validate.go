@@ -680,7 +680,7 @@ func (m *Entity) validate(all bool) error {
 	case *Entity_Player:
 		if v == nil {
 			err := EntityValidationError{
-				field:  "Entity",
+				field:  "Object",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -1058,7 +1058,7 @@ func (m *UpdateEntity) validate(all bool) error {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdateEntityValidationError{
-					field:  "Entity",
+					field:  "Object",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -1066,7 +1066,7 @@ func (m *UpdateEntity) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, UpdateEntityValidationError{
-					field:  "Entity",
+					field:  "Object",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -1075,7 +1075,7 @@ func (m *UpdateEntity) validate(all bool) error {
 	} else if v, ok := interface{}(m.GetEntity()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateEntityValidationError{
-				field:  "Entity",
+				field:  "Object",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

@@ -72,3 +72,13 @@ func NewServerMove(id string, x int, y int) Message {
 		Data: data,
 	}
 }
+
+type Object struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
+	X    int    `json:"x"`
+	Y    int    `json:"y"`
+}
+type ServerState struct {
+	Objects []Object `json:"objects"`
+}

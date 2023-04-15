@@ -332,7 +332,7 @@ func (x *Entity) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Entity.ProtoReflect.Descriptor instead.
+// Deprecated: Use Object.ProtoReflect.Descriptor instead.
 func (*Entity) Descriptor() ([]byte, []int) {
 	return file_thatoneroom_server_v1_service_proto_rawDescGZIP(), []int{5}
 }
@@ -610,7 +610,7 @@ var file_thatoneroom_server_v1_service_proto_goTypes = []interface{}{
 	(*Request)(nil),         // 2: thatoneroom.server.v1.Request
 	(*Response)(nil),        // 3: thatoneroom.server.v1.Response
 	(*Move)(nil),            // 4: thatoneroom.server.v1.Move
-	(*Entity)(nil),          // 5: thatoneroom.server.v1.Entity
+	(*Entity)(nil),          // 5: thatoneroom.server.v1.Object
 	(*Player)(nil),          // 6: thatoneroom.server.v1.Player
 	(*Coordinate)(nil),      // 7: thatoneroom.server.v1.Coordinate
 	(*UpdateEntity)(nil),    // 8: thatoneroom.server.v1.UpdateEntity
@@ -619,9 +619,9 @@ var file_thatoneroom_server_v1_service_proto_depIdxs = []int32{
 	4, // 0: thatoneroom.server.v1.Request.move:type_name -> thatoneroom.server.v1.Move
 	8, // 1: thatoneroom.server.v1.Response.updateEntity:type_name -> thatoneroom.server.v1.UpdateEntity
 	7, // 2: thatoneroom.server.v1.Move.to:type_name -> thatoneroom.server.v1.Coordinate
-	6, // 3: thatoneroom.server.v1.Entity.player:type_name -> thatoneroom.server.v1.Player
+	6, // 3: thatoneroom.server.v1.Object.player:type_name -> thatoneroom.server.v1.Player
 	7, // 4: thatoneroom.server.v1.Player.position:type_name -> thatoneroom.server.v1.Coordinate
-	5, // 5: thatoneroom.server.v1.UpdateEntity.entity:type_name -> thatoneroom.server.v1.Entity
+	5, // 5: thatoneroom.server.v1.UpdateEntity.entity:type_name -> thatoneroom.server.v1.Object
 	0, // 6: thatoneroom.server.v1.ServerService.Connect:input_type -> thatoneroom.server.v1.ConnectRequest
 	2, // 7: thatoneroom.server.v1.ServerService.Stream:input_type -> thatoneroom.server.v1.Request
 	1, // 8: thatoneroom.server.v1.ServerService.Connect:output_type -> thatoneroom.server.v1.ConnectResponse

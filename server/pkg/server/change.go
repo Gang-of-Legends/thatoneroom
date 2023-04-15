@@ -3,9 +3,9 @@ package server
 type Change any
 
 type NewPlayerChange struct {
-	Entity *Entity
+	Object *Object
 }
 
 type MoveChange struct {
-	Entity *Entity
+	Object *Object
 }
