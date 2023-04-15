@@ -8,6 +8,7 @@ import { Bottle, BottleGroup } from "../objects/bottle";
 import { Item } from "../objects/item";
 import { ServerSpawnObjectMessage } from "../models/server-spawn-object";
 import { StateSprite } from "../objects/ui/state_sprite";
+import { runInThisContext } from "vm";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -55,6 +56,8 @@ export class BaseLevelScene extends Phaser.Scene {
 
     removeHealth(): boolean {
         this.health -= 1;
+        this.emitBlood(this.player.x, this.player.y);
+        this.playHitSound();
         if (this.health <= 0) {
             this.respawnPlayer();
         }
@@ -161,8 +164,6 @@ export class BaseLevelScene extends Phaser.Scene {
 
             this.physics.add.collider(this.player, this.bottles, (player: Player, bottle: Bottle) => {
                 bottle.explode();
-                this.emitBlood(player.x, player.y);
-                this.playHitSound();
                 if (!bottle.despawning) {
                     this.removeHealth();
                 }
@@ -209,6 +210,7 @@ export class BaseLevelScene extends Phaser.Scene {
               const enemy = new Enemy(this, obj.x, obj.y, obj.id, 0x00ff00);
               this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => {
                 this.emitBlood((enemy as Enemy).x, (enemy as Enemy).y);
+                this.sound.play(Sounds.HitEnemy);
                 this.bottleCollision(bottle as Bottle);
               });
               this.enemies.push(enemy);
@@ -221,6 +223,7 @@ export class BaseLevelScene extends Phaser.Scene {
             const enemy = new Enemy(this, data.x, data.y, data.id, 0x00ff00);
             this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => {
                 this.emitBlood((enemy as Enemy).x, (enemy as Enemy).y);
+                this.sound.play(Sounds.HitEnemy);
                 this.bottleCollision(bottle as Bottle);
             });
             this.enemies.push(enemy);
@@ -343,6 +346,7 @@ export class BaseLevelScene extends Phaser.Scene {
             const playerBounds = this.player?.getBounds();
             if (Phaser.Geom.Intersects.RectangleToRectangle(itemBounds, playerBounds)) {
                 console.log("item collected");
+                this.sound.play(Sounds.PowerUp);
                 item.destroy();
                 this.items = this.items.filter((i) => i != item);
             }

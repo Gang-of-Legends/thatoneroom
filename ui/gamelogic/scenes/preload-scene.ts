@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import Phaser, { Sound } from 'phaser';
 import { Images, Maps, Scenes, Sounds, Spritesheets } from "../enums";
 
 export class PreloadScene extends Phaser.Scene {
@@ -98,6 +98,8 @@ export class PreloadScene extends Phaser.Scene {
         this.load.audio(Sounds.NotImplemented, 'assets/not-implemented.mp3');
         this.load.audio(Sounds.Hit1, 'assets/hit1.mp3');
         this.load.audio(Sounds.Hit2, 'assets/hit2.mp3');
+        this.load.audio(Sounds.HitEnemy, 'assets/hit-enemy.wav');
+        this.load.audio(Sounds.PowerUp, 'assets/powerup.wav');
     }
 
     create() {
