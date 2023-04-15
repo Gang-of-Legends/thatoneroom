@@ -83,6 +83,7 @@ export class PreloadScene extends Phaser.Scene {
         this.load.spritesheet(Spritesheets.Icons, 'assets/icons.png', { frameWidth: 16, frameHeight: 16 })
         this.load.spritesheet(Spritesheets.Machines, 'assets/machines.png', { frameWidth: 16, frameHeight: 16 })
         this.load.spritesheet(Spritesheets.Bottles, 'assets/bottles.png', { frameWidth: 16, frameHeight: 16 })
+        this.load.spritesheet(Spritesheets.Instructions, 'assets/instructions.png', { frameWidth: 96, frameHeight: 128 })
 
         /* Maps */
         this.load.tilemapTiledJSON(Maps.TestMap1, 'assets/TestMap1.json');

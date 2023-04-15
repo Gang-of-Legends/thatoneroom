@@ -94,6 +94,10 @@ export class BaseLevelScene extends Phaser.Scene {
             this.throwBottle();
         });
 
+        this.input.keyboard.on('keydown-Q', event => {
+            console.log('using object');
+        });
+
         if (tileset !== null) {
             const backgroundLayers = this.sceneConfig.backgroundLayers
                 ? this.sceneConfig.backgroundLayers.map(layer => map.createLayer(layer, tileset, 0, 0))

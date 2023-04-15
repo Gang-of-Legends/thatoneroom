@@ -69,6 +69,9 @@ export class MainMenuScene extends Phaser.Scene {
 
     group.incX((this.cameras.main.width / 2) - 112/2);
     group.incY((this.cameras.main.height / 2) - 100);
+
+    const instructions = new StateSprite(this, 200, 350, Spritesheets.Instructions, 0).setScale(2.5);
+    this.add.existing(instructions);
   }
 
   update(): void {
