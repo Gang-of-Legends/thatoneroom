@@ -42,7 +42,7 @@ func NewGame() *Game {
 }
 
 func (g *Game) Start() {
-	go g.loop()
+	//go g.loop()
 	go g.watchActions()
 }
 
