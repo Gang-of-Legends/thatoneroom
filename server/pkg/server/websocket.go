@@ -86,7 +86,7 @@ func (s *WebSocketService) watchChanges() {
 			}
 
 			b, _ := json.Marshal(msg)
-
+			zap.L().Info("broadcast", zap.Any("msg", msg))
 			if err := s.M.Broadcast(b); err != nil {
 				zap.L().Error("broadcast", zap.Error(err))
 
@@ -96,6 +96,8 @@ func (s *WebSocketService) watchChanges() {
 }
 
 func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerAuthenticate) {
+	zap.L().Info("handle", zap.Any("data", data))
+
 	if data.Token != "" {
 		if ps.Token != data.Token {
 			sendMsg(ps.S, serverv1.NewServerAuthenticate(false, "", ""))
@@ -123,6 +125,8 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 }
 
 func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMove) {
+	zap.L().Info("handle", zap.Any("data", data))
+
 	if ps.ID == "" {
 		sendMsg(ps.S, "authorize first")
 		return
