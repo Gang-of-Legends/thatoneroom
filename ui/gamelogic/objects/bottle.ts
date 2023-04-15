@@ -12,15 +12,15 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
     super(scene, -1000, -1000, Spritesheets.Bottles, 0);
   }
 
-  throw(x: number, y: number, velocity: number) {
+  throw(x: number, y: number, velocityX: number, velocityY: number) {
     this.despawning = false;
     this.enableBody(true, x, y, true, true);
     this.setScale(0.4);
     this.setActive(true);
     this.setVisible(true);
 
-    this.setVelocityX(velocity);
-    this.setVelocityY(-50);
+    this.setVelocityX(velocityX);
+    this.setVelocityY(velocityY);
   }
 
   preUpdate(time: number, delta: number): void {
@@ -57,13 +57,13 @@ export class BottleGroup extends Phaser.Physics.Arcade.Group {
     });
   }
 
-  throw(x: number, y: number, velocity: number) {
+  throw(x: number, y: number, velocityX: number, velocityY: number) {
     const bottle : Bottle = this.getFirstDead(true);
     bottle.setFrame(1);
     bottle.depth = 10;
 
     if (bottle) {
-      bottle.throw(x, y, velocity);
+      bottle.throw(x, y, velocityX, velocityY);
     }
   }
 

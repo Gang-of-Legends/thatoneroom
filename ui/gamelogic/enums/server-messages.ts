@@ -4,5 +4,6 @@ export enum ServerMessages {
     Move = "server_move",
     RemovePlayer = "server_remove_player",
     State = "server_state",
-    GetState = "get_server_state"
+    GetState = "get_server_state",
+    SpawnObject = "server_spawn_object",
 }

@@ -1,10 +1,11 @@
 import Phaser from "phaser";
-import { Images, Plugins, ServerMessages, Tilesets } from "../enums";
+import { Images, PlayerMessages, Plugins, ServerMessages, Tilesets } from "../enums";
 import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
 import { GameLogicPlugin } from "../plugins";
 import { Bottle, BottleGroup } from "../objects/bottle";
+import { ServerSpawnObjectMessage } from "../models/server-spawn-object";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -123,10 +124,23 @@ export class BaseLevelScene extends Phaser.Scene {
             this.enemies = this.enemies.filter((enemy) => enemy.id != data.id);
             enemy?.destroy();
         });
+        this.gameLogic?.event.addListener(ServerMessages.SpawnObject, (data: ServerSpawnObjectMessage) => {
+        });
     }
 
     throwBottle() {
-        this.bottles.throw(this.player.x + 3*(this.player.flipX ? -1 : 1), this.player.y, 150 * (this.player.flipX ? -1 : 1));
+        this.gameLogic?.send({
+            type: PlayerMessages.PlayerSpawnObject,
+            data: {
+                type: "bottle",
+                x: this.player.x,
+                y: this.player.y,
+                velocityX: this.player.flipX ? -1 : 1,
+                velocityY: -50,
+            }
+        })
+
+        this.bottles.throw(this.player.x + 3*(this.player.flipX ? -1 : 1), this.player.y, 150 * (this.player.flipX ? -1 : 1), -50);
     }
     
     update(time: number, delta: number): void {
