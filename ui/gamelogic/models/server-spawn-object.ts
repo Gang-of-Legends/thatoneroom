@@ -6,7 +6,7 @@ export interface ServerSpawnObjectMessage {
     type: string;
     velocityX: number;
     velocityY: number;
-    option: number;
+    item: number;
 }
 
 export interface PlayerSpawnObjectMessage {
@@ -17,5 +17,5 @@ export interface PlayerSpawnObjectMessage {
     type: string;
     velocityX: number;
     velocityY: number;
-    option: number;
+    item: number;
 }

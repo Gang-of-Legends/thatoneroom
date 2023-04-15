@@ -4,12 +4,14 @@ import { Spritesheets } from "../enums";
 
 export class Item extends Phaser.GameObjects.Container {
   id: string;
+  item: number;
 
-  constructor(id: string, scene: Phaser.Scene, x: number, y: number, frame: number) {
+  constructor(id: string, scene: Phaser.Scene, x: number, y: number, item: number) {
     super(scene, x, y);
     this.id = id;
+    this.item = item;
 
-    this.add(new StateSprite(this.scene, 0, 0, Spritesheets.Items, frame).setScale(0.4));
+    this.add(new StateSprite(this.scene, 0, 0, Spritesheets.Items, item).setScale(0.4));
     this.add(new StateSprite(this.scene, 0, 0, Spritesheets.Circles, 0));
   }
 

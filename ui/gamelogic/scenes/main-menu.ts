@@ -3,6 +3,7 @@ import { Images, Maps, Plugins, Scenes, Sounds, Spritesheets } from "../enums";
 import { Button } from "../objects/ui/button";
 import { StateSprite } from "../objects/ui/state_sprite";
 import { GameLogicPlugin } from "../plugins";
+import { PowerUpOverlay } from "../objects/powerup";
 
 export class MainMenuScene extends Phaser.Scene {
   gameLogic: GameLogicPlugin | null = null;

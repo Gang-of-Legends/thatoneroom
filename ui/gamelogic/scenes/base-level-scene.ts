@@ -10,6 +10,7 @@ import { ServerSpawnObjectMessage } from "../models/server-spawn-object";
 import { StateSprite } from "../objects/ui/state_sprite";
 import { runInThisContext } from "vm";
 import { ServerPickupItemMessage } from "../models/pickup-item";
+import { PowerUpOverlay } from "../objects/powerup";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -21,6 +22,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
     bottleInventory = 3;
     bottleInventoryRefillTimeout: any = null;
+    bottleInventoryRefillTime = 2000;
     bottleOnGCD = false;
 
     grabBottle(): boolean {
@@ -39,7 +41,7 @@ export class BaseLevelScene extends Phaser.Scene {
         const refillAndTimeout = () => {
             this.bottleInventory += 1;
             if (this.bottleInventory < 3) {
-                this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, 2000);
+                this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, this.bottleInventoryRefillTime);
             } else {
                 this.bottleInventoryRefillTimeout = null;
             }
@@ -47,7 +49,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
         this.bottleInventory -= 1;
         if (!this.bottleInventoryRefillTimeout) {
-            this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, 2000);
+            this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, this.bottleInventoryRefillTime);
         }
         
         return true;
@@ -265,7 +267,7 @@ export class BaseLevelScene extends Phaser.Scene {
                     const bottle = this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY, data.playerID);
                     break
                 case "item":
-                    const item = new Item(data.id, this, data.x, data.y, data.option);
+                    const item = new Item(data.id, this, data.x, data.y, data.item);
                     this.items.push(item);
                     this.add.existing(item);
                     break
@@ -277,6 +279,12 @@ export class BaseLevelScene extends Phaser.Scene {
             if (item) {
                 item.destroy();
                 this.items = this.items.filter((item) => item.id != data.id);
+            }
+
+            if (data.playerID == this.gameLogic?.id) {
+                this.powerupOverlay.activate(data.item, 10000);
+
+                this.handlePowerUp(data.item, 10000);
             }
         });
     }
@@ -320,7 +328,7 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     bottlesStatus: Phaser.GameObjects.Text = null!;
-    inventoryItems: string[] = [];
+    powerupOverlay: Phaser.GameObjects.Container = null!;
     healthBar: StateSprite[] = [];
 
     createUI(): void {
@@ -344,6 +352,9 @@ export class BaseLevelScene extends Phaser.Scene {
 
         healthGroup.incX(235);
         healthGroup.incY(7);
+
+        this.powerupOverlay = new PowerUpOverlay(this, 105, 168, 0);
+        this.add.existing(this.powerupOverlay);
 
         this.updateUI();
     }
@@ -383,9 +394,28 @@ export class BaseLevelScene extends Phaser.Scene {
                     type: PlayerMessages.PickupItem,
                     data: {
                         id: item.id,
+                        item: item.item,
                     },
                 })
             }
         });
+    }
+
+    handlePowerUp(item: number, duration: number) {
+        switch (item) {
+            case 0:
+                break;
+            case 1:
+                setTimeout(() => {
+                    clearTimeout(this.bottleInventoryRefillTimeout);
+                    this.bottleInventory = 3;
+                    this.bottleInventoryRefillTime = 2000;
+                }, duration)
+
+                clearTimeout(this.bottleInventoryRefillTimeout);
+                this.bottleInventory = 3;
+                this.bottleInventoryRefillTime = 250;
+                break;
+        }
     }
 }
