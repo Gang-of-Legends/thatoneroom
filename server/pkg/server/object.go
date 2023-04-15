@@ -8,6 +8,7 @@ type Object struct {
 	State     string
 	Score     int
 	Inventory []*Item
+	Item      int
 }
 
 type Item struct {

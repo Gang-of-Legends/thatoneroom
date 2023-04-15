@@ -75,6 +75,13 @@ type SpawnObjectAction struct {
 }
 
 func (a *SpawnObjectAction) Perform(game *Game) {
+	object := &Object{
+		ID:     a.ID,
+		Type:   a.Type,
+		Coords: Coords{a.X, a.Y},
+		Item:   a.Item,
+	}
+	game.SetObject(object)
 	game.sendChange(SpawnObjectChange{
 		ID:       a.ID,
 		PlayerID: a.PlayerID,
@@ -91,6 +98,7 @@ type PickupItemAction struct {
 	PlayerID string
 	ItemID   string
 	Type     string
+	Item     int
 }
 
 func (a *PickupItemAction) Perform(game *Game) {
@@ -119,6 +127,7 @@ func (a *PickupItemAction) Perform(game *Game) {
 		PlayerID: a.PlayerID,
 		ItemID:   a.ItemID,
 		Type:     a.Type,
+		Item:     a.Item,
 	})
 }
 

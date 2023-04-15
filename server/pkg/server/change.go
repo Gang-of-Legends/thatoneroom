@@ -28,6 +28,7 @@ type PickupItemChange struct {
 	PlayerID string
 	ItemID   string
 	Type     string
+	Item     int
 }
 
 type PlayerDeadChange struct {
