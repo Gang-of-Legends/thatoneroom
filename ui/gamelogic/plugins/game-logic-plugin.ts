@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Movements, PlayerMessages, ServerMessages } from "../enums";
+import { PlayerMessages, ServerMessages } from "../enums";
 import {
     ServerAddPlayerMessage,
     ServerAuthenticateMessage,

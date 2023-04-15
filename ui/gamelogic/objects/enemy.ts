@@ -9,10 +9,7 @@ export class Enemy extends Character {
     constructor(scene: Phaser.Scene, x: number, y: number, id: string, tint: number | null = null) {
         super(scene, x, y, tint);
         this.id = id;
-    }
-
-    create() {
-        this.setGravityY(200);
+        this.setGravityY(-200);
         super.play(this.state);
     }
 
