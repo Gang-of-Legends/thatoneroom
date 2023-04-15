@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { GameLogic } from "@/gamelogic/instance";
 import { MainMenuScene, PreloadScene, WelcomeScene } from "@/gamelogic/scenes";
+import { Plugins } from "@/gamelogic/enums";
+import { GameLogicPlugin } from "@/gamelogic/plugins";
 
 export default function Game() {
   const [logic, setLogic] = useState<GameLogic>();
@@ -23,6 +25,11 @@ export default function Game() {
         },
         scene: [PreloadScene, MainMenuScene, WelcomeScene],
         backgroundColor: "#000033",
+        plugins: {
+          global: [
+            { key: Plugins.GameLogic, plugin: GameLogicPlugin, start: true }
+          ]
+        }
       });
 
       console.log('initialising game logic');
