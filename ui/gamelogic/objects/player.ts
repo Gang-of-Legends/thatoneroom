@@ -32,12 +32,11 @@ export class Player extends Character {
 
         this.isDead = false;
 
-        const { LEFT, RIGHT, UP, W, A, D, E } = Phaser.Input.Keyboard.KeyCodes;
+        const { LEFT, RIGHT, UP, W, A, D } = Phaser.Input.Keyboard.KeyCodes;
         this.keys = scene.input?.keyboard?.addKeys({
             left: LEFT,
             right: RIGHT,
             up: UP,
-            e: E,
             space: Phaser.Input.Keyboard.KeyCodes.SPACE
         });
     }
@@ -112,22 +111,11 @@ export class Player extends Character {
             this.jump();
         }
 
-        if (this.keys.e.isDown && !this.onCooldown) {
-            this.startCooldown();
-            this.throw();
-        }
-
         this.timer += delta;
         if (this.timer > 100) {
             this.timer = 0;
             this.gameLogic?.sendPosition(this.x, this.y, this.state);
         }
-    }
-
-    throw() {
-        const bottle = new Bottle(this.scene, this.x, this.y, 'rum').setScale(0.4);
-        this.scene.add.existing(bottle);
-        bottle.throw(150 * (this.flipX ? -1 : 1));
     }
 
     private checkJump() {

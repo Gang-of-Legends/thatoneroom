@@ -4,11 +4,14 @@ import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } f
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
 import { GameLogicPlugin } from "../plugins";
+import { Bottle, BottleGroup } from "../objects/bottle";
 
 
 export class BaseLevelScene extends Phaser.Scene {
     player: Player;
     enemies: Enemy[] = [];
+    bottles: BottleGroup;
+
     private sceneConfig: SceneConfig;
     gameLogic: GameLogicPlugin | null = null;
     worldLayers: (Phaser.Tilemaps.TilemapLayer| null)[] = [];
@@ -24,7 +27,14 @@ export class BaseLevelScene extends Phaser.Scene {
         const map = this.make.tilemap({ key: this.sceneConfig.map });
         const tileset = map.addTilesetImage(Tilesets.Main, Images.Tiles);
         this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
+
+        this.bottles = new BottleGroup(this);
         this.addEventListeners();
+
+        this.input.keyboard.on('keydown-E', event => {
+            console.log('throwing bottle');
+            this.throwBottle();
+        });
 
         if (tileset !== null) {
             const backgroundLayers = this.sceneConfig.backgroundLayers
@@ -46,7 +56,27 @@ export class BaseLevelScene extends Phaser.Scene {
                 if (layer !== null) {
                     layer.setCollisionByProperty({ collides: true });
                     this.physics.add.collider(layer, this.player);
+                    this.physics.add.collider(layer, this.bottles, (bottle: Bottle) => {
+                        if (bottle.despawning) {
+                            return;
+                        }
+                        bottle.despawning = true;
+
+                        setTimeout(() => {
+                            bottle.setActive(false);
+                            bottle.setVisible(false);
+                        }, 3000);
+                    });
                 }
+            });
+
+            this.physics.add.collider(this.bottles, this.bottles, (bottle1: Bottle, bottle2: Bottle) => {
+                bottle1.setActive(false);
+                bottle1.setVisible(false);
+                bottle2.setActive(false);
+                bottle2.setVisible(false);
+
+                console.log('colliding bottles');
             });
 
             if (backgroundLayers && backgroundLayers[0]) {
@@ -62,6 +92,7 @@ export class BaseLevelScene extends Phaser.Scene {
                 ? this.sceneConfig.foregroundLayers.map(layer => map.createLayer(layer, tileset, 0, 0))
                 : [];
         }
+
         this.player?.idle();
     }
 
@@ -91,11 +122,17 @@ export class BaseLevelScene extends Phaser.Scene {
             enemy?.destroy();
         });
     }
+
+    throwBottle() {
+        this.bottles.throw(this.player.x + 3*(this.player.flipX ? -1 : 1), this.player.y, 150 * (this.player.flipX ? -1 : 1));
+    }
     
     update(time: number, delta: number): void {
         this.player?.update(time, delta);
 
         super.update(time, delta);
+
+        this.bottles.preUpdate(time, delta);
 
         this.enemies.forEach((enemy) => {
             enemy.body?.stop();
