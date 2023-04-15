@@ -41,6 +41,14 @@ func (s *WebSocketService) Connect(m *melody.Session) {
 }
 
 func (s *WebSocketService) Disconnect(m *melody.Session) {
+	sessionAny, exists := m.Get("session")
+	if !exists {
+		return
+	}
+	session := sessionAny.(*Session)
+	s.game.ActionChannel <- &RemovePlayerAction{
+		ID: session.ID,
+	}
 }
 
 func (s *WebSocketService) Message(m *melody.Session, msg []byte) {
@@ -80,6 +88,8 @@ func (s *WebSocketService) watchChanges() {
 				msg = serverv1.NewServerAddPlayer(val.Object.ID)
 			case MoveChange:
 				msg = serverv1.NewServerMove(val.Object.ID, val.Object.Coords.X, val.Object.Coords.Y)
+			case RemovePlayerChange:
+				msg = serverv1.NewServerRemovePlayer(val.ID)
 			}
 
 			b, _ := json.Marshal(msg)

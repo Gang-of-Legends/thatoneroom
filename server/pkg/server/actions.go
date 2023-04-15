@@ -51,3 +51,14 @@ func (a *MoveAction) Perform(game *Game) {
 		Object: object,
 	})
 }
+
+type RemovePlayerAction struct {
+	ID string
+}
+
+func (a *RemovePlayerAction) Perform(game *Game) {
+	game.RemoveObject(a.ID)
+	game.sendChange(RemovePlayerChange{
+		ID: a.ID,
+	})
+}

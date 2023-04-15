@@ -6,6 +6,10 @@ type NewPlayerChange struct {
 	Object *Object
 }
 
+type RemovePlayerChange struct {
+	ID string
+}
+
 type MoveChange struct {
 	Object *Object
 }

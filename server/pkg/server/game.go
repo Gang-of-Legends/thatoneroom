@@ -60,6 +60,12 @@ func (g *Game) Objects() []*Object {
 	return objs
 }
 
+func (g *Game) RemoveObject(id string) {
+	g.mx.Lock()
+	defer g.mx.Unlock()
+	delete(g.objects, id)
+}
+
 func (g *Game) AddObject(obj *Object) {
 	g.mx.Lock()
 	defer g.mx.Unlock()

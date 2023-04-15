@@ -82,3 +82,17 @@ type Object struct {
 type ServerState struct {
 	Objects []Object `json:"objects"`
 }
+
+type ServerRemovePlayer struct {
+	ID string `json:"id"`
+}
+
+func NewServerRemovePlayer(id string) Message {
+	data, _ := json.Marshal(ServerRemovePlayer{
+		ID: id,
+	})
+	return Message{
+		Type: "server_remove_player",
+		Data: data,
+	}
+}
