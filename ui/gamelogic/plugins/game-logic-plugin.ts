@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { ServerAddPlayerMessage, ServerAuthenticateMessage, ServerPlayerMoveMessage } from "../models";
 import { ServerMessage } from "../models/server-message";
 
 export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
@@ -6,6 +7,8 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     socket: WebSocket | null = null;
     connected: boolean = false;
     authenticated: boolean = false;
+    id: string | null = null;
+    players: string[] = [];
 
     constructor(pluginManager: Phaser.Plugins.PluginManager) {
         super(pluginManager);
@@ -34,18 +37,20 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
         }
       }
     
-      handleMessage(data: any) {
+      handleMessage(data: ServerMessage) {
         switch (data.type) {
           case "server_authenticate":
-            this.handleAuthentication(data);
+            this.handleAuthentication(data.data as ServerAuthenticateMessage);
             break;
     
           case "server_add_player":
-            this.handleAddPlayer(data.playerId);
+            this.handleAddPlayer((data.data as ServerAddPlayerMessage).id);
+            this
             break;
     
           case "server_move_player":
-            this.handleMovePlayer(data.playerId, data.x, data.y);
+            const msg = data.data as ServerPlayerMoveMessage;
+            this.handleMovePlayer(msg.id, msg.x, msg.y);
             break;
         }
       }
@@ -68,11 +73,19 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
           }
       }
     
-      handleAuthentication(data: any) {
+      handleAuthentication(data: ServerAuthenticateMessage) {
         this.authenticated = true;
+        this.id = data.id;
+        console.log(data.id);
       }
     
-      handleAddPlayer(playerId: string) {}
+      handleAddPlayer(playerId: string) {
+          this.players.push(playerId);
+      }
     
       handleMovePlayer(playerId: string, x: number, y: number) {}
+
+      update() {
+        console.log(this.players);
+      }
 }

@@ -1,26 +1,6 @@
+import { PlayerMoveMessage, ServerAddPlayerMessage, ServerAuthenticateMessage, ServerStateMessage, ServerPlayerMoveMessage } from ".";
+
 export interface ServerMessage {
     type: string;
-    data : ServerAuthenticateMessage | PlayerMoveMessage | ServerAuthenticateMessage | null;
-}
-
-interface ServerAuthenticateMessage {
-    id: string;
-    token: string;
-    success: boolean;
-}
-
-interface PlayerMoveMessage {
-    x: number,
-    y: number,
-}
-
-interface ServerStateMessage {
-    objects: Object[] 
-}
-
-interface Object {
-    id: string,
-    type: string,
-    x: number,
-    y: number
+    data : ServerAuthenticateMessage | ServerAddPlayerMessage | PlayerMoveMessage  | ServerStateMessage | ServerPlayerMoveMessage | null;
 }

@@ -1,8 +1,9 @@
 import Phaser from "phaser";
 import { Plugins, Sounds, Spritesheets } from "../enums";
 import { GameLogicPlugin } from "../plugins";
+import { Character } from "./character";
 
-export class Player extends Phaser.Physics.Arcade.Sprite {
+export class Player extends Character {
     private isWalking: boolean;
     private isJumping: boolean;
     private isIdling: boolean;
@@ -14,7 +15,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     timer: number = 0;
 
     constructor(scene: Phaser.Scene, x: number, y: number, speed=50, jumpVelocity=150, tint: number | null = null) {
-        super(scene, x, y, Spritesheets.Main, 4);
+        super(scene, x, y, tint);
 
         if (tint !== null)
             this.setTint(tint)
@@ -24,13 +25,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.isJumping = false;
         this.isIdling = true;
 
-        scene.add.existing(this);
-        scene.physics.add.existing(this)
-
         this.gameLogic = this.scene.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
 
-        this.body?.setSize(7, 13, true);
-        this.setCollideWorldBounds(true);
         this.isDead = false;
 
         const { LEFT, RIGHT, UP, W, A, D } = Phaser.Input.Keyboard.KeyCodes;
@@ -39,27 +35,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             right: RIGHT,
             up: UP,
             space: Phaser.Input.Keyboard.KeyCodes.SPACE
-        });
-
-        this.anims.create({
-            key: 'walk',
-            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 12, 13, 14, 15 ] }),
-            frameRate: 8,
-            repeat: -1
-        });
-
-        this.anims.create({
-            key: 'idle',
-            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 8, 9 ] }),
-            frameRate: 8,
-            repeat: -1
-        });
-
-        this.anims.create({
-            key: 'jump',
-            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 16, 17 ] }),
-            frameRate: 4,
-            repeat: -1
         });
     }
 
@@ -109,7 +84,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    update(time, delta) {
+    update(time: number, delta: number) {
         this.setVelocityX(0);
         if (this.keys.right.isDown) {
             this.walkRight();
@@ -118,8 +93,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
             this.idle();
         }
-        if ((this.keys.up.isDown || this.keys.space.isDown))
-        {
+        if ((this.keys.up.isDown || this.keys.space.isDown)) {
             this.jump();
         }
 
