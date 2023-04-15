@@ -111,7 +111,7 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 			return
 		}
 		sendMsg(ps.S, serverv1.NewServerAuthenticate(true, ps.Token, ps.ID))
-		sendMsg(ps.S, s.getState())
+		sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 
 		return
 	}
@@ -127,8 +127,7 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 		ID: id,
 	}
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(true, session.Token, session.ID))
-	sendMsg(ps.S, s.getState())
-
+	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 }
 
 func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMove) {
@@ -147,10 +146,10 @@ func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMov
 	}
 }
 
-func (s *WebSocketService) getState() *serverv1.ServerState {
+func (s *WebSocketService) getState() serverv1.ServerState {
 	objs := s.game.Objects()
 
-	state := &serverv1.ServerState{
+	state := serverv1.ServerState{
 		Objects: make([]serverv1.Object, 0, len(objs)),
 	}
 	for _, v := range objs {
