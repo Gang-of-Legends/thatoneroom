@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Images, Plugins, ServerMessages, Tilesets } from "../enums";
-import { ServerAddPlayerMessage, ServerPlayerMoveMessage } from "../models";
+import {ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage} from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
 import { GameLogicPlugin } from "../plugins";
@@ -24,7 +24,7 @@ export class BaseLevelScene extends Phaser.Scene {
         const map = this.make.tilemap({ key: this.sceneConfig.map });
         const tileset = map.addTilesetImage(Tilesets.Main, Images.Tiles);
         this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
-
+        this.gameLogic?.auth();
         this.addEventListeners();
 
         if (tileset !== null) {
@@ -66,7 +66,17 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     addEventListeners() {
+        this.gameLogic?.event.addListener(ServerMessages.State, (data: ServerStateMessage) => {
+          this.enemies.forEach(enemy => enemy.destroy());
+          this.enemies = [];
+          data.objects.filter(obj => obj.type === 'player' && this.gameLogic?.id != obj.id).forEach(obj => {
+              this.enemies.push(new Enemy(this, obj.x, obj.y, obj.id, 0x00ff00))
+          })
+        });
         this.gameLogic?.event.addListener(ServerMessages.AddPlayer, (data: ServerAddPlayerMessage) => {
+            if (this.gameLogic?.id == data.id) {
+                return
+            }
             const enemy = new Enemy(this, 150, 150, data.id, 0x00ff00);
             /*this.worldLayers.forEach((layer) => {
                 if (layer != null)

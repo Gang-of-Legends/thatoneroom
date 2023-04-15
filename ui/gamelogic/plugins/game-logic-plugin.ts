@@ -1,6 +1,11 @@
 import Phaser from "phaser";
 import { Movements, ServerMessages } from "../enums";
-import { ServerAddPlayerMessage, ServerAuthenticateMessage, ServerPlayerMoveMessage } from "../models";
+import {
+    ServerAddPlayerMessage,
+    ServerAuthenticateMessage,
+    ServerPlayerMoveMessage,
+    ServerStateMessage
+} from "../models";
 import { ServerMessage } from "../models/server-message";
 
 export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
@@ -10,7 +15,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     authenticated: boolean = false;
     id: string | null = null;
     players: string[] = [];
-    event: Phaser.Events.EventEmitter;;
+    event: Phaser.Events.EventEmitter;
 
     constructor(pluginManager: Phaser.Plugins.PluginManager) {
         super(pluginManager);
@@ -27,11 +32,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
         socket.onopen = () => {
           this.socket = socket;
           this.connected = true;
-    
-          this.send({
-            type: "player_authenticate",
-            data: null
-          });
+
         }
     
         socket.onmessage = (event) => {
@@ -50,7 +51,6 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
           case ServerMessages.AddPlayer:
             this.handleAddPlayer((data.data as ServerAddPlayerMessage).id);
             break;
-    
           case "server_move_player":
             const msg = data.data as ServerPlayerMoveMessage;
             this.handleMovePlayer(msg.id, msg.x, msg.y);
@@ -76,7 +76,14 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
                 }));
           }
       }
-    
+
+      auth() {
+          this.send({
+              type: "player_authenticate",
+              data: null
+          });
+      }
+
       handleAuthentication(data: ServerAuthenticateMessage) {
         this.authenticated = true;
         this.id = data.id;
