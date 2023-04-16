@@ -37,7 +37,11 @@ export class Player extends Character {
             left: LEFT,
             right: RIGHT,
             up: UP,
-            space: Phaser.Input.Keyboard.KeyCodes.SPACE
+            space: Phaser.Input.Keyboard.KeyCodes.SPACE,
+            w: Phaser.Input.Keyboard.KeyCodes.W,
+            s: Phaser.Input.Keyboard.KeyCodes.S,
+            a: Phaser.Input.Keyboard.KeyCodes.A,
+            d: Phaser.Input.Keyboard.KeyCodes.D,
         });
     }
 
@@ -101,14 +105,14 @@ export class Player extends Character {
     update(time: number, delta: number) {
         this.setVelocityX(0);
         if (!this.isDead) {
-            if (this.keys.right.isDown) {
+            if (this.keys.right.isDown || this.keys.d.isDown) {
                 this.walkRight();
-            } else if (this.keys.left.isDown) {
+            } else if (this.keys.left.isDown || this.keys.a.isDown || this.keys.s.isDown) {
                 this.walkLeft();
             } else {
                 this.idle();
             }
-            if ((this.keys.up.isDown || this.keys.space.isDown)) {
+            if ((this.keys.up.isDown || this.keys.space.isDown || this.keys.w.isDown)) {
                 this.jump();
             }
         }
