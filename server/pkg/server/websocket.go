@@ -156,15 +156,46 @@ func (s *WebSocketService) watchChanges() {
 
 func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerAuthenticate) {
 	zap.L().Info("handle", zap.Any("data", data))
+	newAuth := func() {
+		id := uuid.Must(uuid.NewV4()).String()
+		token := uuid.Must(uuid.NewV4()).String()
+		session := &Session{
+			ID:    id,
+			Token: token,
+			S:     ps.S,
+		}
+		ps.S.Set("session", session)
+		s.tokensMx.Lock()
+		s.tokens[token] = id
+		s.tokensMx.Unlock()
+
+		name := gofakeit.HackerNoun()
+		sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
+			Success: true,
+			Token:   session.Token,
+			ID:      session.ID,
+			Name:    name,
+		}))
+		sendMsg(ps.S, serverv1.NewServerState(s.getState()))
+
+		s.game.ActionChannel <- &AuthPlayerAction{
+			ID:   session.ID,
+			Name: name,
+		}
+	}
 
 	if data.Token != "" {
 		s.tokensMx.RLock()
-		playerID := s.tokens[data.Token]
+		playerID, tokenfound := s.tokens[data.Token]
 		s.tokensMx.RUnlock()
 		//if ps.Token != data.Token {
 		//	sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{}))
 		//	return
 		//}
+		if !tokenfound {
+			newAuth()
+			return
+		}
 		player := s.game.GetPlayer(playerID)
 		if player == nil {
 			sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{}))
@@ -187,31 +218,9 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 
 		return
 	}
-	id := uuid.Must(uuid.NewV4()).String()
-	token := uuid.Must(uuid.NewV4()).String()
-	session := &Session{
-		ID:    id,
-		Token: token,
-		S:     ps.S,
-	}
-	ps.S.Set("session", session)
-	s.tokensMx.Lock()
-	s.tokens[token] = id
-	s.tokensMx.Unlock()
 
-	name := gofakeit.HackerNoun()
-	sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
-		Success: true,
-		Token:   session.Token,
-		ID:      session.ID,
-		Name:    name,
-	}))
-	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
+	newAuth()
 
-	s.game.ActionChannel <- &AuthPlayerAction{
-		ID:   session.ID,
-		Name: name,
-	}
 }
 
 func (s *WebSocketService) HandleConnect(ps *Session, data serverv1.PlayerConnect) {
