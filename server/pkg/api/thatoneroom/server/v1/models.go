@@ -130,6 +130,7 @@ type Object struct {
 	X         float64 `json:"x"`
 	Y         float64 `json:"y"`
 	Inventory []Item  `json:"inventory"`
+	Color     int     `json:"color"`
 }
 
 type Item struct {

@@ -17,6 +17,8 @@ type WebSocketService struct {
 	game     *Game
 	mx       sync.RWMutex
 	sessions map[string]*Session
+	tokens   map[string]string
+	tokensMx sync.RWMutex
 }
 
 type Session struct {
@@ -30,6 +32,7 @@ func NewWSService() *WebSocketService {
 		M:        melody.New(),
 		game:     NewGame(),
 		sessions: make(map[string]*Session),
+		tokens:   make(map[string]string),
 	}
 	svc.game.Start()
 	svc.watchChanges()
@@ -152,12 +155,15 @@ func (s *WebSocketService) watchChanges() {
 func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerAuthenticate) {
 	zap.L().Info("handle", zap.Any("data", data))
 
-	if data.ID != "" {
+	if data.Token != "" {
+		s.tokensMx.RLock()
+		playerID := s.tokens[data.Token]
+		s.tokensMx.RUnlock()
 		//if ps.Token != data.Token {
 		//	sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{}))
 		//	return
 		//}
-		player := s.game.GetPlayer(data.ID)
+		player := s.game.GetPlayer(playerID)
 		if player == nil {
 			sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{}))
 			zap.L().Warn("player not found", zap.String("id", data.ID))
@@ -187,6 +193,9 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 		S:     ps.S,
 	}
 	ps.S.Set("session", session)
+	s.tokensMx.Lock()
+	s.tokens[token] = id
+	s.tokensMx.Unlock()
 
 	name := gofakeit.HackerNoun()
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
@@ -313,6 +322,7 @@ func (s *WebSocketService) getState() serverv1.ServerState {
 			X:         v.Coords.X,
 			Y:         v.Coords.Y,
 			Inventory: items,
+			Color:     v.Color,
 		})
 		//if v.Type == ObjectPlayer {
 		//	state.Leaderboard = append(state.Leaderboard, serverv1.PlayerScore{
