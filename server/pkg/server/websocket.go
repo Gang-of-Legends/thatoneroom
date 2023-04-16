@@ -108,9 +108,11 @@ func (s *WebSocketService) watchChanges() {
 			switch val := change.(type) {
 			case NewPlayerChange:
 				msg = serverv1.NewServerAddPlayer(serverv1.ServerAddPlayer{
-					ID: val.Object.ID,
-					X:  val.Object.Coords.X,
-					Y:  val.Object.Coords.Y,
+					ID:    val.Object.ID,
+					Name:  val.Object.Name,
+					Color: val.Object.Color,
+					X:     val.Object.Coords.X,
+					Y:     val.Object.Coords.Y,
 				})
 			case PickupItemChange:
 				msg = serverv1.NewServerPickupItem(val.PlayerID, val.ItemID, val.Type, val.Item)

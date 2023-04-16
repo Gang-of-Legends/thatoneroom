@@ -82,9 +82,11 @@ func NewServerAuthenticate(msg ServerAuthenticate) Message {
 }
 
 type ServerAddPlayer struct {
-	ID string  `json:"id"`
-	X  float64 `json:"x"`
-	Y  float64 `json:"y"`
+	ID    string  `json:"id"`
+	Name  string  `json:"name"`
+	Color int     `json:"color"`
+	X     float64 `json:"x"`
+	Y     float64 `json:"y"`
 }
 
 func NewServerAddPlayer(msg ServerAddPlayer) Message {
