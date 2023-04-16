@@ -128,6 +128,7 @@ func NewServerMove(id string, x float64, y float64, state string) Message {
 type Object struct {
 	ID        string  `json:"id"`
 	Type      string  `json:"type"`
+	Item      int     `json:"item"`
 	X         float64 `json:"x"`
 	Y         float64 `json:"y"`
 	Inventory []Item  `json:"inventory"`

@@ -265,6 +265,7 @@ func (s *WebSocketService) getState() serverv1.ServerState {
 		state.Objects = append(state.Objects, serverv1.Object{
 			ID:        v.ID,
 			Type:      v.Type,
+			Item:      v.Item,
 			X:         v.Coords.X,
 			Y:         v.Coords.Y,
 			Inventory: items,
