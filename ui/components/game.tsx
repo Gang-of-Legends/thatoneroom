@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GameLogic } from "@/gamelogic/instance";
-import { GameOverlayScene, MainMenuScene, PreloadScene, WelcomeScene } from "@/gamelogic/scenes";
+import { MainMenuScene, PreloadScene, WelcomeScene } from "@/gamelogic/scenes";
 import { Plugins } from "@/gamelogic/enums";
 import { GameLogicPlugin } from "@/gamelogic/plugins";
 
@@ -23,7 +23,7 @@ export default function Game() {
             gravity: { y: 200 }
           },
         },
-        scene: [PreloadScene, MainMenuScene, WelcomeScene, GameOverlayScene],
+        scene: [PreloadScene, MainMenuScene, WelcomeScene ],
         backgroundColor: "#000033",
         plugins: {
           global: [
