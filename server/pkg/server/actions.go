@@ -211,3 +211,17 @@ func (a *ResetAction) Perform(game *Game) {
 		Deadline: roundDuration,
 	}
 }
+
+type PlayerRespawnAction struct {
+	PlayerID string
+	X, Y     float64
+}
+
+func (a *PlayerRespawnAction) Perform(game *Game) {
+	game.sendChange(PlayerRespawnChange{
+		PlayerID: a.PlayerID,
+		X:        a.X,
+		Y:        a.Y,
+	})
+
+}

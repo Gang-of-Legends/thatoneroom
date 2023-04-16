@@ -192,6 +192,20 @@ func NewServerPlayerDead(msg ServerPlayerDead) Message {
 	}
 }
 
+type ServerPlayerRespawn struct {
+	ID string  `json:"id"`
+	X  float64 `json:"x"`
+	Y  float64 `json:"y"`
+}
+
+func NewServerPlayerRespawn(msg ServerPlayerRespawn) Message {
+	data, _ := json.Marshal(msg)
+	return Message{
+		Type: "server_respawn",
+		Data: data,
+	}
+}
+
 type ServerPickupItem struct {
 	PlayerID string `json:"playerID"`
 	ID       string `json:"id"`

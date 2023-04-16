@@ -140,6 +140,12 @@ func (s *WebSocketService) watchChanges() {
 					ID:       val.PlayerID,
 					KilledBy: val.KilledBy,
 				})
+			case PlayerRespawnChange:
+				msg = serverv1.NewServerPlayerRespawn(serverv1.ServerPlayerRespawn{
+					ID: val.PlayerID,
+					X:  val.X,
+					Y:  val.Y,
+				})
 			default:
 				zap.L().Warn("unhandled msg", zap.Any("val", val))
 				continue

@@ -36,6 +36,11 @@ type PlayerDeadChange struct {
 	KilledBy string
 }
 
+type PlayerRespawnChange struct {
+	PlayerID string
+	X, Y     float64
+}
+
 type ResetChange struct {
 	Deadline time.Duration
 }
