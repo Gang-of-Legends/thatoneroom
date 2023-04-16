@@ -15,6 +15,7 @@ import { ServerDeadMessage } from "../models/dead";
 import { YouDiedOverlay } from "../objects/you_died_overlay";
 import { DefaultDeserializer } from "v8";
 import { ServerRespawnMessage } from "../models/server-respawn-message";
+import { GameOverlayScene } from "./game-overlay-scene";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -27,6 +28,8 @@ export class BaseLevelScene extends Phaser.Scene {
 
     nextGameText: Phaser.GameObjects.Text | null = null;
     nextGame: string | null = null;
+
+    overlay: Phaser.Cameras.Scene2D.Camera;
 
     bottleInventory = 3;
     maxBottleInventory = 3;
@@ -99,7 +102,7 @@ export class BaseLevelScene extends Phaser.Scene {
         return true;
     }
 
-    die(killedBy: string, time: number) {
+    die(killedBy: string) {
         this.gameLogic?.send({
             type: PlayerMessages.Dead,
             data: {
@@ -232,6 +235,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.player?.idle();
 
         this.createUI();
+        this.scene.launch(Scenes.GameOverlay, { nextGame: this.nextGame});
     }
 
     addEventListeners() {
@@ -317,7 +321,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
             if (data.playerID == this.gameLogic?.id) {
                 this.powerupOverlay.activate(data.item, 10000);
-
+                
                 this.handlePowerUp(data.item, 10000);
             }
         });
@@ -415,7 +419,8 @@ export class BaseLevelScene extends Phaser.Scene {
         this.updateUI();
         this.updateItems(time, delta);
         if (this.showDead) {
-            this.youDiedOverlay?.activate();
+            (this.scene.get(Scenes.GameOverlay) as GameOverlayScene)?.showDeadOverlay();
+            //this.scene.get(Scenes.GameOverlay).G
             this.showDead = false;
         }
     }
