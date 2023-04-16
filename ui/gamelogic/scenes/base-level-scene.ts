@@ -236,11 +236,6 @@ export class BaseLevelScene extends Phaser.Scene {
 
     addEventListeners() {
         this.gameLogic?.event.addListener(ServerMessages.State, (data: ServerStateMessage) => {
-          if (data.reset) {
-            this.gameLogic?.event.removeAllListeners();
-            this.scene.start(Scenes.MainMenu);
-          }
-
           this.nextGame = data.endAt;
 
           this.enemies.forEach(enemy => enemy.destroy());
@@ -259,9 +254,16 @@ export class BaseLevelScene extends Phaser.Scene {
             this.player.setTint(playerObj.color);
           }
 
+          this.clearItems();
           data.objects.filter(obj => obj.type === "item").forEach(obj => {
             this.spawnItem(obj.id, obj.x, obj.y, obj.item);
           })
+
+          if (data.reset) {
+            this.gameLogic?.event.removeAllListeners();
+            this.scene.start(Scenes.MainMenu);
+          }
+
         });
         this.gameLogic?.event.addListener(ServerMessages.AddPlayer, (data: ServerAddPlayerMessage) => {
             if (this.gameLogic?.id == data.id) {
@@ -319,6 +321,11 @@ export class BaseLevelScene extends Phaser.Scene {
                 this.handlePowerUp(data.item, 10000);
             }
         });
+    }
+
+    clearItems() {
+        this.items.forEach((item) => item.destroy());
+        this.items = [];
     }
 
     spawnItem(id: string, x: number, y: number, option: number) {

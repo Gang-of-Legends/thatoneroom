@@ -26,25 +26,27 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     }
 
     async connect() {
-        const socket = new WebSocket("wss://petermalina.com/ws");
-    
-        socket.onopen = () => {
-          this.socket = socket;
-          this.connected = true;
+        if (!this.connected) {
+          const socket = new WebSocket("wss://petermalina.com/ws");
+      
+          socket.onopen = () => {
+            this.socket = socket;
+            this.connected = true;
 
-          this.token = localStorage.getItem("token") || "";
-          
-          this.send({
-              type: "player_authenticate",
-              data: {
-                token: this.token,
-              }
-          });
-        }
-    
-        socket.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          this.handleMessage(data);
+            this.token = localStorage.getItem("token") || "";
+            
+            this.send({
+                type: "player_authenticate",
+                data: {
+                  token: "",
+                }
+            });
+          }
+      
+          socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.handleMessage(data);
+          }
         }
       }
     
