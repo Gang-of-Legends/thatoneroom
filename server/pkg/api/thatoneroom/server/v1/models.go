@@ -13,6 +13,7 @@ type Message struct {
 const (
 	TypePlayerAuthenticate = "player_authenticate"
 	TypePlayerConnect      = "player_connect"
+	TypePlayerRefresh      = "player_refresh"
 	TypePlayerMove         = "player_move"
 	TypePlayerSpawnObject  = "player_spawn_object"
 	TypePlayerPickupItem   = "player_pickup_item"

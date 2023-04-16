@@ -95,6 +95,9 @@ func (s *WebSocketService) Message(m *melody.Session, msg []byte) {
 		var data serverv1.PlayerDead
 		json.Unmarshal(sMsg.Data, &data)
 		s.HandlePlayerDead(session, data)
+	case serverv1.TypePlayerRefresh:
+		b, _ := json.Marshal(s.getState())
+		m.Write(b)
 	default:
 		sendMsg(m, "unknown")
 	}
