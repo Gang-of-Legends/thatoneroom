@@ -6,6 +6,6 @@ export enum ServerMessages {
     State = "server_state",
     GetState = "get_server_state",
     SpawnObject = "server_spawn_object",
-    PickupItem = "server_pickup_item"
-
+    PickupItem = "server_pickup_item",
+    Dead = "server_dead",
 }

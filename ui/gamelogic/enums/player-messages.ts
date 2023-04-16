@@ -3,5 +3,6 @@ export enum PlayerMessages {
     Connect = "player_connect",
     Move = "player_move",
     PlayerSpawnObject = "player_spawn_object",
-    PickupItem = "player_pickup_item"
+    PickupItem = "player_pickup_item",
+    Dead = "player_dead",
 }

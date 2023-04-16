@@ -11,6 +11,7 @@ import { StateSprite } from "../objects/ui/state_sprite";
 import { runInThisContext } from "vm";
 import { ServerPickupItemMessage } from "../models/pickup-item";
 import { PowerUpOverlay } from "../objects/powerup";
+import { ServerDeadMessage } from "../models/dead";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -87,6 +88,16 @@ export class BaseLevelScene extends Phaser.Scene {
         }
 
         return true;
+    }
+
+    die(killedBy: string) {
+        this.gameLogic?.send({
+            type: PlayerMessages.Dead,
+            data: {
+                id: this.gameLogic?.id!,
+                killedBy: killedBy,
+            }
+        });
     }
 
     respawnPlayer(): void {
@@ -253,6 +264,10 @@ export class BaseLevelScene extends Phaser.Scene {
                     this.spawnItem(data.id, data.x, data.y, data.item);
                     break
             }
+        });
+
+        this.gameLogic?.event.addListener(ServerMessages.Dead, (data: ServerDeadMessage) => {
+            console.log('received dead message');
         });
 
         this.gameLogic?.event.addListener(ServerMessages.PickupItem, (data: ServerPickupItemMessage) => {
