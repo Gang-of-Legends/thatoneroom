@@ -116,7 +116,7 @@ export class BaseLevelScene extends Phaser.Scene {
         const spawnIndex = Math.floor(Math.random() * (this.spawns.length));
         const spawn = this.spawns[spawnIndex];
         this.gameLogic?.send({
-            type: PlayerMessages.PlayerSpawnObject,
+            type: PlayerMessages.Respawn,
             data: {
                 x: spawn.x ?? 0,
                 y: spawn.y ?? 0,
