@@ -243,6 +243,10 @@ export class BaseLevelScene extends Phaser.Scene {
               });
               this.enemies.push(enemy);
           })
+
+          data.objects.filter(obj => obj.type === "item").forEach(obj => {
+            this.spawnItem(obj.id, obj.x, obj.y, obj.item);
+          })
         });
         this.gameLogic?.event.addListener(ServerMessages.AddPlayer, (data: ServerAddPlayerMessage) => {
             if (this.gameLogic?.id == data.id) {
@@ -274,9 +278,7 @@ export class BaseLevelScene extends Phaser.Scene {
                     const bottle = this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY, data.playerID);
                     break
                 case "item":
-                    const item = new Item(data.id, this, data.x, data.y, data.item);
-                    this.items.push(item);
-                    this.add.existing(item);
+                    this.spawnItem(data.id, data.x, data.y, data.item);
                     break
             }
         });
@@ -294,6 +296,12 @@ export class BaseLevelScene extends Phaser.Scene {
                 this.handlePowerUp(data.item, 10000);
             }
         });
+    }
+
+    spawnItem(id: string, x: number, y: number, option: number) {
+        const item = new Item(id, this, x, y, option);
+        this.items.push(item);
+        this.add.existing(item);
     }
 
     throwBottle() {
@@ -408,7 +416,13 @@ export class BaseLevelScene extends Phaser.Scene {
         });
     }
 
+    activePowerUp: number = -1;
     handlePowerUp(item: number, duration: number) {
+        this.activePowerUp = item;
+        setTimeout(() => {
+            this.activePowerUp = -1;
+        }, duration)
+
         switch (item) {
             case 0:
                 this.clearBottleInventoryRefillTimeout();

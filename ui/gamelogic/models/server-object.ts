@@ -2,7 +2,8 @@ export interface ServerObject {
     id: string,
     type: string,
     x: number,
-    y: number
+    y: number,
+    item: number,
     inventory: Item[],
 }
 
