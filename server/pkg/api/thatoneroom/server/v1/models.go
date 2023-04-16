@@ -17,6 +17,7 @@ const (
 	TypePlayerSpawnObject  = "player_spawn_object"
 	TypePlayerPickupItem   = "player_pickup_item"
 	TypePlayerDead         = "player_dead"
+	TypePlayerRespawn      = "player_respawn"
 )
 
 type ServerSpawnObject struct {
@@ -37,6 +38,11 @@ type PlayerSpawnObject struct {
 
 type PlayerDead struct {
 	KilledBy string `json:"killedBy"`
+}
+
+type PlayerRespawn struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 type PlayerAuthenticate struct {

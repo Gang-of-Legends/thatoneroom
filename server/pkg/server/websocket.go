@@ -203,7 +203,7 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 			return
 		}
 		session := &Session{
-			ID: data.ID,
+			ID: player.ID,
 			S:  ps.S,
 		}
 		ps.S.Set("session", session)
