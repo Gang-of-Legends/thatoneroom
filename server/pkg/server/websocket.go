@@ -228,6 +228,7 @@ func (s *WebSocketService) HandlePickupItem(ps *Session, data serverv1.PlayerPic
 		PlayerID: ps.ID,
 		ItemID:   data.ID,
 		Type:     data.Type,
+		Item:     data.Item,
 	}
 }
 

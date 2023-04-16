@@ -62,6 +62,7 @@ type ServerAuthenticate struct {
 type PlayerPickupItem struct {
 	Type string `json:"type"`
 	ID   string `json:"id"`
+	Item int    `json:"item"`
 }
 
 func NewServerSpawnObject(object ServerSpawnObject) Message {
