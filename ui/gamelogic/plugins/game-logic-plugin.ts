@@ -14,6 +14,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     connected: boolean = false;
     authenticated: boolean = false;
     id: string | null = null;
+    token: string | null = null;
     playerName: string | null = null;
     players: string[] = [];
     event: Phaser.Events.EventEmitter;
@@ -29,10 +30,15 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
         socket.onopen = () => {
           this.socket = socket;
           this.connected = true;
-            this.send({
-                type: "player_authenticate",
-                data: null
-            });
+
+          this.token = localStorage.getItem("token") || "";
+          
+          this.send({
+              type: "player_authenticate",
+              data: {
+                token: this.token,
+              }
+          });
         }
     
         socket.onmessage = (event) => {
@@ -100,6 +106,9 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
       this.authenticated = true;
       this.id = data.id;
       this.playerName = data.name;
+      this.token = data.token;
+
+      localStorage.setItem("token", this.token);
     }
   
       handleAddPlayer(playerId: string) { }

@@ -4,3 +4,7 @@ export interface ServerAuthenticateMessage {
     success: boolean;
     name: string;
 }
+
+export interface PlayerAuthenticateMessage {
+    token: string;
+}
