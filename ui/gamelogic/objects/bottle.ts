@@ -83,11 +83,7 @@ export class BottleGroup extends Phaser.Physics.Arcade.Group {
     bottle.depth = 10;
     bottle.playerId = playerID;
 
-    if (bottle) {
-      return bottle.throw(x, y, velocityX, velocityY);
-    } else {
-      return null;
-    }
+    return bottle ? bottle.throw(x, y, velocityX, velocityY) : null;
   }
 
   preUpdate(time: number, delta: number): void {

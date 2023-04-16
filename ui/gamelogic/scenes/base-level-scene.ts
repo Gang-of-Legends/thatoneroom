@@ -123,7 +123,7 @@ export class BaseLevelScene extends Phaser.Scene {
             this.throwBottle();
         });
 
-        this.input.keyboard.on('keydown-Q', event => {
+        this.input.keyboard?.on('keydown-Q', (event: any) => {
             console.log('using object');
         });
 
@@ -172,18 +172,8 @@ export class BaseLevelScene extends Phaser.Scene {
                 if (layer !== null) {
                     layer.setCollisionByProperty({ collides: true });
                     this.physics.add.collider(layer, this.player);
-                    this.physics.add.collider(layer, this.bottles, (bottle: Bottle) => {
-                        if (bottle.despawning) {
-                            return;
-                        }
-                        bottle.despawn();
-                        bottle.explode();
-                        this.sound.play(Sounds.GlassBottleDrop);
-
-                        setTimeout(() => {
-                            bottle.setActive(false);
-                            bottle.setVisible(false);
-                        }, 3000);
+                    this.physics.add.collider(layer, this.bottles, (bottle) => {
+                        this.collideBottleWithWorld(bottle as Bottle);
                     });
                 }
             });
@@ -192,18 +182,8 @@ export class BaseLevelScene extends Phaser.Scene {
                 this.collidePlayerWithBottle(player as Player, bottle as Bottle);
             });
 
-            this.physics.add.collider(this.bottles, this.bottles, (bottle1: Bottle, bottle2: Bottle) => {
-                bottle1.explode();
-                bottle2.explode();
-
-                bottle1.setActive(false);
-                bottle1.setVisible(false);
-                bottle2.setActive(false);
-                bottle2.setVisible(false);
-
-                this.sound.play(Sounds.GlassBottleSmash);
-
-                console.log('colliding bottles');
+            this.physics.add.collider(this.bottles, this.bottles, (bottle1, bottle2) => {
+                this.collideBottleWithBottle(bottle1 as Bottle, bottle2 as Bottle);
             });
 
             if (backgroundLayers && backgroundLayers[0]) {
@@ -233,7 +213,11 @@ export class BaseLevelScene extends Phaser.Scene {
               const enemy = new Enemy(this, obj.x, obj.y, obj.id, 0x00ff00);
               this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
               this.enemies.push(enemy);
-          })
+          });
+
+          if (this.player && this.gameLogic) {
+              this.player.id = this.gameLogic.id;
+          }
 
           data.objects.filter(obj => obj.type === "item").forEach(obj => {
             this.spawnItem(obj.id, obj.x, obj.y, obj.item);
@@ -291,9 +275,9 @@ export class BaseLevelScene extends Phaser.Scene {
         this.items.push(item);
         this.add.existing(item);
     }
-    
+
     collideEnemyWithBottle(enemy: Enemy, bottle: Bottle) {
-        if (bottle.playerId != enemy.id) {
+        if (bottle.playerId !== enemy.id) {
             this.emitBlood(enemy.x, enemy.y);
             this.sound.play(Sounds.HitEnemy);
             this.bottleCollision(bottle);
@@ -301,13 +285,39 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     collidePlayerWithBottle(player: Player, bottle: Bottle) {
-        if (player.id != bottle.playerId) {
+        if (player.id !== bottle.playerId) {
             bottle.explode();
             if (!bottle.despawning) {
                 this.removeHealth();
             }
             this.bottleCollision(bottle as Bottle);
         }
+    }
+
+    collideBottleWithBottle(bottle1: Bottle, bottle2: Bottle) {
+        bottle1.explode();
+        bottle2.explode();
+
+        bottle1.setActive(false);
+        bottle1.setVisible(false);
+        bottle2.setActive(false);
+        bottle2.setVisible(false);
+
+        this.sound.play(Sounds.GlassBottleSmash);
+    }
+
+    collideBottleWithWorld(bottle: Bottle) {
+        if (bottle.despawning) {
+            return;
+        }
+        bottle.despawn();
+        bottle.explode();
+        this.sound.play(Sounds.GlassBottleDrop);
+
+        setTimeout(() => {
+            bottle.setActive(false);
+            bottle.setVisible(false);
+        }, 3000);
     }
 
     throwBottle() {
