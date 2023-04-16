@@ -8,6 +8,12 @@ import { PowerUpOverlay } from "../objects/powerup";
 export class MainMenuScene extends Phaser.Scene {
   gameLogic: GameLogicPlugin | null = null;
   connectingText: StateSprite | null = null;
+
+  firstPlace: Phaser.GameObjects.Text | null = null;
+  secondPlace: Phaser.GameObjects.Text | null = null;
+  thirdPlace: Phaser.GameObjects.Text | null = null;
+  fourthPlace: Phaser.GameObjects.Text | null = null;
+
   constructor() {
     super({
       key: Scenes.MainMenu,
@@ -73,6 +79,22 @@ export class MainMenuScene extends Phaser.Scene {
 
     const instructions = new StateSprite(this, 200, 350, Spritesheets.Instructions, 0).setScale(2.5);
     this.add.existing(instructions);
+
+    const container = new Phaser.GameObjects.Container(this, 970, 350);
+    const leaderboard = new StateSprite(this, 0, 0, Spritesheets.Instructions, 1).setScale(2.5);
+    container.add(leaderboard);
+
+    this.firstPlace = new Phaser.GameObjects.Text(this, -50, -20, 'First', { fontSize: '16px', color: '#ffffff' });
+    this.secondPlace = new Phaser.GameObjects.Text(this, -50, 10, 'Second', { fontSize: '16px', color: '#ffffff' });
+    this.thirdPlace = new Phaser.GameObjects.Text(this, -50, 40, 'Third', { fontSize: '16px', color: '#ffffff' });
+    this.fourthPlace = new Phaser.GameObjects.Text(this, -50, 70, 'Fourth', { fontSize: '16px', color: '#ffffff' });
+
+    container.add(this.firstPlace);
+    container.add(this.secondPlace);
+    container.add(this.thirdPlace);
+    container.add(this.fourthPlace);
+    
+    this.add.existing(container);
   }
 
   update(): void {
