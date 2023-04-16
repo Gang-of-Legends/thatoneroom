@@ -9,9 +9,10 @@ type Action interface {
 }
 
 type AddPlayerAction struct {
-	ID   string
-	Name string
-	X, Y float64
+	ID    string
+	Name  string
+	X, Y  float64
+	Color int
 }
 
 func (a *AddPlayerAction) Perform(game *Game) {
@@ -25,6 +26,7 @@ func (a *AddPlayerAction) Perform(game *Game) {
 		Name:   a.Name,
 		Type:   ObjectPlayer,
 		Coords: at,
+		Color:  a.Color,
 	}
 
 	game.SetObject(object)

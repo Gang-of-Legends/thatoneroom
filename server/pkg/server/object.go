@@ -9,6 +9,7 @@ type Object struct {
 	Score     int
 	Inventory []*Item
 	Item      int
+	Color     int
 }
 
 type Item struct {
@@ -18,6 +19,6 @@ type Item struct {
 
 const (
 	ObjectPlayer = "player"
-	ObjectBottle = "botlte"
+	ObjectBottle = "bottle"
 	ObjectItem   = "item"
 )

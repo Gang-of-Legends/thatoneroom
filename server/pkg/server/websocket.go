@@ -2,10 +2,12 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/brianvoe/gofakeit"
 	"github.com/gofrs/uuid"
 	"github.com/olahol/melody"
 	serverv1 "github.com/petomalina/thatoneroom/server/pkg/api/thatoneroom/server/v1"
 	"go.uber.org/zap"
+	"math/rand"
 	"sort"
 	"sync"
 )
@@ -153,6 +155,7 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 			sendMsg(ps.S, serverv1.NewServerAuthenticate(false, "", ""))
 			return
 		}
+		sendMsg(ps.S, serverv1.NewServerAuthenticate(true, data.Token, ps.ID))
 		sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 
 		return
@@ -167,17 +170,21 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 	ps.S.Set("session", session)
 
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(true, session.Token, session.ID))
+	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 }
 
 func (s *WebSocketService) HandleConnect(ps *Session, data serverv1.PlayerConnect) {
 	zap.L().Info("handle", zap.Any("data", data))
 	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
-
+	if data.Name == "" {
+		data.Name = gofakeit.HackerNoun()
+	}
 	s.game.ActionChannel <- &AddPlayerAction{
-		ID:   ps.ID,
-		Name: data.Name,
-		X:    data.X,
-		Y:    data.Y,
+		ID:    ps.ID,
+		Name:  data.Name,
+		X:     data.X,
+		Y:     data.Y,
+		Color: rand.Intn(0xffffff),
 	}
 }
 
