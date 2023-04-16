@@ -170,6 +170,28 @@ func (s *WebSocketService) watchChanges() {
 	}()
 }
 
+func (s *WebSocketService) uniqueName() string {
+	uniqueNames := make(map[string]struct{})
+	s.game.playerMx.RLock()
+	for _, v := range s.game.players {
+		uniqueNames[v.Name] = struct{}{}
+	}
+	s.game.playerMx.RUnlock()
+
+	var last string
+	for i := 0; i < 10; i++ {
+		last = gofakeit.HackerNoun()
+		if _, ok := uniqueNames[last]; !ok {
+			return last
+		}
+		last = gofakeit.HackerAdjective()
+		if _, ok := uniqueNames[last]; !ok {
+			return last
+		}
+	}
+	return last
+
+}
 func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerAuthenticate) {
 	zap.L().Info("handle", zap.Any("data", data))
 	newAuth := func() {
@@ -185,21 +207,7 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 		s.tokens[token] = id
 		s.tokensMx.Unlock()
 
-		var name string
-		uniqueNames := make(map[string]struct{})
-		s.game.playerMx.RLock()
-		for _, v := range s.game.players {
-			uniqueNames[v.Name] = struct{}{}
-		}
-		s.game.playerMx.RUnlock()
-		for name == "" {
-			n := gofakeit.HackerAdjective() + " " + gofakeit.HackerNoun()
-			if _, found := uniqueNames[n]; found {
-				continue
-			}
-			name = n
-			break
-		}
+		name := s.uniqueName()
 
 		sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
 			Success: true,
