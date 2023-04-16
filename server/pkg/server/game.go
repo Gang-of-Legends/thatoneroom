@@ -87,13 +87,38 @@ var (
 			X: 216,
 			Y: 24,
 		},
+		//
+		{
+			X: 90,
+			Y: 73,
+		},
+		{
+			X: 360,
+			Y: 73,
+		},
+		{
+			X: 440,
+			Y: 136,
+		},
+		{
+			X: 453,
+			Y: 90,
+		},
+		{
+			X: 20,
+			Y: 105,
+		},
+		{
+			X: 280,
+			Y: 23,
+		},
 	}
 )
 
 func (g *Game) loop() {
 	resetTicker := time.NewTicker(roundDuration)
 	defer resetTicker.Stop()
-	powerupTicker := time.NewTicker(15 * time.Second)
+	powerupTicker := time.NewTicker(10 * time.Second)
 	defer powerupTicker.Stop()
 	for {
 		select {
@@ -126,7 +151,7 @@ func (g *Game) spawnItem() {
 			points = remove(points, obj.Coords)
 		}
 	}
-	if count >= 3 || len(points) == 0 {
+	if count >= 8 || len(points) == 0 {
 		return
 	}
 	coords := points[rand.Intn(len(points))]
