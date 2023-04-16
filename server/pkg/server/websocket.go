@@ -95,6 +95,11 @@ func (s *WebSocketService) Message(m *melody.Session, msg []byte) {
 		var data serverv1.PlayerDead
 		json.Unmarshal(sMsg.Data, &data)
 		s.HandlePlayerDead(session, data)
+	case serverv1.TypePlayerRespawn:
+		var data serverv1.PlayerRespawn
+		json.Unmarshal(sMsg.Data, &data)
+		s.HandlePlayerRespawn(session, data)
+
 	case serverv1.TypePlayerRefresh:
 		b, _ := json.Marshal(s.getState())
 		m.Write(b)
@@ -268,6 +273,20 @@ func (s *WebSocketService) HandlePlayerMove(ps *Session, data serverv1.PlayerMov
 			Y: data.Y,
 		},
 		State: data.State,
+	}
+}
+
+func (s *WebSocketService) HandlePlayerRespawn(ps *Session, data serverv1.PlayerRespawn) {
+	zap.L().Info("handle", zap.Any("data", data))
+
+	if ps.ID == "" {
+		sendMsg(ps.S, "authorize first")
+		return
+	}
+	s.game.ActionChannel <- &PlayerRespawnAction{
+		PlayerID: ps.ID,
+		X:        data.X,
+		Y:        data.Y,
 	}
 }
 
