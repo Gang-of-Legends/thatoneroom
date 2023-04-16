@@ -23,6 +23,7 @@ export class BaseLevelScene extends Phaser.Scene {
     bottles: BottleGroup;
     bloodEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     flameEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+    showDead: boolean = false;
 
     nextGameText: Phaser.GameObjects.Text | null = null;
     nextGame: string | null = null;
@@ -73,32 +74,32 @@ export class BaseLevelScene extends Phaser.Scene {
     healthRefillTimeout: any = null;
 
     removeHealth(playerId: string): boolean {
-        this.health -= 1;
-        this.emitBlood(this.player.x, this.player.y);
-        this.playHitSound();
-        if (this.health <= 0) {
-            if (!this.player.isDead) {
+        if (!this.player.isDead) {
+            this.health -= 1;
+            this.emitBlood(this.player.x, this.player.y);
+            this.playHitSound();
+            if (this.health <= 0) {
                 this.die(playerId);
-            }
-        } else {
-            const refillAndTimeout = () => {
-                this.health += 1;
-                if (this.health < 5) {
-                    this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
-                } else {
-                    this.healthRefillTimeout = null;
+            } else {
+                const refillAndTimeout = () => {
+                    this.health += 1;
+                    if (this.health < 5) {
+                        this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
+                    } else {
+                        this.healthRefillTimeout = null;
+                    }
                 }
-            }
-    
-            if (!this.healthRefillTimeout) {
-                this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
+        
+                if (!this.healthRefillTimeout) {
+                    this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
+                }
             }
         }
 
         return true;
     }
 
-    die(killedBy: string) {
+    die(killedBy: string, time: number) {
         this.gameLogic?.send({
             type: PlayerMessages.Dead,
             data: {
@@ -107,8 +108,7 @@ export class BaseLevelScene extends Phaser.Scene {
             }
         });
         this.player?.characterDie();
-        this.youDiedOverlay?.activate();
-
+        this.dead = true;
         setTimeout(() => this.respawnPlayer(), 5000);
     }
 
@@ -323,7 +323,7 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     collideEnemyWithBottle(enemy: Enemy, bottle: Bottle) {
-        if (bottle.playerId !== enemy.id) {
+        if (bottle.playerId !== enemy.id && !enemy.isDead) {
             this.emitBlood(enemy.x, enemy.y);
             this.sound.play(Sounds.HitEnemy);
             this.bottleCollision(bottle);
@@ -402,6 +402,10 @@ export class BaseLevelScene extends Phaser.Scene {
 
         this.updateUI();
         this.updateItems(time, delta);
+        if (this.showDead) {
+            this.youDiedOverlay?.activate();
+            this.showDead = false;
+        }
     }
 
     bottlesStatus: Phaser.GameObjects.Text = null!;

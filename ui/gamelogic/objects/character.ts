@@ -39,7 +39,7 @@ export class Character extends Phaser.Physics.Arcade.Sprite {
 
         this.anims.create({
             key: 'die',
-            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 20, 21, 22, 24 ] }),
+            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 20, 21, 22, 23 ] }),
             frameRate: 2,
         });
     }
@@ -55,6 +55,7 @@ export class Character extends Phaser.Physics.Arcade.Sprite {
 
     spawn(x: number, y: number): void {
         this.isDead = false;
+        this.play('idle');
         this.setPosition(x, y);
     }
 }
