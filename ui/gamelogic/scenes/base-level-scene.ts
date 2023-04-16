@@ -70,7 +70,7 @@ export class BaseLevelScene extends Phaser.Scene {
         return true;
     }
 
-    health = 5;
+    health = 3;
     healthRefillTimeout: any = null;
 
     removeHealth(playerId: string): boolean {
@@ -83,7 +83,7 @@ export class BaseLevelScene extends Phaser.Scene {
             } else {
                 const refillAndTimeout = () => {
                     this.health += 1;
-                    if (this.health < 5) {
+                    if (this.health < 3) {
                         this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
                     } else {
                         this.healthRefillTimeout = null;
@@ -461,7 +461,7 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     updateUI(): void {
-        this.bottlesStatus?.setText(`${this.bottleInventory}/3`);
+        this.bottlesStatus?.setText(`${this.bottleInventory}/${this.maxBottleInventory}`);
         this.healthBar.forEach((heart, index) => {
             if (index < this.health) {
                 heart.visible = true
@@ -516,8 +516,16 @@ export class BaseLevelScene extends Phaser.Scene {
 
         switch (item) {
             case 0:
+                setTimeout(() => {
+                    this.clearBottleInventoryRefillTimeout();
+                    if (this.bottleInventory > 3) {
+                        this.bottleInventory = 3;
+                    }
+                    this.maxBottleInventory = 3;
+                }, duration)
                 this.clearBottleInventoryRefillTimeout();
                 this.bottleInventory = 10;
+                this.maxBottleInventory = 13;
                 break;
             case 1:
                 setTimeout(() => {
@@ -528,7 +536,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
                 this.clearBottleInventoryRefillTimeout();
                 this.bottleInventory = 3;
-                this.bottleInventoryRefillTime = 250;
+                this.bottleInventoryRefillTime = 500;
                 break;
         }
     }
