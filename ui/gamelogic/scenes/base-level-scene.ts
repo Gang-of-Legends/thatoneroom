@@ -21,7 +21,14 @@ export class BaseLevelScene extends Phaser.Scene {
     flameEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
     bottleInventory = 3;
+    maxBottleInventory = 3;
     bottleInventoryRefillTimeout: any = null;
+    clearBottleInventoryRefillTimeout() {
+        if (this.bottleInventoryRefillTimeout) {
+            clearTimeout(this.bottleInventoryRefillTimeout);
+            this.bottleInventoryRefillTimeout = null;
+        }
+    }
     bottleInventoryRefillTime = 2000;
     bottleOnGCD = false;
 
@@ -40,7 +47,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
         const refillAndTimeout = () => {
             this.bottleInventory += 1;
-            if (this.bottleInventory < 3) {
+            if (this.bottleInventory < this.maxBottleInventory) {
                 this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, this.bottleInventoryRefillTime);
             } else {
                 this.bottleInventoryRefillTimeout = null;
@@ -48,7 +55,7 @@ export class BaseLevelScene extends Phaser.Scene {
         }
 
         this.bottleInventory -= 1;
-        if (!this.bottleInventoryRefillTimeout) {
+        if (!this.bottleInventoryRefillTimeout && this.bottleInventory < this.maxBottleInventory) {
             this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, this.bottleInventoryRefillTime);
         }
         
@@ -404,15 +411,17 @@ export class BaseLevelScene extends Phaser.Scene {
     handlePowerUp(item: number, duration: number) {
         switch (item) {
             case 0:
+                this.clearBottleInventoryRefillTimeout();
+                this.bottleInventory = 10;
                 break;
             case 1:
                 setTimeout(() => {
-                    clearTimeout(this.bottleInventoryRefillTimeout);
+                    this.clearBottleInventoryRefillTimeout();
                     this.bottleInventory = 3;
                     this.bottleInventoryRefillTime = 2000;
                 }, duration)
 
-                clearTimeout(this.bottleInventoryRefillTimeout);
+                this.clearBottleInventoryRefillTimeout();
                 this.bottleInventory = 3;
                 this.bottleInventoryRefillTime = 250;
                 break;
