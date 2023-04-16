@@ -91,6 +91,7 @@ export class PreloadScene extends Phaser.Scene {
 
         /* Maps */
         this.load.tilemapTiledJSON(Maps.TestMap1, 'assets/TestMap1.json');
+        this.load.tilemapTiledJSON(Maps.TurboMap, 'assets/TurboMap.json');
 
         /* Sounds */
         this.load.audio(Sounds.Theme, 'assets/soundtrack.mp3');
