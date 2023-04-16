@@ -102,7 +102,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.player?.characterDie();
         //this.youDiedOverlay?.activate();
 
-        //setTimeout(() => this.respawnPlayer(), 5000);
+        setTimeout(() => this.respawnPlayer(), 5000);
     }
 
     respawnPlayer(): void {
@@ -225,10 +225,14 @@ export class BaseLevelScene extends Phaser.Scene {
           this.enemies.forEach(enemy => enemy.destroy());
           this.enemies = [];
           data.objects.filter(obj => obj.type === 'player' && this.gameLogic?.id != obj.id).forEach(obj => {
-              const enemy = new Enemy(this, obj.x, obj.y, obj.id, 0x00ff00);
+              const enemy = new Enemy(this, obj.x, obj.y, obj.id, obj.color);
               this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
               this.enemies.push(enemy);
           });
+          const playerObj = data.objects.find(obj => obj.type === 'player' && obj.id == this.player.id)
+          if (playerObj) {
+              this.player.setTint(playerObj.color);
+          }
 
           if (this.player && this.gameLogic) {
               this.player.id = this.gameLogic.id;
@@ -242,7 +246,7 @@ export class BaseLevelScene extends Phaser.Scene {
             if (this.gameLogic?.id == data.id) {
                 return
             }
-            const enemy = new Enemy(this, data.x, data.y, data.id, 0x00ff00);
+            const enemy = new Enemy(this, data.x, data.y, data.id, data.color);
             enemy.id = data.id;
             this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
             this.enemies.push(enemy);

@@ -5,6 +5,7 @@ export interface ServerObject {
     y: number,
     item: number,
     inventory: Item[],
+    color: number,
 }
 
 export interface Item {
