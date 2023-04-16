@@ -118,7 +118,7 @@ var (
 func (g *Game) loop() {
 	resetTicker := time.NewTicker(roundDuration)
 	defer resetTicker.Stop()
-	powerupTicker := time.NewTicker(10 * time.Second)
+	powerupTicker := time.NewTicker(4 * time.Second)
 	defer powerupTicker.Stop()
 	for {
 		select {
