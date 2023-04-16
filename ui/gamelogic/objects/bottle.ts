@@ -7,6 +7,7 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
   playerId: string | null = null;
 
   despawning: boolean = true;
+  damageOnHit: boolean = false;
   emitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
   constructor(scene: Phaser.Scene) {
@@ -24,6 +25,7 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
 
   throw(x: number, y: number, velocityX: number, velocityY: number) {
     this.despawning = false;
+    this.damageOnHit = true;
     this.enableBody(true, x, y, true, true);
     this.setScale(0.4);
     this.setActive(true);
@@ -52,6 +54,10 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
     
     if (!this.despawning) {
       this.setRotation(this.rotation + 0.2);
+    }
+
+    if (this.despawning && this.body?.velocity.y! > 0) {
+      this.damageOnHit = true;
     }
     
     if (this.despawning && this.body!.velocity.x != 0) {

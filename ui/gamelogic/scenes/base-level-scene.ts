@@ -345,7 +345,7 @@ export class BaseLevelScene extends Phaser.Scene {
     collidePlayerWithBottle(player: Player, bottle: Bottle) {
         if (player.id !== bottle.playerId) {
             bottle.explode();
-            if (!bottle.despawning) {
+            if (bottle.damageOnHit) {
                 this.removeHealth(bottle.playerId ?? "");
             }
             this.bottleCollision(bottle as Bottle);
