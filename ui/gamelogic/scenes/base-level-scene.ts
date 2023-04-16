@@ -149,7 +149,9 @@ export class BaseLevelScene extends Phaser.Scene {
 
         this.input.keyboard?.on('keydown-E', (event: any) => {
             console.log('throwing bottle');
-            this.throwBottle();
+            if (!this.player.isDead) {
+                this.throwBottle();
+            }
         });
 
         this.input.keyboard?.on('keydown-Q', (event: any) => {
