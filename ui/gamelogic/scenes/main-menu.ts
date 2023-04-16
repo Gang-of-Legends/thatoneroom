@@ -16,6 +16,8 @@ export class MainMenuScene extends Phaser.Scene {
   thirdPlace: Phaser.GameObjects.Text | null = null;
   fourthPlace: Phaser.GameObjects.Text | null = null;
 
+  stateListener: Function | undefined = undefined;
+
   constructor() {
     super({
       key: Scenes.MainMenu,
@@ -26,7 +28,7 @@ export class MainMenuScene extends Phaser.Scene {
     this.sound.play(Sounds.Theme, { loop: true });
     this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
 
-    this.gameLogic?.event.addListener(ServerMessages.State, (data: ServerStateMessage) => {
+    this.stateListener = (data: ServerStateMessage) => {
       if (!data.leaderboard) {
         return;
       }
@@ -52,7 +54,9 @@ export class MainMenuScene extends Phaser.Scene {
             break;
         }
       }
-    });
+    };
+
+    this.gameLogic?.event.addListener(ServerMessages.State, this.stateListener);
 
     const group = this.add.group([]);
 
@@ -151,6 +155,8 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   onEnterButtonClicked(): void {
+    this.gameLogic?.event.removeListener(ServerMessages.State, this.stateListener);
+
     this.scene.start(Scenes.Welcome);
   }
 }
