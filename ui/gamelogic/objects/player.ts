@@ -101,25 +101,32 @@ export class Player extends Character {
 
     update(time: number, delta: number) {
         this.setVelocityX(0);
-        if (this.keys.right.isDown) {
-            this.walkRight();
-        } else if (this.keys.left.isDown) {
-            this.walkLeft();
-        } else {
-            this.idle();
-        }
-        if ((this.keys.up.isDown || this.keys.space.isDown)) {
-            this.jump();
+        if (!this.isDead) {
+            if (this.keys.right.isDown) {
+                this.walkRight();
+            } else if (this.keys.left.isDown) {
+                this.walkLeft();
+            } else {
+                this.idle();
+            }
+            if ((this.keys.up.isDown || this.keys.space.isDown)) {
+                this.jump();
+            }
         }
 
         this.timer += delta;
         if (this.timer > 100) {
             this.timer = 0;
-            if (!this.idleSent || this.state != PlayerStates.Idle) {
+            if (!this.idleSent || this.state != PlayerStates.Idle && !this.isDead) {
                 this.gameLogic?.sendPosition(this.x, this.y, this.state);
                 this.idleSent = this.state == PlayerStates.Idle;
             }
         }
+    }
+
+    characterDie(): void {
+        super.characterDie();
+        this.scene.sound.play(Sounds.PlayerDie);
     }
 
     private checkJump() {

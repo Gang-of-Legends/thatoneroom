@@ -67,25 +67,25 @@ export class BaseLevelScene extends Phaser.Scene {
     health = 5;
     healthRefillTimeout: any = null;
 
-    removeHealth(): boolean {
+    removeHealth(playerId: string): boolean {
         this.health -= 1;
         this.emitBlood(this.player.x, this.player.y);
         this.playHitSound();
         if (this.health <= 0) {
-            this.respawnPlayer();
-        }
-
-        const refillAndTimeout = () => {
-            this.health += 1;
-            if (this.health < 5) {
-                this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
-            } else {
-                this.healthRefillTimeout = null;
+            this.die(playerId);
+        } else {
+            const refillAndTimeout = () => {
+                this.health += 1;
+                if (this.health < 5) {
+                    this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
+                } else {
+                    this.healthRefillTimeout = null;
+                }
             }
-        }
-
-        if (!this.healthRefillTimeout) {
-            this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
+    
+            if (!this.healthRefillTimeout) {
+                this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
+            }
         }
 
         return true;
@@ -99,13 +99,16 @@ export class BaseLevelScene extends Phaser.Scene {
                 killedBy: killedBy,
             }
         });
+        this.player?.characterDie();
+        //this.youDiedOverlay?.activate();
+
+        //setTimeout(() => this.respawnPlayer(), 5000);
     }
 
     respawnPlayer(): void {
         const spawnIndex = Math.floor(Math.random() * (this.spawns.length));
         const spawn = this.spawns[spawnIndex];
-
-        this.player.setPosition(spawn.x, spawn.y);
+        this.player.spawn(spawn.x ?? 0, spawn.y ?? 0);
         this.health = 5;
     }
 
@@ -304,7 +307,7 @@ export class BaseLevelScene extends Phaser.Scene {
         if (player.id !== bottle.playerId) {
             bottle.explode();
             if (!bottle.despawning) {
-                this.removeHealth();
+                this.removeHealth(bottle.playerId ?? "");
             }
             this.bottleCollision(bottle as Bottle);
         }

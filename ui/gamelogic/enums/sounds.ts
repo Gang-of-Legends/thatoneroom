@@ -9,4 +9,5 @@ export enum Sounds {
     GlassBottleSmash = "sound/GlassBottleSmash",
     GlassBottleDrop = "sound/GlassBottleDrop",
     MolotovSmash = "sound/MolotovSmash",
+    PlayerDie = "sound/PlayerDie",
 }

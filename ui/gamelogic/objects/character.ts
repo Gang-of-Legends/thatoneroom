@@ -2,6 +2,7 @@ import { Spritesheets } from "../enums";
 
 export class Character extends Phaser.Physics.Arcade.Sprite {
     id: string | null = null;
+    isDead: boolean = false;
 
     constructor(scene: Phaser.Scene, x: number, y: number, tint: number | null = null) {
         super(scene, x, y, Spritesheets.Main, 4);
@@ -35,9 +36,25 @@ export class Character extends Phaser.Physics.Arcade.Sprite {
             frameRate: 4,
             repeat: -1
         });
+
+        this.anims.create({
+            key: 'die',
+            frames: this.anims.generateFrameNumbers(Spritesheets.Main, { frames: [ 20, 21, 22, 24 ] }),
+            frameRate: 2,
+        });
     }
 
     update(time: number, delta: number): void {
         super.update(time, delta);
+    }
+
+    characterDie(): void {
+        this.isDead = true;
+        this.play('die');
+    }
+
+    spawn(x: number, y: number): void {
+        this.isDead = false;
+        this.setPosition(x, y);
     }
 }
