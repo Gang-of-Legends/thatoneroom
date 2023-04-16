@@ -16,7 +16,6 @@ export class Player extends Character {
     gameLogic: GameLogicPlugin | null = null;
     timer: number = 0;
     idleSent: boolean = false;
-    currentSpeed: number = 0;
 
     constructor(scene: Phaser.Scene, x: number, y: number, speed=50, jumpVelocity=150, tint: number | null = null) {
         super(scene, x, y, tint);
@@ -24,7 +23,6 @@ export class Player extends Character {
         if (tint !== null)
             this.setTint(tint)
         this.speed = speed;
-        this.currentSpeed = speed;
         this.jumpVelocity = jumpVelocity;
         this.isWalking = false;
         this.isJumping = false;
@@ -44,24 +42,23 @@ export class Player extends Character {
     }
 
     walkRight() {
-        if (this.isDead) return;
-        this.checkJump();
-        this.setVelocityX(this.currentSpeed);
-        this.currentSpeed += 0.33;
-        this.setFlipX(false);
-        this.isIdling = false;
-        if (!this.isWalking && !this.isJumping) {
-            this.state = PlayerStates.Walk;
-            this.play(PlayerStates.Walk);
-            this.isWalking = true;
-        };
+        if (!this.isDead) {
+            this.checkJump();
+            this.setVelocityX(this.speed);
+            this.setFlipX(false);
+            this.isIdling = false;
+            if (!this.isWalking && !this.isJumping) {
+                this.state = PlayerStates.Walk;
+                this.play(PlayerStates.Walk);
+                this.isWalking = true;
+            };
+        }
     }
 
     walkLeft() {
         if (!this.isDead) {
             this.checkJump();
-            this.setVelocityX(-1*this.currentSpeed);
-            this.currentSpeed += 0.33;
+            this.setVelocityX(-1*this.speed);
             this.setFlipX(true);
             this.isIdling = false;
             if (!this.isWalking && !this.isJumping) {
@@ -74,7 +71,6 @@ export class Player extends Character {
 
     jump() {
         if (this.canJump && !this.isDead) {
-            this.currentSpeed = (this.speed + this.currentSpeed) / 2;
             this.setVelocityY(-1*this.jumpVelocity);
             this.state = PlayerStates.Jump;
             this.play(PlayerStates.Jump);
@@ -87,7 +83,6 @@ export class Player extends Character {
 
     idle() {
         this.checkJump();
-        this.currentSpeed = (this.speed + this.currentSpeed) / 2;
         if (!this.isJumping && !this.isIdling && !this.isDead) {
             this.state = PlayerStates.Idle;
             this.isIdling = true;
