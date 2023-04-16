@@ -14,6 +14,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     connected: boolean = false;
     authenticated: boolean = false;
     id: string | null = null;
+    playerName: string | null = null;
     players: string[] = [];
     event: Phaser.Events.EventEmitter;
 
@@ -96,10 +97,11 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
 
 
     handleAuthentication(data: ServerAuthenticateMessage) {
-        this.authenticated = true;
-        this.id = data.id;
-      }
-    
+      this.authenticated = true;
+      this.id = data.id;
+      this.playerName = data.name;
+    }
+  
       handleAddPlayer(playerId: string) { }
     
       handleMovePlayer(playerId: string, x: number, y: number) {}
