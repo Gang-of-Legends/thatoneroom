@@ -149,6 +149,7 @@ type ServerState struct {
 	EndAt       time.Time     `json:"endAt"`
 	Leaderboard []PlayerScore `json:"leaderboard"`
 	Objects     []Object      `json:"objects"`
+	Reset       bool          `json:"reset"`
 }
 
 type PlayerScore struct {

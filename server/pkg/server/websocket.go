@@ -134,7 +134,9 @@ func (s *WebSocketService) watchChanges() {
 					},
 				})
 			case ResetChange:
-				msg = serverv1.NewServerState(s.getState())
+				state := s.getState()
+				state.Reset = true
+				msg = serverv1.NewServerState(state)
 			case PlayerDeadChange:
 				msg = serverv1.NewServerPlayerDead(serverv1.ServerPlayerDead{
 					ID:       val.PlayerID,

@@ -58,7 +58,7 @@ func (g *Game) Start() {
 }
 
 const (
-	roundDuration = 2 * time.Minute
+	roundDuration = 20 * time.Second
 )
 
 var (
@@ -100,7 +100,7 @@ func (g *Game) loop() {
 		case <-powerupTicker.C:
 			g.spawnItem()
 		case <-resetTicker.C:
-			//g.ActionChannel <- &ResetAction{}
+			g.ActionChannel <- &ResetAction{}
 		}
 	}
 }
