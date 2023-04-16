@@ -5,6 +5,7 @@ import { StateSprite } from "../objects/ui/state_sprite";
 import { GameLogicPlugin } from "../plugins";
 import { PowerUpOverlay } from "../objects/powerup";
 import { ServerStateMessage } from "../models";
+import { hostname } from "os";
 
 export class MainMenuScene extends Phaser.Scene {
   gameLogic: GameLogicPlugin | null = null;
@@ -14,6 +15,7 @@ export class MainMenuScene extends Phaser.Scene {
   nextGameText: Phaser.GameObjects.Text | null = null;
   nextGame: string | null = null;
 
+  leaderboard: any[] = [];
   firstPlace: Phaser.GameObjects.Text | null = null;
   secondPlace: Phaser.GameObjects.Text | null = null;
   thirdPlace: Phaser.GameObjects.Text | null = null;
@@ -26,8 +28,16 @@ export class MainMenuScene extends Phaser.Scene {
     super({
       key: Scenes.MainMenu,
     });
-
     this.created = false;
+  }
+
+  init(data: any) {
+    if (data) {
+      console.log(data);
+      if (data.serverState) {
+        this.handleUIInit(data.serverState);
+      }
+    }
   }
 
   async create(): Promise<void> {
@@ -36,37 +46,9 @@ export class MainMenuScene extends Phaser.Scene {
     this.sound.play(Sounds.Theme, { loop: true });
     this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
 
-    this.stateListener = (data: ServerStateMessage) => {
-      if (data.endAt) {
-        this.nextGame = data.endAt;
-      }
+    this.stateListener = (data: ServerStateMessage) => this.handleUIInit(data);
 
-      if (!data.leaderboard) {
-        return;
-      }
-
-      for (let i = 0; i < data.leaderboard.length; i++) {
-        if (i > 3) {
-          break;
-        }
-        const player = data.leaderboard[i];
-
-        switch (i) {
-          case 0:
-            this.firstPlace?.setText(`${player.name} (${player.score})`);
-            break;
-          case 1:
-            this.secondPlace?.setText(`${player.name} (${player.score})`);
-            break;
-          case 2:
-            this.thirdPlace?.setText(`${player.name} (${player.score})`);
-            break;
-          case 3:
-            this.fourthPlace?.setText(`${player.name} (${player.score})`);
-            break;
-        }
-      }
-    };
+    
 
     this.gameLogic?.event.addListener(ServerMessages.State, this.stateListener);
 
@@ -177,11 +159,49 @@ export class MainMenuScene extends Phaser.Scene {
       const time = new Date(this.nextGame).getTime() - new Date().getTime();
       this.nextGameText?.setText(`Next Game in: ${time / 1000}`);
     }
+
+    this.drawLeaderboard();
   }
 
   onEnterButtonClicked(): void {
     this.gameLogic?.event.removeListener(ServerMessages.State, this.stateListener);
 
     this.scene.start(Scenes.Welcome);
+  }
+
+  handleUIInit(data: ServerStateMessage) {
+    if (data.endAt) {
+      this.nextGame = data.endAt;
+    }
+
+    if (!data.leaderboard) {
+      return;
+    } else {
+      this.leaderboard = data.leaderboard;
+    }
+  }
+
+  drawLeaderboard() {
+    for (let i = 0; i < this.leaderboard.length; i++) {
+      if (i > 3) {
+        break;
+      }
+      const player = this.leaderboard[i];
+
+      switch (i) {
+        case 0:
+          this.firstPlace?.setText(`${player.name} (${player.score})`);
+          break;
+        case 1:
+          this.secondPlace?.setText(`${player.name} (${player.score})`);
+          break;
+        case 2:
+          this.thirdPlace?.setText(`${player.name} (${player.score})`);
+          break;
+        case 3:
+          this.fourthPlace?.setText(`${player.name} (${player.score})`);
+          break;
+      }
+    }
   }
 }

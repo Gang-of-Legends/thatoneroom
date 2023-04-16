@@ -261,7 +261,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
           if (data.reset) {
             this.gameLogic?.event.removeAllListeners();
-            this.scene.start(Scenes.MainMenu);
+            this.scene.start(Scenes.MainMenu, { serverState: data });
           }
 
         });
