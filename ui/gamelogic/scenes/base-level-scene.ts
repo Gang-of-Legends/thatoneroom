@@ -100,7 +100,7 @@ export class BaseLevelScene extends Phaser.Scene {
             }
         });
         this.player?.characterDie();
-        //this.youDiedOverlay?.activate();
+        this.youDiedOverlay?.activate();
 
         setTimeout(() => this.respawnPlayer(), 5000);
     }
