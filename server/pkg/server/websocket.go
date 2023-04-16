@@ -185,7 +185,22 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 		s.tokens[token] = id
 		s.tokensMx.Unlock()
 
-		name := gofakeit.HackerNoun()
+		var name string
+		uniqueNames := make(map[string]struct{})
+		s.game.playerMx.RLock()
+		for _, v := range s.game.players {
+			uniqueNames[v.Name] = struct{}{}
+		}
+		s.game.playerMx.RUnlock()
+		for name == "" {
+			n := gofakeit.HackerAdjective() + " " + gofakeit.HackerNoun()
+			if _, found := uniqueNames[n]; found {
+				continue
+			}
+			name = n
+			break
+		}
+
 		sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
 			Success: true,
 			Token:   session.Token,
