@@ -15,7 +15,6 @@ import { ServerDeadMessage } from "../models/dead";
 import { YouDiedOverlay } from "../objects/you_died_overlay";
 import { DefaultDeserializer } from "v8";
 import { ServerRespawnMessage } from "../models/server-respawn-message";
-import { GameOverlayScene } from "./game-overlay-scene";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -28,8 +27,6 @@ export class BaseLevelScene extends Phaser.Scene {
 
     nextGameText: Phaser.GameObjects.Text | null = null;
     nextGame: string | null = null;
-
-    overlay: Phaser.Cameras.Scene2D.Camera;
 
     bottleInventory = 3;
     maxBottleInventory = 3;
@@ -235,7 +232,6 @@ export class BaseLevelScene extends Phaser.Scene {
         this.player?.idle();
 
         this.createUI();
-        this.scene.launch(Scenes.GameOverlay, { nextGame: this.nextGame});
     }
 
     addEventListeners() {
