@@ -469,6 +469,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.bottleImage?.setX(21 + offsetX);
         this.bottlesStatus?.setX(21 + 4 + offsetX);
         this.nextGameText?.setX(10 + offsetX);
+        this.powerupOverlay?.setX(105 + offsetX);
 
         this.bottlesStatus?.setText(`${this.bottleInventory}/${this.maxBottleInventory}`);
         this.healthBar.forEach((heart, index) => {
