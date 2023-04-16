@@ -37,7 +37,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
           this.send({
               type: "player_authenticate",
               data: {
-                token: this.token,
+                token: "",
               }
           });
         }

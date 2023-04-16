@@ -24,6 +24,9 @@ export class BaseLevelScene extends Phaser.Scene {
     bloodEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     flameEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
+    nextGameText: Phaser.GameObjects.Text | null = null;
+    nextGame: string | null = null;
+
     bottleInventory = 3;
     maxBottleInventory = 3;
     bottleInventoryRefillTimeout: any = null;
@@ -233,6 +236,8 @@ export class BaseLevelScene extends Phaser.Scene {
 
     addEventListeners() {
         this.gameLogic?.event.addListener(ServerMessages.State, (data: ServerStateMessage) => {
+          this.nextGame = data.endAt;
+
           this.enemies.forEach(enemy => enemy.destroy());
           this.enemies = [];
           data.objects.filter(obj => obj.type === 'player' && this.gameLogic?.id != obj.id).forEach(obj => {
@@ -432,6 +437,10 @@ export class BaseLevelScene extends Phaser.Scene {
         this.youDiedOverlay = new YouDiedOverlay(this, 0, 0, 0);
         this.add.existing(this.youDiedOverlay);
 
+        this.nextGameText = new Phaser.GameObjects.Text(this, 100, 166, 'Game ends in: 0', { fontSize: '16px', color: '#ffffff' }).setScale(0.3);
+        this.nextGameText.depth = 100;
+        this.add.existing(this.nextGameText);
+
         this.updateUI();
     }
 
@@ -444,6 +453,11 @@ export class BaseLevelScene extends Phaser.Scene {
                 heart.visible = false;
             }
         });
+
+        if (this.nextGame) {
+            const time = new Date(this.nextGame).getTime() - new Date().getTime();
+            this.nextGameText?.setText(`Game ends in: ${time / 1000}`);
+        }
     }
 
     emitBlood(x: number, y: number, count: number = 16) {
