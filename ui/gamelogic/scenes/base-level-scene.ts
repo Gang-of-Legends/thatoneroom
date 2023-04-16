@@ -12,6 +12,7 @@ import { runInThisContext } from "vm";
 import { ServerPickupItemMessage } from "../models/pickup-item";
 import { PowerUpOverlay } from "../objects/powerup";
 import { ServerDeadMessage } from "../models/dead";
+import { YouDiedOverlay } from "../objects/you_died_overlay";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -375,6 +376,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
     bottlesStatus: Phaser.GameObjects.Text = null!;
     powerupOverlay: Phaser.GameObjects.Container = null!;
+    youDiedOverlay: Phaser.GameObjects.Container = null!;
     healthBar: StateSprite[] = [];
 
     createUI(): void {
@@ -401,6 +403,9 @@ export class BaseLevelScene extends Phaser.Scene {
 
         this.powerupOverlay = new PowerUpOverlay(this, 105, 168, 0);
         this.add.existing(this.powerupOverlay);
+
+        this.youDiedOverlay = new YouDiedOverlay(this, 0, 0, 0);
+        this.add.existing(this.youDiedOverlay);
 
         this.updateUI();
     }
