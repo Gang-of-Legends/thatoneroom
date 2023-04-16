@@ -5,4 +5,5 @@ export enum PlayerMessages {
     PlayerSpawnObject = "player_spawn_object",
     PickupItem = "player_pickup_item",
     Dead = "player_dead",
+    Respawn = "player_respawn",
 }

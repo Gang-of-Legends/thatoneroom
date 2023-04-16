@@ -13,6 +13,8 @@ import { ServerPickupItemMessage } from "../models/pickup-item";
 import { PowerUpOverlay } from "../objects/powerup";
 import { ServerDeadMessage } from "../models/dead";
 import { YouDiedOverlay } from "../objects/you_died_overlay";
+import { DefaultDeserializer } from "v8";
+import { ServerRespawnMessage } from "../models/server-respawn-message";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -110,6 +112,13 @@ export class BaseLevelScene extends Phaser.Scene {
     respawnPlayer(): void {
         const spawnIndex = Math.floor(Math.random() * (this.spawns.length));
         const spawn = this.spawns[spawnIndex];
+        this.gameLogic?.send({
+            type: PlayerMessages.PlayerSpawnObject,
+            data: {
+                x: spawn.x ?? 0,
+                y: spawn.y ?? 0,
+            }
+        });
         this.player.spawn(spawn.x ?? 0, spawn.y ?? 0);
         this.health = 5;
     }
@@ -277,7 +286,14 @@ export class BaseLevelScene extends Phaser.Scene {
         });
 
         this.gameLogic?.event.addListener(ServerMessages.Dead, (data: ServerDeadMessage) => {
+            const enemy = this.enemies.find((enemy: Enemy) => enemy.id === data.id);
+            enemy?.characterDie();
             console.log('received dead message');
+        });
+
+        this.gameLogic?.event.addListener(ServerMessages.Respawn, (data: ServerRespawnMessage) => {
+            const enemy = this.enemies.find((enemy: Enemy) => enemy.id === data.id);
+            enemy?.spawn(data.x, data.y);
         });
 
         this.gameLogic?.event.addListener(ServerMessages.PickupItem, (data: ServerPickupItemMessage) => {

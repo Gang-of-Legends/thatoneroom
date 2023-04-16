@@ -8,4 +8,5 @@ export enum ServerMessages {
     SpawnObject = "server_spawn_object",
     PickupItem = "server_pickup_item",
     Dead = "server_dead",
+    Respawn = "server_respawn",
 }
