@@ -108,8 +108,8 @@ func (g *Game) spawnItem() {
 	objs := g.Objects()
 	count := 0
 	points := make([]Coords, len(powerUpSpawnPoints))
-	copy(powerUpSpawnPoints, powerUpSpawnPoints)
-	
+	copy(points, powerUpSpawnPoints)
+
 	for _, obj := range objs {
 		if obj.Type == ObjectItem {
 			count++
