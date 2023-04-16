@@ -43,7 +43,7 @@ export class MainMenuScene extends Phaser.Scene {
   async create(): Promise<void> {
     this.created = false;
 
-    this.sound.play(Sounds.Theme, { loop: true });
+    this.sound.play(Sounds.Theme, { loop: true, volume: 0.7 });
     this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
 
     this.stateListener = (data: ServerStateMessage) => this.handleUIInit(data);
