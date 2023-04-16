@@ -4,7 +4,7 @@ import { Images, Spritesheets } from "../enums";
 import { Player } from "./player";
 
 export class Bottle extends Phaser.Physics.Arcade.Sprite {
-  assignedPlayer: Player | null = null;
+  playerId: string | null = null;
 
   despawning: boolean = true;
   emitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
@@ -13,7 +13,7 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
     super(scene, -1000, -1000, Spritesheets.Bottles, 0);
 
     this.emitter = this.scene.add.particles(0, 0, Images.ParticleGlass, {
-      frame: 'blue',
+      frame: 0,
       scale: { start: 0.4, end: 0 },
       speed: { min: 0, max: 20 },
       blendMode: 'BLEND',
@@ -81,6 +81,7 @@ export class BottleGroup extends Phaser.Physics.Arcade.Group {
     const bottle : Bottle = this.getFirstDead(true);
     bottle.setFrame(1);
     bottle.depth = 10;
+    bottle.playerId = playerID;
 
     if (bottle) {
       return bottle.throw(x, y, velocityX, velocityY);

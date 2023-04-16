@@ -1,6 +1,7 @@
 import { Spritesheets } from "../enums";
 
 export class Character extends Phaser.Physics.Arcade.Sprite {
+    id: string | null = null;
 
     constructor(scene: Phaser.Scene, x: number, y: number, tint: number | null = null) {
         super(scene, x, y, Spritesheets.Main, 4);

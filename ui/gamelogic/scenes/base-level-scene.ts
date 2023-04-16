@@ -188,13 +188,8 @@ export class BaseLevelScene extends Phaser.Scene {
                 }
             });
 
-            this.physics.add.collider(this.player, this.bottles, (player: Player, bottle: Bottle) => {
-                bottle.explode();
-                if (!bottle.despawning) {
-                    this.removeHealth();
-                }
-
-                this.bottleCollision(bottle as Bottle);                
+            this.physics.add.collider(this.player, this.bottles, (player, bottle) => {
+                this.collidePlayerWithBottle(player as Player, bottle as Bottle);
             });
 
             this.physics.add.collider(this.bottles, this.bottles, (bottle1: Bottle, bottle2: Bottle) => {
@@ -236,11 +231,7 @@ export class BaseLevelScene extends Phaser.Scene {
           this.enemies = [];
           data.objects.filter(obj => obj.type === 'player' && this.gameLogic?.id != obj.id).forEach(obj => {
               const enemy = new Enemy(this, obj.x, obj.y, obj.id, 0x00ff00);
-              this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => {
-                this.emitBlood((enemy as Enemy).x, (enemy as Enemy).y);
-                this.sound.play(Sounds.HitEnemy);
-                this.bottleCollision(bottle as Bottle);
-              });
+              this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
               this.enemies.push(enemy);
           })
 
@@ -253,11 +244,8 @@ export class BaseLevelScene extends Phaser.Scene {
                 return
             }
             const enemy = new Enemy(this, data.x, data.y, data.id, 0x00ff00);
-            this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => {
-                this.emitBlood((enemy as Enemy).x, (enemy as Enemy).y);
-                this.sound.play(Sounds.HitEnemy);
-                this.bottleCollision(bottle as Bottle);
-            });
+            enemy.id = data.id;
+            this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
             this.enemies.push(enemy);
         });
         this.gameLogic?.event.addListener(ServerMessages.Move, (data: ServerPlayerMoveMessage) => {
@@ -302,6 +290,24 @@ export class BaseLevelScene extends Phaser.Scene {
         const item = new Item(id, this, x, y, option);
         this.items.push(item);
         this.add.existing(item);
+    }
+    
+    collideEnemyWithBottle(enemy: Enemy, bottle: Bottle) {
+        if (bottle.playerId != enemy.id) {
+            this.emitBlood(enemy.x, enemy.y);
+            this.sound.play(Sounds.HitEnemy);
+            this.bottleCollision(bottle);
+        }
+    }
+
+    collidePlayerWithBottle(player: Player, bottle: Bottle) {
+        if (player.id != bottle.playerId) {
+            bottle.explode();
+            if (!bottle.despawning) {
+                this.removeHealth();
+            }
+            this.bottleCollision(bottle as Bottle);
+        }
     }
 
     throwBottle() {
