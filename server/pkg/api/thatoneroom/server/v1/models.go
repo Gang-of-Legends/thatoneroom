@@ -171,15 +171,14 @@ func NewServerRemovePlayer(id string) Message {
 }
 
 type ServerPlayerDead struct {
-	ID string `json:"id"`
+	ID       string `json:"id"`
+	KilledBy string `json:"killedBy"`
 }
 
-func NewServerPlayerDead(id string) Message {
-	data, _ := json.Marshal(ServerPlayerDead{
-		ID: id,
-	})
+func NewServerPlayerDead(msg ServerPlayerDead) Message {
+	data, _ := json.Marshal(msg)
 	return Message{
-		Type: "server_player_dead",
+		Type: "server_dead",
 		Data: data,
 	}
 }

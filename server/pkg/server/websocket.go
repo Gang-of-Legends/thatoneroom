@@ -131,7 +131,10 @@ func (s *WebSocketService) watchChanges() {
 			case ResetChange:
 				msg = serverv1.NewServerState(s.getState())
 			case PlayerDeadChange:
-				msg = serverv1.NewServerPlayerDead(val.PlayerID)
+				msg = serverv1.NewServerPlayerDead(serverv1.ServerPlayerDead{
+					ID:       val.PlayerID,
+					KilledBy: val.KilledBy,
+				})
 			default:
 				zap.L().Warn("unhandled msg", zap.Any("val", val))
 				continue
@@ -181,6 +184,10 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 		Name:    gofakeit.HackerNoun(),
 	}))
 	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
+
+	s.game.ActionChannel <- &AuthPlayerAction{
+		ID: ps.ID,
+	}
 }
 
 func (s *WebSocketService) HandleConnect(ps *Session, data serverv1.PlayerConnect) {

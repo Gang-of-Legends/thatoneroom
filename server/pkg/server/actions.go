@@ -8,6 +8,15 @@ type Action interface {
 	Perform(game *Game)
 }
 
+type AuthPlayerAction struct {
+	ID   string
+	Name string
+}
+
+func (a *AuthPlayerAction) Perform(game *Game) {
+
+}
+
 type AddPlayerAction struct {
 	ID    string
 	Name  string

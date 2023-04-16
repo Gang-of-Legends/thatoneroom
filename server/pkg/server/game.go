@@ -29,6 +29,12 @@ type Game struct {
 	ChangeChannel chan Change
 	mx            sync.Mutex
 	startAt       time.Time
+	player        map[string]*Object
+}
+
+type Player struct {
+	ID    string
+	Token string
 }
 
 func NewGame() *Game {
