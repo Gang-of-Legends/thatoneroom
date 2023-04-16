@@ -141,7 +141,6 @@ func (s *WebSocketService) watchChanges() {
 			}
 
 			b, _ := json.Marshal(msg)
-			zap.L().Info("broadcast", zap.Any("msg", msg))
 			if err := s.M.Broadcast(b); err != nil {
 				zap.L().Error("broadcast", zap.Error(err))
 
@@ -153,16 +152,28 @@ func (s *WebSocketService) watchChanges() {
 func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerAuthenticate) {
 	zap.L().Info("handle", zap.Any("data", data))
 
-	if data.Token != "" {
-		if ps.Token != data.Token {
+	if data.ID != "" {
+		//if ps.Token != data.Token {
+		//	sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{}))
+		//	return
+		//}
+		player := s.game.GetPlayer(data.ID)
+		if player == nil {
 			sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{}))
+			zap.L().Warn("player not found", zap.String("id", data.ID))
 			return
 		}
+		session := &Session{
+			ID: data.ID,
+			S:  ps.S,
+		}
+		ps.S.Set("session", session)
+
 		sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
 			Success: true,
 			Token:   data.Token,
-			ID:      ps.ID,
-			Name:    "@TODO",
+			ID:      data.ID,
+			Name:    player.Name,
 		}))
 		sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 
@@ -177,25 +188,32 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 	}
 	ps.S.Set("session", session)
 
+	name := gofakeit.HackerNoun()
 	sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
 		Success: true,
 		Token:   session.Token,
 		ID:      session.ID,
-		Name:    gofakeit.HackerNoun(),
+		Name:    name,
 	}))
 	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 
 	s.game.ActionChannel <- &AuthPlayerAction{
-		ID: ps.ID,
+		ID:   session.ID,
+		Name: name,
 	}
 }
 
 func (s *WebSocketService) HandleConnect(ps *Session, data serverv1.PlayerConnect) {
 	zap.L().Info("handle", zap.Any("data", data))
+	if player := s.game.GetObject(ps.ID); player != nil {
+		zap.L().Warn("player already ingame", zap.String("id", player.ID), zap.String("name", player.Name))
+		return
+	}
 	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 	if data.Name == "" {
 		data.Name = gofakeit.HackerNoun()
 	}
+
 	s.game.ActionChannel <- &AddPlayerAction{
 		ID:    ps.ID,
 		Name:  data.Name,
@@ -296,14 +314,24 @@ func (s *WebSocketService) getState() serverv1.ServerState {
 			Y:         v.Coords.Y,
 			Inventory: items,
 		})
-		if v.Type == ObjectPlayer {
-			state.Leaderboard = append(state.Leaderboard, serverv1.PlayerScore{
-				ID:    v.ID,
-				Name:  v.Name,
-				Score: v.Score,
-			})
-		}
+		//if v.Type == ObjectPlayer {
+		//	state.Leaderboard = append(state.Leaderboard, serverv1.PlayerScore{
+		//		ID:    v.ID,
+		//		Name:  v.Name,
+		//		Score: v.Score,
+		//	})
+		//}
 	}
+	s.game.playerMx.RLock()
+	for _, v := range s.game.players {
+		state.Leaderboard = append(state.Leaderboard, serverv1.PlayerScore{
+			ID:    v.ID,
+			Name:  v.Name,
+			Score: v.Score,
+		})
+	}
+	s.game.playerMx.RUnlock()
+
 	sort.Slice(state.Leaderboard, func(i, j int) bool {
 		return state.Leaderboard[i].Score > state.Leaderboard[j].Score
 	})

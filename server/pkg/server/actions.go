@@ -9,12 +9,20 @@ type Action interface {
 }
 
 type AuthPlayerAction struct {
-	ID   string
-	Name string
+	ID    string
+	Name  string
+	Color int
 }
 
 func (a *AuthPlayerAction) Perform(game *Game) {
-
+	game.playerMx.Lock()
+	defer game.playerMx.Unlock()
+	game.players[a.ID] = &Player{
+		ID:    a.ID,
+		Name:  a.Name,
+		Color: a.Color,
+		Score: 0,
+	}
 }
 
 type AddPlayerAction struct {
@@ -166,6 +174,12 @@ func (a *PlayerDeadAction) Perform(game *Game) {
 	if killer != nil {
 		killer.Score++
 		game.SetObject(killer)
+		game.playerMx.Lock()
+		kPlayer := game.players[a.KilledBy]
+		if kPlayer != nil {
+			kPlayer.Score++
+		}
+		game.playerMx.Lock()
 	}
 
 	game.sendChange(PlayerDeadChange{

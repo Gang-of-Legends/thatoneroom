@@ -29,12 +29,15 @@ type Game struct {
 	ChangeChannel chan Change
 	mx            sync.Mutex
 	startAt       time.Time
-	player        map[string]*Object
+	players       map[string]*Player
+	playerMx      sync.RWMutex
 }
 
 type Player struct {
 	ID    string
-	Token string
+	Name  string
+	Color int
+	Score int
 }
 
 func NewGame() *Game {
@@ -42,6 +45,7 @@ func NewGame() *Game {
 		objects:       make(map[string]*Object),
 		ActionChannel: make(chan Action, 64),
 		ChangeChannel: make(chan Change, 64),
+		players:       map[string]*Player{},
 		startAt:       time.Now(),
 	}
 
@@ -136,6 +140,11 @@ func (g *Game) spawnItem() {
 
 }
 
+func (g *Game) GetPlayer(id string) *Player {
+	g.playerMx.RLock()
+	defer g.playerMx.RUnlock()
+	return g.players[id]
+}
 func (g *Game) GetObject(id string) *Object {
 	g.mx.Lock()
 	defer g.mx.Unlock()
