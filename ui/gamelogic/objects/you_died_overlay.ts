@@ -30,6 +30,7 @@ export class YouDiedOverlay extends Phaser.GameObjects.Container {
 
   activate() {
     this.setVisible(true);
+    this.duration = 5000;
   }
 
   deactivate() {
