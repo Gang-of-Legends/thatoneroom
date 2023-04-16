@@ -152,10 +152,15 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 
 	if data.Token != "" {
 		if ps.Token != data.Token {
-			sendMsg(ps.S, serverv1.NewServerAuthenticate(false, "", ""))
+			sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{}))
 			return
 		}
-		sendMsg(ps.S, serverv1.NewServerAuthenticate(true, data.Token, ps.ID))
+		sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
+			Success: true,
+			Token:   data.Token,
+			ID:      ps.ID,
+			Name:    "@TODO",
+		}))
 		sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 
 		return
@@ -169,7 +174,12 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 	}
 	ps.S.Set("session", session)
 
-	sendMsg(ps.S, serverv1.NewServerAuthenticate(true, session.Token, session.ID))
+	sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
+		Success: true,
+		Token:   session.Token,
+		ID:      session.ID,
+		Name:    gofakeit.HackerNoun(),
+	}))
 	sendMsg(ps.S, serverv1.NewServerState(s.getState()))
 }
 
@@ -214,12 +224,13 @@ func (s *WebSocketService) HandleSpawnObject(ps *Session, data serverv1.PlayerSp
 	}
 
 	s.game.ActionChannel <- &SpawnObjectAction{
-		ID:   shortID(),
-		Type: data.Type,
-		X:    data.X,
-		Y:    data.Y,
-		VelX: data.VelocityX,
-		VelY: data.VelocityY,
+		ID:       shortID(),
+		PlayerID: data.PlayerID,
+		Type:     data.Type,
+		X:        data.X,
+		Y:        data.Y,
+		VelX:     data.VelocityX,
+		VelY:     data.VelocityY,
 	}
 
 }
@@ -271,6 +282,7 @@ func (s *WebSocketService) getState() serverv1.ServerState {
 		}
 		state.Objects = append(state.Objects, serverv1.Object{
 			ID:        v.ID,
+			Name:      v.Name,
 			Type:      v.Type,
 			Item:      v.Item,
 			X:         v.Coords.X,

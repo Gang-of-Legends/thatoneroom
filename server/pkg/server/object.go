@@ -10,6 +10,7 @@ type Object struct {
 	Inventory []*Item
 	Item      int
 	Color     int
+	Creator   string
 }
 
 type Item struct {

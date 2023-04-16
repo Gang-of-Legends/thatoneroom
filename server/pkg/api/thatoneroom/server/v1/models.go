@@ -57,6 +57,7 @@ type ServerAuthenticate struct {
 	Success bool   `json:"success"`
 	Token   string `json:"token"`
 	ID      string `json:"id"`
+	Name    string `json:"name"`
 }
 
 type PlayerPickupItem struct {
@@ -72,12 +73,8 @@ func NewServerSpawnObject(object ServerSpawnObject) Message {
 		Data: data,
 	}
 }
-func NewServerAuthenticate(success bool, token string, id string) Message {
-	data, _ := json.Marshal(ServerAuthenticate{
-		Success: success,
-		Token:   token,
-		ID:      id,
-	})
+func NewServerAuthenticate(msg ServerAuthenticate) Message {
+	data, _ := json.Marshal(msg)
 	return Message{
 		Type: "server_authenticate",
 		Data: data,
@@ -127,6 +124,7 @@ func NewServerMove(id string, x float64, y float64, state string) Message {
 
 type Object struct {
 	ID        string  `json:"id"`
+	Name      string  `json:"name"`
 	Type      string  `json:"type"`
 	Item      int     `json:"item"`
 	X         float64 `json:"x"`
