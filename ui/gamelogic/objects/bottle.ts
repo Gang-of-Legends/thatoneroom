@@ -59,6 +59,10 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
     if (this.despawning && this.body?.velocity.y! > 0) {
       this.damageOnHit = true;
     }
+
+    if (this.despawning && this.body?.velocity.y! == 0) {
+      this.damageOnHit = false;
+    }
     
     if (this.despawning && this.body!.velocity.x != 0) {
       if (Math.abs(this.body!.velocity.x) < 10) {
