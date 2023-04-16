@@ -227,7 +227,7 @@ func (s *WebSocketService) HandleAuthenticate(ps *Session, data serverv1.PlayerA
 		sendMsg(ps.S, serverv1.NewServerAuthenticate(serverv1.ServerAuthenticate{
 			Success: true,
 			Token:   data.Token,
-			ID:      data.ID,
+			ID:      player.ID,
 			Name:    player.Name,
 		}))
 		sendMsg(ps.S, serverv1.NewServerState(s.getState()))
