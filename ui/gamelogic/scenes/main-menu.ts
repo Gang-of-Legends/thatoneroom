@@ -11,6 +11,9 @@ export class MainMenuScene extends Phaser.Scene {
   connectingText: StateSprite | null = null;
   playerName: Phaser.GameObjects.Text | null = null;
 
+  nextGameText: Phaser.GameObjects.Text | null = null;
+  nextGame: string | null = null;
+
   firstPlace: Phaser.GameObjects.Text | null = null;
   secondPlace: Phaser.GameObjects.Text | null = null;
   thirdPlace: Phaser.GameObjects.Text | null = null;
@@ -29,6 +32,10 @@ export class MainMenuScene extends Phaser.Scene {
     this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
 
     this.stateListener = (data: ServerStateMessage) => {
+      if (data.endAt) {
+        this.nextGame = data.endAt;
+      }
+
       if (!data.leaderboard) {
         return;
       }
@@ -111,6 +118,9 @@ export class MainMenuScene extends Phaser.Scene {
     group.add(fermenter, true);
     group.add(distiler, true);
 
+    this.nextGameText = new Phaser.GameObjects.Text(this, -105, 235, 'Next Game in: 0', { fontSize: '16px', color: '#ffffff' });
+    group.add(this.nextGameText, true);
+
     group.incX((this.cameras.main.width / 2) - 112/2);
     group.incY((this.cameras.main.height / 2) - 100);
 
@@ -151,6 +161,11 @@ export class MainMenuScene extends Phaser.Scene {
 
     if (this.gameLogic?.playerName) {
       this.playerName?.setText(`Your Name: ${this.gameLogic.playerName}`);
+    }
+
+    if (this.nextGame) {
+      const time = new Date(this.nextGame).getTime() - new Date().getTime();
+      this.nextGameText?.setText(`Next Game in: ${time / 1000}`);
     }
   }
 

@@ -16,6 +16,7 @@ export class GameLogicPlugin extends Phaser.Plugins.BasePlugin {
     id: string | null = null;
     token: string | null = null;
     playerName: string | null = null;
+    nextGame: string | null = null;
     players: string[] = [];
     event: Phaser.Events.EventEmitter;
 
