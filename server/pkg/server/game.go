@@ -107,14 +107,16 @@ func remove[T comparable](l []T, item T) []T {
 func (g *Game) spawnItem() {
 	objs := g.Objects()
 	count := 0
-	points := powerUpSpawnPoints
+	points := make([]Coords, len(powerUpSpawnPoints))
+	copy(powerUpSpawnPoints, powerUpSpawnPoints)
+	
 	for _, obj := range objs {
 		if obj.Type == ObjectItem {
 			count++
 			points = remove(points, obj.Coords)
 		}
 	}
-	if count == 3 || len(points) == 0 {
+	if count >= 3 || len(points) == 0 {
 		return
 	}
 	coords := points[rand.Intn(len(points))]
