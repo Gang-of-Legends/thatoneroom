@@ -179,7 +179,7 @@ func (a *PlayerDeadAction) Perform(game *Game) {
 		if kPlayer != nil {
 			kPlayer.Score++
 		}
-		game.playerMx.Lock()
+		game.playerMx.Unlock()
 	}
 
 	game.sendChange(PlayerDeadChange{
