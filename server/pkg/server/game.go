@@ -58,7 +58,7 @@ func (g *Game) Start() {
 }
 
 const (
-	roundDuration = 20 * time.Second
+	roundDuration = 3 * time.Minute
 )
 
 var (
