@@ -538,6 +538,8 @@ export class BaseLevelScene extends Phaser.Scene {
                     this.clearBottleInventoryRefillTimeout();
                     if (this.bottleInventory > 3) {
                         this.bottleInventory = 3;
+                    } else if (this.bottleInventory == 0) {
+                        this.bottleInventory = 1;
                     }
                     this.maxBottleInventory = 3;
                 }, duration)
