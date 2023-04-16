@@ -152,7 +152,7 @@ export class BaseLevelScene extends Phaser.Scene {
                 
             });
             this.bloodEmitter.setPosition(this.player.x, this.player.y);
-            this.gameLogic?.wsConnect('Random Name', this.player.x, this.player.y);
+            this.gameLogic?.wsConnect(this.player.name, this.player.x, this.player.y);
 
             this.flameEmitter = this.add.particles(0, 0, Spritesheets.Particles,
             {
