@@ -494,6 +494,10 @@ export class BaseLevelScene extends Phaser.Scene {
             const itemBounds = item.getBounds();
             const playerBounds = this.player?.getBounds();
             if (Phaser.Geom.Intersects.RectangleToRectangle(itemBounds, playerBounds)) {
+                if (this.activePowerUp != -1) {
+                    return;
+                }
+
                 this.sound.play(Sounds.PowerUp);
 
                 this.gameLogic?.send({
