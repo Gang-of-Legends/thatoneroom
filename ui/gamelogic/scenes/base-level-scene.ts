@@ -123,7 +123,7 @@ export class BaseLevelScene extends Phaser.Scene {
             }
         });
         this.player.spawn(spawn.x ?? 0, spawn.y ?? 0);
-        this.health = 5;
+        this.health = 3;
     }
 
     private sceneConfig: SceneConfig;
@@ -438,7 +438,7 @@ export class BaseLevelScene extends Phaser.Scene {
         inventoryGroup.incY(6);
 
         const healthGroup = this.add.group([]);
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 3; i++) {
             const heart = new StateSprite(this, -12 * i, 0, Spritesheets.Icons, 0).setScale(0.5);
             this.healthBar.push(heart);
             healthGroup.add(heart, true);
