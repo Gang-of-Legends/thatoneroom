@@ -72,7 +72,9 @@ export class BaseLevelScene extends Phaser.Scene {
         this.emitBlood(this.player.x, this.player.y);
         this.playHitSound();
         if (this.health <= 0) {
-            this.die(playerId);
+            if (!this.player.isDead) {
+                this.die(playerId);
+            }
         } else {
             const refillAndTimeout = () => {
                 this.health += 1;
@@ -229,13 +231,13 @@ export class BaseLevelScene extends Phaser.Scene {
               this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
               this.enemies.push(enemy);
           });
-          const playerObj = data.objects.find(obj => obj.type === 'player' && obj.id == this.player.id)
-          if (playerObj) {
-              this.player.setTint(playerObj.color);
-          }
 
           if (this.player && this.gameLogic) {
               this.player.id = this.gameLogic.id;
+          }
+          const playerObj = data.objects.find(obj => obj.type === 'player' && obj.id == this.player.id)
+          if (playerObj) {
+            this.player.setTint(playerObj.color);
           }
 
           data.objects.filter(obj => obj.type === "item").forEach(obj => {

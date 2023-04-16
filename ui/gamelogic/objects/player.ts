@@ -8,7 +8,6 @@ export class Player extends Character {
     private isWalking: boolean;
     private isJumping: boolean;
     private isIdling: boolean;
-    private isDead: boolean;
     private speed: number;
     private jumpVelocity: number;
     private onCooldown = false;
