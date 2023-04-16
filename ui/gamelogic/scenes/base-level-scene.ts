@@ -416,7 +416,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.updateUI();
         this.updateItems(time, delta);
         if (this.showDead) {
-            (this.scene.get(Scenes.GameOverlay) as GameOverlayScene)?.showDeadOverlay();
+            this.youDiedOverlay.activate();
             //this.scene.get(Scenes.GameOverlay).G
             this.showDead = false;
         }
@@ -470,6 +470,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.bottlesStatus?.setX(21 + 4 + offsetX);
         this.nextGameText?.setX(10 + offsetX);
         this.powerupOverlay?.setX(105 + offsetX);
+        this.youDiedOverlay?.setX(30 + offsetX);
 
         this.bottlesStatus?.setText(`${this.bottleInventory}/${this.maxBottleInventory}`);
         this.healthBar.forEach((heart, index) => {
