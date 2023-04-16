@@ -57,6 +57,26 @@ var (
 			X: 150,
 			Y: 100,
 		},
+		{
+			X: 50,
+			Y: 56,
+		},
+		{
+			X: 80,
+			Y: 104,
+		},
+		{
+			X: 136,
+			Y: 40,
+		},
+		{
+			X: 216,
+			Y: 104,
+		},
+		{
+			X: 216,
+			Y: 24,
+		},
 	}
 )
 
@@ -68,18 +88,44 @@ func (g *Game) loop() {
 	for {
 		select {
 		case <-powerupTicker.C:
-			coords := powerUpSpawnPoints[rand.Intn(len(powerUpSpawnPoints))]
-			g.ActionChannel <- &SpawnObjectAction{
-				ID:   shortID(),
-				Type: "item",
-				X:    coords.X,
-				Y:    coords.Y,
-				Item: rand.Intn(2),
-			}
+			g.spawnItem()
 		case <-resetTicker.C:
 			//g.ActionChannel <- &ResetAction{}
 		}
 	}
+}
+
+func remove[T comparable](l []T, item T) []T {
+	for i, other := range l {
+		if other == item {
+			return append(l[:i], l[i+1:]...)
+		}
+	}
+	return l
+}
+
+func (g *Game) spawnItem() {
+	objs := g.Objects()
+	count := 0
+	points := powerUpSpawnPoints
+	for _, obj := range objs {
+		if obj.Type == ObjectItem {
+			count++
+			points = remove(points, obj.Coords)
+		}
+	}
+	if count == 3 || len(points) == 0 {
+		return
+	}
+	coords := points[rand.Intn(len(points))]
+	g.ActionChannel <- &SpawnObjectAction{
+		ID:   shortID(),
+		Type: "item",
+		X:    coords.X,
+		Y:    coords.Y,
+		Item: rand.Intn(2),
+	}
+
 }
 
 func (g *Game) GetObject(id string) *Object {

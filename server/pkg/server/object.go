@@ -18,4 +18,6 @@ type Item struct {
 
 const (
 	ObjectPlayer = "player"
+	ObjectBottle = "botlte"
+	ObjectItem   = "item"
 )
