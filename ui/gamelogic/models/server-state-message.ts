@@ -4,6 +4,7 @@ export interface ServerStateMessage {
     objects: ServerObject[]
     leaderboard: PlayerScore[]
     endAt: string
+    reset: boolean
 }
 
 export interface PlayerScore {

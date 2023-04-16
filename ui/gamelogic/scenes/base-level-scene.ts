@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Images, PlayerMessages, Plugins, ServerMessages, Sounds, Spritesheets, Tilesets } from "../enums";
+import { Images, PlayerMessages, Plugins, Scenes, ServerMessages, Sounds, Spritesheets, Tilesets } from "../enums";
 import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
@@ -236,6 +236,11 @@ export class BaseLevelScene extends Phaser.Scene {
 
     addEventListeners() {
         this.gameLogic?.event.addListener(ServerMessages.State, (data: ServerStateMessage) => {
+          if (data.reset) {
+            this.gameLogic?.event.removeAllListeners();
+            this.scene.start(Scenes.MainMenu);
+          }
+
           this.nextGame = data.endAt;
 
           this.enemies.forEach(enemy => enemy.destroy());

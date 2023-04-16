@@ -20,14 +20,19 @@ export class MainMenuScene extends Phaser.Scene {
   fourthPlace: Phaser.GameObjects.Text | null = null;
 
   stateListener: Function | undefined = undefined;
+  created = false;
 
   constructor() {
     super({
       key: Scenes.MainMenu,
     });
+
+    this.created = false;
   }
 
   async create(): Promise<void> {
+    this.created = false;
+
     this.sound.play(Sounds.Theme, { loop: true });
     this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
 
@@ -152,9 +157,14 @@ export class MainMenuScene extends Phaser.Scene {
     container.add(potatoCup);
     
     this.add.existing(container);
+    this.created = true;
   }
 
   update(): void {
+    if (!this.created) {
+      return
+    }
+
     if (this.gameLogic?.connected) {
       this.connectingText?.setFrame(1);
     }
@@ -163,7 +173,7 @@ export class MainMenuScene extends Phaser.Scene {
       this.playerName?.setText(`Your Name: ${this.gameLogic.playerName}`);
     }
 
-    if (this.nextGame) {
+    if (this.nextGame && this.nextGameText) {
       const time = new Date(this.nextGame).getTime() - new Date().getTime();
       this.nextGameText?.setText(`Next Game in: ${time / 1000}`);
     }
