@@ -437,8 +437,8 @@ export class BaseLevelScene extends Phaser.Scene {
         this.youDiedOverlay = new YouDiedOverlay(this, 0, 0, 0);
         this.add.existing(this.youDiedOverlay);
 
-        this.nextGameText = new Phaser.GameObjects.Text(this, 100, 166, 'Game ends in: 0', { fontSize: '16px', color: '#ffffff' }).setScale(0.3);
-        this.nextGameText.depth = 100;
+        this.nextGameText = new Phaser.GameObjects.Text(this, 10, 166, 'Game ends in: 0', { fontSize: '16px', color: '#ffffff' }).setScale(0.3);
+        // this.nextGameText.depth = 100;
         this.add.existing(this.nextGameText);
 
         this.updateUI();
