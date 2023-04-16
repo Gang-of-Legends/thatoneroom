@@ -412,6 +412,7 @@ export class BaseLevelScene extends Phaser.Scene {
             enemy.update();
         });
 
+
         this.updateUI();
         this.updateItems(time, delta);
         if (this.showDead) {
@@ -421,22 +422,24 @@ export class BaseLevelScene extends Phaser.Scene {
         }
     }
 
+    bottleImage: StateSprite | null = null!;
     bottlesStatus: Phaser.GameObjects.Text = null!;
+    inventoryGroup: Phaser.GameObjects.Group = null!;
     powerupOverlay: Phaser.GameObjects.Container = null!;
     youDiedOverlay: Phaser.GameObjects.Container = null!;
     healthBar: StateSprite[] = [];
 
     createUI(): void {
-        const inventoryGroup = this.add.group([]);
+        this.inventoryGroup = this.add.group([]);
 
-        const bottles = new StateSprite(this, 0, 1, Spritesheets.Bottles, 1);
-        inventoryGroup.add(bottles.setScale(0.5), true)
+        this.bottleImage = new StateSprite(this, 0, 1, Spritesheets.Bottles, 1);
+        this.inventoryGroup.add(this.bottleImage.setScale(0.5), true)
 
         this.bottlesStatus = new Phaser.GameObjects.Text(this, 4, -1, '3/3', { fontSize: '16px', color: '#edebeb' });
-        inventoryGroup.add(this.bottlesStatus.setScale(0.35), true)
+        this.inventoryGroup.add(this.bottlesStatus.setScale(0.35), true)
 
-        inventoryGroup.incX(21);
-        inventoryGroup.incY(6);
+        this.inventoryGroup.incX(21);
+        this.inventoryGroup.incY(6);
 
         const healthGroup = this.add.group([]);
         for (let i = 0; i < 3; i++) {
@@ -462,8 +465,14 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     updateUI(): void {
+        const offsetX = this.cameras.main.worldView.x;
+        this.bottleImage?.setX(21 + offsetX);
+        this.bottlesStatus?.setX(21 + 4 + offsetX);
+        this.nextGameText?.setX(10 + offsetX);
+
         this.bottlesStatus?.setText(`${this.bottleInventory}/${this.maxBottleInventory}`);
         this.healthBar.forEach((heart, index) => {
+            heart.setX(235 - 12 * index + offsetX)
             if (index < this.health) {
                 heart.visible = true
             } else {
