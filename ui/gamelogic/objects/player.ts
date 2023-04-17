@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import { PlayerStates, Plugins, Sounds, Spritesheets } from "../enums";
-import { GameLogicPlugin } from "../plugins";
 import { Character } from "./character";
 import { Bottle } from "./bottle";
+import { WebClientPlugin } from "../plugins";
 
 export class Player extends Character {
     private isWalking: boolean;
@@ -13,7 +13,7 @@ export class Player extends Character {
     private onCooldown = false;
     keys: any;
     state: PlayerStates = PlayerStates.Idle;
-    gameLogic: GameLogicPlugin | null = null;
+    webClient: WebClientPlugin | null = null;
     timer: number = 0;
     idleSent: boolean = false;
 
@@ -28,7 +28,7 @@ export class Player extends Character {
         this.isJumping = false;
         this.isIdling = true;
 
-        this.gameLogic = this.scene.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
+        this.webClient = this.scene.plugins.get(Plugins.WebClient) as WebClientPlugin;
 
         this.isDead = false;
 
@@ -121,7 +121,7 @@ export class Player extends Character {
         if (this.timer > 100) {
             this.timer = 0;
             if (!this.idleSent || this.state != PlayerStates.Idle && !this.isDead) {
-                this.gameLogic?.sendPosition(this.x, this.y, this.state);
+                this.webClient?.sendPosition(this.x, this.y, this.state);
                 this.idleSent = this.state == PlayerStates.Idle;
             }
         }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { GameLogic } from "@/gamelogic/instance";
 import { MainMenuScene, PreloadScene, WelcomeScene } from "@/gamelogic/scenes";
 import { Plugins } from "@/gamelogic/enums";
-import { GameLogicPlugin, SoundManagerPlugin } from "@/gamelogic/plugins";
+import { SoundManagerPlugin, WebClientPlugin } from "@/gamelogic/plugins";
 
 export default function Game() {
   const [logic, setLogic] = useState<GameLogic>();
@@ -27,7 +27,7 @@ export default function Game() {
         backgroundColor: "#000033",
         plugins: {
           global: [
-            { key: Plugins.GameLogic, plugin: GameLogicPlugin, start: true },
+            { key: Plugins.WebClient, plugin: WebClientPlugin, start: true },
             { key: Plugins.SoundManager, plugin: SoundManagerPlugin, start: true }
           ]
         }

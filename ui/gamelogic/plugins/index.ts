@@ -1,4 +1,4 @@
-import { GameLogicPlugin } from "./game-logic-plugin";
+import { WebClientPlugin } from "./web-client-plugin";
 import { SoundManagerPlugin } from "./sound-manager-plugin";
 
-export { GameLogicPlugin, SoundManagerPlugin };
+export { WebClientPlugin, SoundManagerPlugin };

@@ -2,13 +2,13 @@ import Phaser from "phaser";
 import { Images, Maps, Plugins, Scenes, ServerMessages, Sounds, Spritesheets } from "../enums";
 import { Button } from "../objects/ui/button";
 import { StateSprite } from "../objects/ui/state_sprite";
-import { GameLogicPlugin, SoundManagerPlugin } from "../plugins";
+import { SoundManagerPlugin, WebClientPlugin } from "../plugins";
 import { PowerUpOverlay } from "../objects/powerup";
 import { ServerStateMessage } from "../models";
 import { hostname } from "os";
 
 export class MainMenuScene extends Phaser.Scene {
-  gameLogic: GameLogicPlugin | null = null;
+  webClient: WebClientPlugin | null = null;
   soundManager: SoundManagerPlugin | null = null;
   connectingText: StateSprite | null = null;
   playerName: Phaser.GameObjects.Text | null = null;
@@ -47,9 +47,9 @@ export class MainMenuScene extends Phaser.Scene {
     this.soundManager = this.plugins.get(Plugins.SoundManager) as SoundManagerPlugin;
     this.soundManager.playMusic();
 
-    this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
+    this.webClient = this.plugins.get(Plugins.WebClient) as WebClientPlugin;
     this.stateListener = (data: ServerStateMessage) => this.handleUIInit(data);
-    this.gameLogic?.event.addListener(ServerMessages.State, this.stateListener);
+    this.webClient?.event.addListener(ServerMessages.State, this.stateListener);
 
     const group = this.add.group([]);
 
@@ -95,7 +95,7 @@ export class MainMenuScene extends Phaser.Scene {
         4, 5,
     ).setScale(3);
 
-    await this.gameLogic.connect();
+    await this.webClient.connect();
 
     group.add(this.connectingText, true);
     group.add(this.playerName, true);
@@ -146,12 +146,12 @@ export class MainMenuScene extends Phaser.Scene {
       return
     }
 
-    if (this.gameLogic?.connected) {
+    if (this.webClient?.connected) {
       this.connectingText?.setFrame(1);
     }
 
-    if (this.gameLogic?.playerName) {
-      this.playerName?.setText(`Your Name: ${this.gameLogic.playerName}`);
+    if (this.webClient?.playerName) {
+      this.playerName?.setText(`Your Name: ${this.webClient.playerName}`);
     }
 
     if (this.nextGame && this.nextGameText) {
@@ -163,7 +163,7 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   onEnterButtonClicked(): void {
-    this.gameLogic?.event.removeListener(ServerMessages.State, this.stateListener);
+    this.webClient?.event.removeListener(ServerMessages.State, this.stateListener);
 
     this.scene.start(Scenes.Welcome);
   }

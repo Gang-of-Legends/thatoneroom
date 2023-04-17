@@ -3,18 +3,16 @@ import { Images, PlayerMessages, Plugins, Scenes, ServerMessages, Sounds, Sprite
 import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
-import { GameLogicPlugin } from "../plugins";
 import { Bottle, BottleGroup } from "../objects/bottle";
 import { Item } from "../objects/item";
 import { ServerSpawnObjectMessage } from "../models/server-spawn-object";
 import { StateSprite } from "../objects/ui/state_sprite";
-import { runInThisContext } from "vm";
 import { ServerPickupItemMessage } from "../models/pickup-item";
 import { PowerUpOverlay } from "../objects/powerup";
 import { ServerDeadMessage } from "../models/dead";
 import { YouDiedOverlay } from "../objects/you_died_overlay";
-import { DefaultDeserializer } from "v8";
 import { ServerRespawnMessage } from "../models/server-respawn-message";
+import { WebClientPlugin } from "../plugins";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -100,10 +98,10 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     die(killedBy: string) {
-        this.gameLogic?.send({
+        this.webClient?.send({
             type: PlayerMessages.Dead,
             data: {
-                id: this.gameLogic?.id!,
+                id: this.webClient?.id!,
                 killedBy: killedBy,
             }
         });
@@ -115,7 +113,7 @@ export class BaseLevelScene extends Phaser.Scene {
     respawnPlayer(): void {
         const spawnIndex = Math.floor(Math.random() * (this.spawns.length));
         const spawn = this.spawns[spawnIndex];
-        this.gameLogic?.send({
+        this.webClient?.send({
             type: PlayerMessages.Respawn,
             data: {
                 x: spawn.x ?? 0,
@@ -127,7 +125,7 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     private sceneConfig: SceneConfig;
-    gameLogic: GameLogicPlugin | null = null;
+    webClient: WebClientPlugin | null = null;
     worldLayers: (Phaser.Tilemaps.TilemapLayer| null)[] = [];
     spawns: Phaser.Types.Tilemaps.TiledObject[] = [];
 
@@ -142,7 +140,7 @@ export class BaseLevelScene extends Phaser.Scene {
     create(): void {
         const map = this.make.tilemap({ key: this.sceneConfig.map });
         const tileset = map.addTilesetImage(Tilesets.Main, Images.Tiles);
-        this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
+        this.webClient = this.plugins.get(Plugins.WebClient) as WebClientPlugin;
 
         this.bottles = new BottleGroup(this);
         this.addEventListeners();
@@ -183,7 +181,7 @@ export class BaseLevelScene extends Phaser.Scene {
                 
             });
             this.bloodEmitter.setPosition(this.player.x, this.player.y);
-            this.gameLogic?.wsConnect(this.player.name, this.player.x, this.player.y);
+            this.webClient?.wsConnect(this.player.name, this.player.x, this.player.y);
 
             this.flameEmitter = this.add.particles(0, 0, Spritesheets.Particles,
             {
@@ -237,19 +235,19 @@ export class BaseLevelScene extends Phaser.Scene {
     }
 
     addEventListeners() {
-        this.gameLogic?.event.addListener(ServerMessages.State, (data: ServerStateMessage) => {
+        this.webClient?.event.addListener(ServerMessages.State, (data: ServerStateMessage) => {
           this.nextGame = data.endAt;
 
           this.enemies.forEach(enemy => enemy.destroy());
           this.enemies = [];
-          data.objects.filter(obj => obj.type === 'player' && this.gameLogic?.id != obj.id).forEach(obj => {
+          data.objects.filter(obj => obj.type === 'player' && this.webClient?.id != obj.id).forEach(obj => {
               const enemy = new Enemy(this, obj.x, obj.y, obj.id, obj.color);
               this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
               this.enemies.push(enemy);
           });
 
-          if (this.player && this.gameLogic) {
-              this.player.id = this.gameLogic.id;
+          if (this.player && this.webClient) {
+              this.player.id = this.webClient.id;
           }
           const playerObj = data.objects.find(obj => obj.type === 'player' && obj.id == this.player.id)
           if (playerObj) {
@@ -262,13 +260,13 @@ export class BaseLevelScene extends Phaser.Scene {
           })
 
           if (data.reset) {
-            this.gameLogic?.event.removeAllListeners();
+            this.webClient?.event.removeAllListeners();
             this.scene.start(Scenes.MainMenu, { serverState: data });
           }
 
         });
-        this.gameLogic?.event.addListener(ServerMessages.AddPlayer, (data: ServerAddPlayerMessage) => {
-            if (this.gameLogic?.id == data.id) {
+        this.webClient?.event.addListener(ServerMessages.AddPlayer, (data: ServerAddPlayerMessage) => {
+            if (this.webClient?.id == data.id) {
                 return
             }
             const enemy = new Enemy(this, data.x, data.y, data.id, data.color);
@@ -276,19 +274,19 @@ export class BaseLevelScene extends Phaser.Scene {
             this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
             this.enemies.push(enemy);
         });
-        this.gameLogic?.event.addListener(ServerMessages.Move, (data: ServerPlayerMoveMessage) => {
+        this.webClient?.event.addListener(ServerMessages.Move, (data: ServerPlayerMoveMessage) => {
             const enemy = this.enemies.find((enemy) => enemy.id == data.id);
             if (enemy) {
                 enemy.target = new Phaser.Math.Vector2(data.x, data.y);
                 enemy.changeState(data.state);
             }
         });
-        this.gameLogic?.event.addListener(ServerMessages.RemovePlayer, (data: ServerAddPlayerMessage) => {
+        this.webClient?.event.addListener(ServerMessages.RemovePlayer, (data: ServerAddPlayerMessage) => {
             const enemy = this.enemies.find((enemy) => enemy.id == data.id);
             this.enemies = this.enemies.filter((enemy) => enemy.id != data.id);
             enemy?.destroy();
         });
-        this.gameLogic?.event.addListener(ServerMessages.SpawnObject, (data: ServerSpawnObjectMessage) => {
+        this.webClient?.event.addListener(ServerMessages.SpawnObject, (data: ServerSpawnObjectMessage) => {
             switch (data.type) {
                 case "bottle":
                     const bottle = this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY, data.playerID);
@@ -299,25 +297,25 @@ export class BaseLevelScene extends Phaser.Scene {
             }
         });
 
-        this.gameLogic?.event.addListener(ServerMessages.Dead, (data: ServerDeadMessage) => {
+        this.webClient?.event.addListener(ServerMessages.Dead, (data: ServerDeadMessage) => {
             const enemy = this.enemies.find((enemy: Enemy) => enemy.id === data.id);
             enemy?.characterDie();
             console.log('received dead message');
         });
 
-        this.gameLogic?.event.addListener(ServerMessages.Respawn, (data: ServerRespawnMessage) => {
+        this.webClient?.event.addListener(ServerMessages.Respawn, (data: ServerRespawnMessage) => {
             const enemy = this.enemies.find((enemy: Enemy) => enemy.id === data.id);
             enemy?.spawn(data.x, data.y);
         });
 
-        this.gameLogic?.event.addListener(ServerMessages.PickupItem, (data: ServerPickupItemMessage) => {
+        this.webClient?.event.addListener(ServerMessages.PickupItem, (data: ServerPickupItemMessage) => {
             const item = this.items.find((item) => item.id == data.id);
             if (item) {
                 item.destroy();
                 this.items = this.items.filter((item) => item.id != data.id);
             }
 
-            if (data.playerID == this.gameLogic?.id) {
+            if (data.playerID == this.webClient?.id) {
                 this.powerupOverlay.activate(data.item, 10000);
                 
                 this.handlePowerUp(data.item, 10000);
@@ -385,10 +383,10 @@ export class BaseLevelScene extends Phaser.Scene {
             return;
         }
 
-        this.gameLogic?.send({
+        this.webClient?.send({
             type: PlayerMessages.PlayerSpawnObject,
             data: {
-                playerID: this.gameLogic.id!,
+                playerID: this.webClient.id!,
                 type: "bottle",
                 x: this.player.x,
                 y: this.player.y,
@@ -514,7 +512,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
                 this.sound.play(Sounds.PowerUp);
 
-                this.gameLogic?.send({
+                this.webClient?.send({
                     type: PlayerMessages.PickupItem,
                     data: {
                         id: item.id,
