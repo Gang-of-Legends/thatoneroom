@@ -2,13 +2,14 @@ import Phaser from "phaser";
 import { Images, Maps, Plugins, Scenes, ServerMessages, Sounds, Spritesheets } from "../enums";
 import { Button } from "../objects/ui/button";
 import { StateSprite } from "../objects/ui/state_sprite";
-import { GameLogicPlugin } from "../plugins";
+import { GameLogicPlugin, SoundManagerPlugin } from "../plugins";
 import { PowerUpOverlay } from "../objects/powerup";
 import { ServerStateMessage } from "../models";
 import { hostname } from "os";
 
 export class MainMenuScene extends Phaser.Scene {
   gameLogic: GameLogicPlugin | null = null;
+  soundManager: SoundManagerPlugin | null = null;
   connectingText: StateSprite | null = null;
   playerName: Phaser.GameObjects.Text | null = null;
 
@@ -43,13 +44,11 @@ export class MainMenuScene extends Phaser.Scene {
   async create(): Promise<void> {
     this.created = false;
 
-    this.sound.play(Sounds.Theme, { loop: true, volume: 0.7 });
+    this.soundManager = this.plugins.get(Plugins.SoundManager) as SoundManagerPlugin;
+    this.soundManager.playMusic();
+
     this.gameLogic = this.plugins.get(Plugins.GameLogic) as GameLogicPlugin;
-
     this.stateListener = (data: ServerStateMessage) => this.handleUIInit(data);
-
-    
-
     this.gameLogic?.event.addListener(ServerMessages.State, this.stateListener);
 
     const group = this.add.group([]);

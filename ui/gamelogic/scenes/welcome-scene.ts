@@ -29,7 +29,6 @@ export class WelcomeScene extends BaseLevelScene {
 
     create(): void {
         super.create();
-        this.sound.play(Sounds.Theme, { loop: true });
     }
 
     update(time: number, delta: number): void {

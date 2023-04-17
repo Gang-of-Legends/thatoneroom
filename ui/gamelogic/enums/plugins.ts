@@ -1,3 +1,4 @@
 export enum Plugins {
-    GameLogic = "plugin/GameLogic"
+    GameLogic = "plugin/GameLogic",
+    SoundManager = "plugin/SoundManager",
 }
