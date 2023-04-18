@@ -1,40 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { GameLogic } from "@/gamelogic/instance";
-import { MainMenuScene, PreloadScene, WelcomeScene } from "@/gamelogic/scenes";
-import { Plugins } from "@/gamelogic/enums";
-import { SoundManagerPlugin, WebClientPlugin } from "@/gamelogic/plugins";
+import { ThatOneRoom } from "@/gamelogic";
 
 export default function Game() {
-  const [logic, setLogic] = useState<GameLogic>();
+  const [logic, setLogic] = useState<ThatOneRoom>();
 
   useEffect(() => {
-    async function initGame() {
-      const Phaser = await import("phaser");
-
-      const phaserGame = new Phaser.Game({
-        type: Phaser.AUTO,
-        parent: "game",
-        width: 1280,
-        height: 720,
-        pixelArt: true,
-        physics: {
-          default: "arcade",
-          arcade: {
-            gravity: { y: 200 }
-          },
-        },
-        scene: [PreloadScene, MainMenuScene, WelcomeScene ],
-        backgroundColor: "#000033",
-        plugins: {
-          global: [
-            { key: Plugins.WebClient, plugin: WebClientPlugin, start: true },
-            { key: Plugins.SoundManager, plugin: SoundManagerPlugin, start: true }
-          ]
-        }
-      });
-
+    function initGame() {
       console.log('initialising game logic');
-      const logic = new GameLogic(phaserGame);
+      const logic = new ThatOneRoom();
       setLogic(logic);
     }
 
