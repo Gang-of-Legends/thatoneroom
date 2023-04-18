@@ -1,3 +1,4 @@
+import { GameEvents } from "./game-events";
 import { Images } from "./images";
 import { Maps } from "./maps";
 import { Objects } from "./objects";
@@ -11,4 +12,4 @@ import { Spritesheets } from "./spritesheets";
 import { Tilesets } from "./tilesets";
 
 
-export { Images, Scenes, Sounds, Maps, Tilesets, Spritesheets, Plugins, ServerMessages, PlayerStates, PlayerMessages, Objects };
+export { Images, Scenes, Sounds, Maps, Tilesets, Spritesheets, Plugins, ServerMessages, PlayerStates, PlayerMessages, Objects, GameEvents };

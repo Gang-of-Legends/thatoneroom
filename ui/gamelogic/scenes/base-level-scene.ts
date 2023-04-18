@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Images, Objects, PlayerMessages, Plugins, Scenes, ServerMessages, Sounds, Spritesheets, Tilesets } from "../enums";
+import { GameEvents, Images, Objects, PlayerMessages, Plugins, Scenes, ServerMessages, Sounds, Spritesheets, Tilesets } from "../enums";
 import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
@@ -10,11 +10,11 @@ import { StateSprite } from "../objects/ui/state_sprite";
 import { ServerPickupItemMessage } from "../models/pickup-item";
 import { PowerUpOverlay } from "../objects/powerup";
 import { ServerDeadMessage } from "../models/dead";
-import { YouDiedOverlay } from "../objects/you_died_overlay";
 import { ServerRespawnMessage } from "../models/server-respawn-message";
 import { WebClientPlugin } from "../plugins";
-import { PLAYER_MAX_HEALTH, PLAYER_RESPAWN_TIME } from "../constants";
+import { BOTTLES_MAX_COUNT, PLAYER_MAX_HEALTH, PLAYER_RESPAWN_TIME } from "../constants";
 import { ParticleGenerator } from "../objects/particle-generator";
+import { PowerUps } from "../enums/powerups";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -23,13 +23,9 @@ export class BaseLevelScene extends Phaser.Scene {
     bottles: BottleGroup;
     bloodEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
     flameEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
-    showDead: boolean = false;
 
-    nextGameText: Phaser.GameObjects.Text | null = null;
-    nextGame: string | null = null;
-
-    bottleInventory = 3;
-    maxBottleInventory = 3;
+    bottleInventory = BOTTLES_MAX_COUNT;
+    maxBottleInventory = BOTTLES_MAX_COUNT;
     bottleInventoryRefillTimeout: any = null;
     clearBottleInventoryRefillTimeout() {
         if (this.bottleInventoryRefillTimeout) {
@@ -55,6 +51,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
         const refillAndTimeout = () => {
             this.bottleInventory += 1;
+            this.game.events.emit(GameEvents.BottleLoaded);
             if (this.bottleInventory < this.maxBottleInventory) {
                 this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, this.bottleInventoryRefillTime);
             } else {
@@ -63,6 +60,7 @@ export class BaseLevelScene extends Phaser.Scene {
         }
 
         this.bottleInventory -= 1;
+        this.game.events.emit(GameEvents.BottleThrown);
         if (!this.bottleInventoryRefillTimeout && this.bottleInventory < this.maxBottleInventory) {
             this.bottleInventoryRefillTimeout = setTimeout(refillAndTimeout, this.bottleInventoryRefillTime);
         }
@@ -108,7 +106,7 @@ export class BaseLevelScene extends Phaser.Scene {
             }
         });
         this.player?.characterDie();
-        this.showDead = true;
+        this.game.events.emit(GameEvents.PlayerDied);
         setTimeout(() => this.respawnPlayer(), PLAYER_RESPAWN_TIME);
     }
 
@@ -148,11 +146,11 @@ export class BaseLevelScene extends Phaser.Scene {
         this.addEventListeners();
 
         this.input.keyboard?.on('keydown-E', (event: any) => {
-            console.log('throwing bottle');
             if (!this.player.isDead) {
                 this.throwBottle();
             }
         });
+        this.scene.launch(Scenes.GameOverlay);
 
         this.input.keyboard?.on('keydown-Q', (event: any) => {
             console.log('using object');
@@ -210,14 +208,13 @@ export class BaseLevelScene extends Phaser.Scene {
         }
 
         this.player?.idle();
+        this.game.events.emit(GameEvents.PlayerDied);
 
         this.createUI();
     }
 
     addEventListeners() {
         this.webClient?.event.addListener(ServerMessages.State, (data: ServerStateMessage) => {
-          this.nextGame = data.endAt;
-
           this.enemies.forEach(enemy => enemy.destroy());
           this.enemies = [];
           data.objects.filter(obj => obj.type === Objects.Player && this.webClient?.id != obj.id).forEach(obj => {
@@ -241,6 +238,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
           if (data.reset) {
             this.webClient?.event.removeAllListeners();
+            this.scene.stop(Scenes.GameOverlay);
             this.scene.start(Scenes.MainMenu, { serverState: data });
           }
 
@@ -280,7 +278,6 @@ export class BaseLevelScene extends Phaser.Scene {
         this.webClient?.event.addListener(ServerMessages.Dead, (data: ServerDeadMessage) => {
             const enemy = this.enemies.find((enemy: Enemy) => enemy.id === data.id);
             enemy?.characterDie();
-            console.log('received dead message');
         });
 
         this.webClient?.event.addListener(ServerMessages.Respawn, (data: ServerRespawnMessage) => {
@@ -395,32 +392,12 @@ export class BaseLevelScene extends Phaser.Scene {
 
         this.updateUI();
         this.updateItems(time, delta);
-        if (this.showDead) {
-            this.youDiedOverlay.activate();
-            //this.scene.get(Scenes.GameOverlay).G
-            this.showDead = false;
-        }
     }
 
-    bottleImage: StateSprite | null = null!;
-    bottlesStatus: Phaser.GameObjects.Text = null!;
-    inventoryGroup: Phaser.GameObjects.Group = null!;
     powerupOverlay: Phaser.GameObjects.Container = null!;
-    youDiedOverlay: Phaser.GameObjects.Container = null!;
     healthBar: StateSprite[] = [];
 
     createUI(): void {
-        this.inventoryGroup = this.add.group([]);
-
-        this.bottleImage = new StateSprite(this, 0, 1, Spritesheets.Bottles, 1);
-        this.inventoryGroup.add(this.bottleImage.setScale(0.5), true)
-
-        this.bottlesStatus = new Phaser.GameObjects.Text(this, 4, -1, '3/3', { fontSize: '16px', color: '#edebeb' });
-        this.inventoryGroup.add(this.bottlesStatus.setScale(0.35), true)
-
-        this.inventoryGroup.incX(21);
-        this.inventoryGroup.incY(6);
-
         const healthGroup = this.add.group([]);
         for (let i = 0; i < PLAYER_MAX_HEALTH; i++) {
             const heart = new StateSprite(this, -12 * i, 0, Spritesheets.Icons, 0).setScale(0.5);
@@ -434,25 +411,13 @@ export class BaseLevelScene extends Phaser.Scene {
         this.powerupOverlay = new PowerUpOverlay(this, 105, 168, 0);
         this.add.existing(this.powerupOverlay);
 
-        this.youDiedOverlay = new YouDiedOverlay(this, 0, 0, 0);
-        this.add.existing(this.youDiedOverlay);
-
-        this.nextGameText = new Phaser.GameObjects.Text(this, 10, 166, 'Game ends in: 0', { fontSize: '16px', color: '#ffffff' }).setScale(0.3);
-        // this.nextGameText.depth = 100;
-        this.add.existing(this.nextGameText);
-
         this.updateUI();
     }
 
     updateUI(): void {
         const offsetX = this.cameras.main.worldView.x;
-        this.bottleImage?.setX(21 + offsetX);
-        this.bottlesStatus?.setX(21 + 4 + offsetX);
-        this.nextGameText?.setX(10 + offsetX);
         this.powerupOverlay?.setX(105 + offsetX);
-        this.youDiedOverlay?.setX(30 + offsetX);
 
-        this.bottlesStatus?.setText(`${this.bottleInventory}/${this.maxBottleInventory}`);
         this.healthBar.forEach((heart, index) => {
             heart.setX(235 - 12 * index + offsetX)
             if (index < this.health) {
@@ -461,11 +426,6 @@ export class BaseLevelScene extends Phaser.Scene {
                 heart.visible = false;
             }
         });
-
-        if (this.nextGame) {
-            const time = new Date(this.nextGame).getTime() - new Date().getTime();
-            this.nextGameText?.setText(`Game ends in: ${time / 1000}`);
-        }
     }
 
     emitBlood(x: number, y: number, count: number = 16) {
@@ -514,27 +474,31 @@ export class BaseLevelScene extends Phaser.Scene {
             case 0:
                 setTimeout(() => {
                     this.clearBottleInventoryRefillTimeout();
-                    if (this.bottleInventory > 3) {
-                        this.bottleInventory = 3;
+                    if (this.bottleInventory > BOTTLES_MAX_COUNT) {
+                        this.bottleInventory = BOTTLES_MAX_COUNT;
                     } else if (this.bottleInventory == 0) {
                         this.bottleInventory = 1;
                     }
-                    this.maxBottleInventory = 3;
+                    this.maxBottleInventory = BOTTLES_MAX_COUNT;
+                    this.game.events.emit(GameEvents.PowerUpFaded, PowerUps.AdditionalBottles);
                 }, duration)
                 this.clearBottleInventoryRefillTimeout();
                 this.bottleInventory = 10;
                 this.maxBottleInventory = 13;
+                this.game.events.emit(GameEvents.PowerUpPickedUp, PowerUps.AdditionalBottles);
                 break;
             case 1:
                 setTimeout(() => {
                     this.clearBottleInventoryRefillTimeout();
-                    this.bottleInventory = 3;
+                    this.bottleInventory = BOTTLES_MAX_COUNT;
                     this.bottleInventoryRefillTime = 2000;
+                    this.game.events.emit(GameEvents.PowerUpFaded, PowerUps.FasterReload);
                 }, duration)
 
                 this.clearBottleInventoryRefillTimeout();
-                this.bottleInventory = 3;
+                this.bottleInventory = BOTTLES_MAX_COUNT;
                 this.bottleInventoryRefillTime = 500;
+                this.game.events.emit(GameEvents.PowerUpPickedUp, PowerUps.FasterReload);
                 break;
         }
     }

@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Plugins } from "./enums";
 import { SoundManagerPlugin, WebClientPlugin } from "./plugins";
 import { MainMenuScene, PreloadScene, WelcomeScene } from "./scenes";
+import { GameOverlayScene } from "./scenes/game-overlay-scene";
 
 const phaserGame = new Phaser.Game({
   type: Phaser.AUTO,
@@ -15,7 +16,7 @@ const phaserGame = new Phaser.Game({
       gravity: { y: 200 }
     },
   },
-  scene: [PreloadScene, MainMenuScene, WelcomeScene ],
+  scene: [PreloadScene, MainMenuScene, WelcomeScene, GameOverlayScene ],
   backgroundColor: "#000033",
   plugins: {
     global: [
