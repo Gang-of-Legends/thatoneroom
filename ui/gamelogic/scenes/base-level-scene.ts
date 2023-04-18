@@ -14,6 +14,7 @@ import { YouDiedOverlay } from "../objects/you_died_overlay";
 import { ServerRespawnMessage } from "../models/server-respawn-message";
 import { WebClientPlugin } from "../plugins";
 import { PLAYER_MAX_HEALTH, PLAYER_RESPAWN_TIME } from "../constants";
+import { ParticleGenerator } from "../objects/particle-generator";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -170,33 +171,11 @@ export class BaseLevelScene extends Phaser.Scene {
             this.player = new Player(this, 0, 0);
             this.respawnPlayer();
 
-            this.bloodEmitter = this.add.particles(400, 250, Spritesheets.Particles, {
-                frame: [ 4 ],
-                lifespan: 2000,
-                speed: { min: 50, max: 150 },
-                scale: { start: 0.5, end: 0 },
-                gravityY: 150,
-                blendMode: 'NORMAL',
-                emitting: false,
-                particleBringToTop: true,
-                
-            });
+            this.bloodEmitter = ParticleGenerator.createBlood(this);
             this.bloodEmitter.setPosition(this.player.x, this.player.y);
             this.webClient?.wsConnect(this.player.name, this.player.x, this.player.y);
 
-            this.flameEmitter = this.add.particles(0, 0, Spritesheets.Particles,
-            {
-                frame: 4,
-                color: [ 0xfacc22, 0xf89800, 0xf83600, 0x9f0404 ],
-                colorEase: 'quad.out',
-                lifespan: 700,
-                angle: { min: -100, max: -80 },
-                scale: { start: 0.40, end: 0, ease: 'sine.out' },
-                speed: 50,
-                advance: 200,
-                blendMode: 'ADD',
-                emitting: false
-            });
+            this.flameEmitter = ParticleGenerator.createFlame(this);
 
             this.worldLayers.forEach(layer => {
                 if (layer !== null) {

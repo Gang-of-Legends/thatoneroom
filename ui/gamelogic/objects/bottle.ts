@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { StateSprite } from "./ui/state_sprite";
 import { Images, Spritesheets } from "../enums";
 import { Player } from "./player";
+import { ParticleGenerator } from "./particle-generator";
 
 export class Bottle extends Phaser.Physics.Arcade.Sprite {
   playerId: string | null = null;
@@ -13,13 +14,7 @@ export class Bottle extends Phaser.Physics.Arcade.Sprite {
   constructor(scene: Phaser.Scene) {
     super(scene, -1000, -1000, Spritesheets.Bottles, 0);
 
-    this.emitter = this.scene.add.particles(0, 0, Images.ParticleGlass, {
-      frame: 0,
-      scale: { start: 0.4, end: 0 },
-      speed: { min: 0, max: 20 },
-      blendMode: 'BLEND',
-      emitting: false,
-    });
+    this.emitter = ParticleGenerator.createGlassShards(this.scene);
     this.emitter.depth = 100;
   }
 
