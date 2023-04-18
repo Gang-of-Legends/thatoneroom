@@ -1,7 +1,8 @@
 export enum GameEvents {
-    Respawn = "event/Respawn",
+    PlayerRespawned = "event/PlayerRespawned",
     PlayerDied = "event/PlayerDied",
-    DamageTaken = "event/DamageTaken",
+    PlayerHit = "event/PlayerHit",
+    PlayerHealed = "event/PlayerHealed",
     PowerUpPickedUp = "event/PowerUpPickedUp",
     PowerUpFaded = "event/PowerUpFaded",
     BottleThrown = "event/BottleThrown",

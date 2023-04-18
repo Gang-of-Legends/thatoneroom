@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { GameEvents, Images, Objects, PlayerMessages, Plugins, Scenes, ServerMessages, Sounds, Spritesheets, Tilesets } from "../enums";
+import { GameEvents, Images, Objects, PlayerMessages, Plugins, Scenes, ServerMessages, Sounds, Tilesets } from "../enums";
 import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
@@ -74,13 +74,15 @@ export class BaseLevelScene extends Phaser.Scene {
     removeHealth(playerId: string): boolean {
         if (!this.player.isDead) {
             this.health -= 1;
+            this.game.events.emit(GameEvents.PlayerHit);
             this.emitBlood(this.player.x, this.player.y);
             this.playHitSound();
             if (this.health <= 0) {
                 this.die(playerId);
             } else {
                 const refillAndTimeout = () => {
-                    this.health += 1;
+                    this.health = (this.health + 1) % (PLAYER_MAX_HEALTH + 1);
+                    this.game.events.emit(GameEvents.PlayerHealed);
                     if (this.health < PLAYER_MAX_HEALTH) {
                         this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
                     } else {
@@ -113,6 +115,10 @@ export class BaseLevelScene extends Phaser.Scene {
     respawnPlayer(): void {
         const spawnIndex = Math.floor(Math.random() * (this.spawns.length));
         const spawn = this.spawns[spawnIndex];
+
+        this.health = PLAYER_MAX_HEALTH;
+        this.game.events.emit(GameEvents.PlayerRespawned);
+
         this.webClient?.send({
             type: PlayerMessages.Respawn,
             data: {
@@ -121,7 +127,6 @@ export class BaseLevelScene extends Phaser.Scene {
             }
         });
         this.player.spawn(spawn.x ?? 0, spawn.y ?? 0);
-        this.health = PLAYER_MAX_HEALTH;
     }
 
     private sceneConfig: SceneConfig;
@@ -392,22 +397,13 @@ export class BaseLevelScene extends Phaser.Scene {
 
         this.updateUI();
         this.updateItems(time, delta);
+
+        console.log(this.health);
     }
 
     powerupOverlay: Phaser.GameObjects.Container = null!;
-    healthBar: StateSprite[] = [];
 
     createUI(): void {
-        const healthGroup = this.add.group([]);
-        for (let i = 0; i < PLAYER_MAX_HEALTH; i++) {
-            const heart = new StateSprite(this, -12 * i, 0, Spritesheets.Icons, 0).setScale(0.5);
-            this.healthBar.push(heart);
-            healthGroup.add(heart, true);
-        }
-
-        healthGroup.incX(235);
-        healthGroup.incY(7);
-
         this.powerupOverlay = new PowerUpOverlay(this, 105, 168, 0);
         this.add.existing(this.powerupOverlay);
 
@@ -417,15 +413,6 @@ export class BaseLevelScene extends Phaser.Scene {
     updateUI(): void {
         const offsetX = this.cameras.main.worldView.x;
         this.powerupOverlay?.setX(105 + offsetX);
-
-        this.healthBar.forEach((heart, index) => {
-            heart.setX(235 - 12 * index + offsetX)
-            if (index < this.health) {
-                heart.visible = true
-            } else {
-                heart.visible = false;
-            }
-        });
     }
 
     emitBlood(x: number, y: number, count: number = 16) {
