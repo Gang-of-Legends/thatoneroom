@@ -1,0 +1,5 @@
+const PLAYER_MAX_HEALTH: number = 3;
+const PLAYER_SPEED: number = 50;
+const PLAYER_RESPAWN_TIME: number = 5000;
+
+export { PLAYER_MAX_HEALTH, PLAYER_SPEED, PLAYER_RESPAWN_TIME };

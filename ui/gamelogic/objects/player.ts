@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import { PlayerStates, Plugins, Sounds, Spritesheets } from "../enums";
 import { Character } from "./character";
-import { Bottle } from "./bottle";
 import { WebClientPlugin } from "../plugins";
+import { PLAYER_SPEED } from "../constants";
 
 export class Player extends Character {
     private isWalking: boolean;
@@ -17,7 +17,7 @@ export class Player extends Character {
     timer: number = 0;
     idleSent: boolean = false;
 
-    constructor(scene: Phaser.Scene, x: number, y: number, speed=50, jumpVelocity=150, tint: number | null = null) {
+    constructor(scene: Phaser.Scene, x: number, y: number, speed=PLAYER_SPEED, jumpVelocity=150, tint: number | null = null) {
         super(scene, x, y, tint);
 
         if (tint !== null)

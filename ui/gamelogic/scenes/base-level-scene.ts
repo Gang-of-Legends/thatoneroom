@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Images, PlayerMessages, Plugins, Scenes, ServerMessages, Sounds, Spritesheets, Tilesets } from "../enums";
+import { Images, Objects, PlayerMessages, Plugins, Scenes, ServerMessages, Sounds, Spritesheets, Tilesets } from "../enums";
 import { ServerAddPlayerMessage, ServerPlayerMoveMessage, ServerStateMessage } from "../models";
 import { SceneConfig } from "../models/scene-config";
 import { Enemy, Player } from "../objects";
@@ -13,6 +13,7 @@ import { ServerDeadMessage } from "../models/dead";
 import { YouDiedOverlay } from "../objects/you_died_overlay";
 import { ServerRespawnMessage } from "../models/server-respawn-message";
 import { WebClientPlugin } from "../plugins";
+import { PLAYER_MAX_HEALTH, PLAYER_RESPAWN_TIME } from "../constants";
 
 
 export class BaseLevelScene extends Phaser.Scene {
@@ -68,7 +69,7 @@ export class BaseLevelScene extends Phaser.Scene {
         return true;
     }
 
-    health = 3;
+    health = PLAYER_MAX_HEALTH;
     healthRefillTimeout: any = null;
 
     removeHealth(playerId: string): boolean {
@@ -81,7 +82,7 @@ export class BaseLevelScene extends Phaser.Scene {
             } else {
                 const refillAndTimeout = () => {
                     this.health += 1;
-                    if (this.health < 3) {
+                    if (this.health < PLAYER_MAX_HEALTH) {
                         this.healthRefillTimeout = setTimeout(refillAndTimeout, 7000);
                     } else {
                         this.healthRefillTimeout = null;
@@ -107,7 +108,7 @@ export class BaseLevelScene extends Phaser.Scene {
         });
         this.player?.characterDie();
         this.showDead = true;
-        setTimeout(() => this.respawnPlayer(), 5000);
+        setTimeout(() => this.respawnPlayer(), PLAYER_RESPAWN_TIME);
     }
 
     respawnPlayer(): void {
@@ -121,7 +122,7 @@ export class BaseLevelScene extends Phaser.Scene {
             }
         });
         this.player.spawn(spawn.x ?? 0, spawn.y ?? 0);
-        this.health = 3;
+        this.health = PLAYER_MAX_HEALTH;
     }
 
     private sceneConfig: SceneConfig;
@@ -240,7 +241,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
           this.enemies.forEach(enemy => enemy.destroy());
           this.enemies = [];
-          data.objects.filter(obj => obj.type === 'player' && this.webClient?.id != obj.id).forEach(obj => {
+          data.objects.filter(obj => obj.type === Objects.Player && this.webClient?.id != obj.id).forEach(obj => {
               const enemy = new Enemy(this, obj.x, obj.y, obj.id, obj.color);
               this.physics.add.collider(enemy, this.bottles, (enemy, bottle) => this.collideEnemyWithBottle(enemy as Enemy, bottle as Bottle));
               this.enemies.push(enemy);
@@ -249,13 +250,13 @@ export class BaseLevelScene extends Phaser.Scene {
           if (this.player && this.webClient) {
               this.player.id = this.webClient.id;
           }
-          const playerObj = data.objects.find(obj => obj.type === 'player' && obj.id == this.player.id)
+          const playerObj = data.objects.find(obj => obj.type === Objects.Player && obj.id == this.player.id)
           if (playerObj) {
             this.player.setTint(playerObj.color);
           }
 
           this.clearItems();
-          data.objects.filter(obj => obj.type === "item").forEach(obj => {
+          data.objects.filter(obj => obj.type === Objects.Item).forEach(obj => {
             this.spawnItem(obj.id, obj.x, obj.y, obj.item);
           })
 
@@ -288,10 +289,10 @@ export class BaseLevelScene extends Phaser.Scene {
         });
         this.webClient?.event.addListener(ServerMessages.SpawnObject, (data: ServerSpawnObjectMessage) => {
             switch (data.type) {
-                case "bottle":
+                case Objects.Bottle:
                     const bottle = this.bottles.throw(data.x, data.y, data.velocityX, data.velocityY, data.playerID);
                     break
-                case "item":
+                case Objects.Item:
                     this.spawnItem(data.id, data.x, data.y, data.item);
                     break
             }
@@ -387,7 +388,7 @@ export class BaseLevelScene extends Phaser.Scene {
             type: PlayerMessages.PlayerSpawnObject,
             data: {
                 playerID: this.webClient.id!,
-                type: "bottle",
+                type: Objects.Bottle,
                 x: this.player.x,
                 y: this.player.y,
                 velocityX: 150 * (this.player.flipX ? -1 : 1),
@@ -442,7 +443,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.inventoryGroup.incY(6);
 
         const healthGroup = this.add.group([]);
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < PLAYER_MAX_HEALTH; i++) {
             const heart = new StateSprite(this, -12 * i, 0, Spritesheets.Icons, 0).setScale(0.5);
             this.healthBar.push(heart);
             healthGroup.add(heart, true);
