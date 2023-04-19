@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { StateSprite } from "./ui/state_sprite";
 import { Spritesheets } from "../enums";
+import { PowerUps } from "../enums/powerups";
 
 export class PowerUpOverlay extends Phaser.GameObjects.Container {
   item: number;
@@ -27,6 +28,14 @@ export class PowerUpOverlay extends Phaser.GameObjects.Container {
     this.visible = false;
 
     this.setScale(0.7);
+  }
+
+  activateOverlay(item: PowerUps, duration: number) {
+    if (item === PowerUps.AdditionalBottles) {
+      this.activate(0, duration);
+    } else if (item === PowerUps.FasterReload) {
+      this.activate(1, duration);
+    }
   }
 
   activate(item: number, duration: number) {

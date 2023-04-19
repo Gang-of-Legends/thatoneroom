@@ -214,8 +214,6 @@ export class BaseLevelScene extends Phaser.Scene {
 
         this.player?.idle();
         this.game.events.emit(GameEvents.PlayerDied);
-
-        this.createUI();
     }
 
     addEventListeners() {
@@ -298,7 +296,7 @@ export class BaseLevelScene extends Phaser.Scene {
             }
 
             if (data.playerID == this.webClient?.id) {
-                this.powerupOverlay.activate(data.item, 10000);
+                
                 
                 this.handlePowerUp(data.item, 10000);
             }
@@ -394,25 +392,9 @@ export class BaseLevelScene extends Phaser.Scene {
             enemy.update();
         });
 
-
-        this.updateUI();
         this.updateItems(time, delta);
 
         console.log(this.health);
-    }
-
-    powerupOverlay: Phaser.GameObjects.Container = null!;
-
-    createUI(): void {
-        this.powerupOverlay = new PowerUpOverlay(this, 105, 168, 0);
-        this.add.existing(this.powerupOverlay);
-
-        this.updateUI();
-    }
-
-    updateUI(): void {
-        const offsetX = this.cameras.main.worldView.x;
-        this.powerupOverlay?.setX(105 + offsetX);
     }
 
     emitBlood(x: number, y: number, count: number = 16) {

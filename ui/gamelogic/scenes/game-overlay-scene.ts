@@ -5,13 +5,14 @@ import { ServerStateMessage } from "../models";
 import { YouDiedOverlay } from "../objects";
 import { BOTTLES_MAX_COUNT, PLAYER_MAX_HEALTH } from "../constants";
 import { PowerUps } from "../enums/powerups";
+import { PowerUpOverlay } from "../objects/powerup";
 
 export class GameOverlayScene extends Phaser.Scene {
 
     nextGameText: Phaser.GameObjects.Text | null = null;
     nextGame: string | null = null;
 
-    youDiedOverlay: Phaser.GameObjects.Container | null = null;
+    youDiedOverlay: YouDiedOverlay | null = null;
     hearts: Phaser.GameObjects.Image[] = [];
     health: number = PLAYER_MAX_HEALTH;
 
@@ -19,6 +20,8 @@ export class GameOverlayScene extends Phaser.Scene {
     bottleStatus: Phaser.GameObjects.Text | null = null;
     maxBottles: number = BOTTLES_MAX_COUNT;
     bottleCount: number = BOTTLES_MAX_COUNT;
+
+    powerupOverlay: PowerUpOverlay | null = null;
 
     webClient: WebClientPlugin | null = null;
 
@@ -34,6 +37,9 @@ export class GameOverlayScene extends Phaser.Scene {
 
         this.youDiedOverlay = new YouDiedOverlay(this, 96, 0, 0).setScale(3);
         this.add.existing(this.youDiedOverlay);
+
+        this.powerupOverlay = new PowerUpOverlay(this, 580, 680, 0).setScale(3);
+        this.add.existing(this.powerupOverlay);
 
         this.hearts.forEach(h => h.destroy());
         for (let i = 0; i < PLAYER_MAX_HEALTH; i++) {
@@ -64,6 +70,7 @@ export class GameOverlayScene extends Phaser.Scene {
             this.bottleCount++;
         });
         this.game.events.addListener(GameEvents.PowerUpPickedUp, (powerup: PowerUps) => {
+            this.powerupOverlay?.activateOverlay(powerup, 10000);
             switch (powerup) {
                 case PowerUps.AdditionalBottles:
                     this.handleAdditionalBottles();
